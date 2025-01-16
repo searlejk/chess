@@ -36,17 +36,9 @@ public class ChessMove {
         }
 
         ChessMove c = (ChessMove)obj;
-        return(this.startPosition.getRow()==c.startPosition.getRow()) && this.startPosition.getColumn()==c.startPosition.getColumn();
+        return(this.startPosition.getRow()==c.startPosition.getRow()) && this.startPosition.getColumn()==c.startPosition.getColumn() && this.endPosition.getRow()==c.endPosition.getRow() && this.endPosition.getColumn()==c.endPosition.getColumn();
     }
 
-
-    @Override
-    public String toString() {
-        return "ChessMove{" +
-                "startPosition=" + startPosition +
-                ", endPosition=" + endPosition +
-                '}';
-    }
 
     /**
      * @return ChessPosition of starting location
