@@ -125,8 +125,101 @@ public class QueenMovesCalculator {
             i+=1;
         }
 
-        System.out.println(moves);
+        ///  --------- NORTH -----------
+
+        i = 1;
+        while (row+i >0 && row+i<=8){
+            int newrow = row+i;
+            int newcol = col;
+
+            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
+                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
+
+                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    break;
+                }
+                else{
+                    break;
+                }
+            }
+
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            i+=1;
+        }
+
+        ///  ----------- SOUTH  -----------
+
+        i=1;
+        while (row-i >0 && row-i<=8){
+            int newrow = row-i;
+            int newcol = col;
+
+            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
+                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
+
+                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    break;
+                }
+                else{
+                    break;
+                }
+            }
+
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            i+=1;
+        }
+
+        ///  ----------------- EAST -------------
+
+        i=1;
+        while (col+i > 0 && col+i<=8){
+            int newrow = row;
+            int newcol = col+i;
+
+            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
+                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
+
+                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    break;
+                }
+                else{
+                    break;
+                }
+            }
+
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            i+=1;
+        }
+
+
+        ///  ------------- WEST -------------
+
+
+        i=1;
+        while (col-i > 0 && col-i<=8){
+            int newrow = row;
+            int newcol = col-i;
+
+            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
+                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
+
+                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    break;
+                }
+                else{
+                    break;
+                }
+            }
+
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            i+=1;
+        }
+
+
         return moves;
     }
-
 }
