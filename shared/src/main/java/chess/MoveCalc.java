@@ -37,6 +37,11 @@ public class MoveCalc {
             return temp.LegalMoves();
         }
 
+        if (this.type == ChessPiece.PieceType.PAWN){
+            PawnMovesCalculator temp = new PawnMovesCalculator(board,startPosition,type);
+            return temp.LegalMoves();
+        }
+
 
         else{
             throw new RuntimeException("Not implemented");
