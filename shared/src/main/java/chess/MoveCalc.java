@@ -42,6 +42,16 @@ public class MoveCalc {
             return temp.LegalMoves();
         }
 
+        if (this.type == ChessPiece.PieceType.QUEEN){
+            QueenMovesCalculator temp = new QueenMovesCalculator(board,startPosition,type);
+            return temp.LegalMoves();
+        }
+
+        if (this.type == ChessPiece.PieceType.ROOK){
+            RookMovesCalculator temp = new RookMovesCalculator(board,startPosition,type);
+            return temp.LegalMoves();
+        }
+
 
         else{
             throw new RuntimeException("Not implemented");
