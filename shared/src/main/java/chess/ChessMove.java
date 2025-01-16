@@ -11,16 +11,18 @@ import java.util.Objects;
 public class ChessMove {
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
+    private final ChessPiece.PieceType promotion;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         this.startPosition = startPosition;
         this.endPosition = endPosition;
+        this.promotion = promotionPiece;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startPosition, endPosition);
+        return Objects.hash(startPosition, endPosition, promotion);
     }
 
     @Override
@@ -36,7 +38,14 @@ public class ChessMove {
         }
 
         ChessMove c = (ChessMove)obj;
-        return(this.startPosition.getRow()==c.startPosition.getRow()) && this.startPosition.getColumn()==c.startPosition.getColumn() && this.endPosition.getRow()==c.endPosition.getRow() && this.endPosition.getColumn()==c.endPosition.getColumn();
+        boolean test = this.startPosition.getRow()==c.startPosition.getRow();
+        boolean test1 = this.startPosition.getColumn()==c.startPosition.getColumn();
+        boolean test2 = this.endPosition.getRow()==c.endPosition.getRow();
+        boolean test3 = this.endPosition.getColumn()==c.endPosition.getColumn();
+        boolean test4 = this.promotion == c.promotion;
+
+
+        return( test && test1 && test2 && test3 && test4 );
     }
 
 
@@ -61,6 +70,6 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return this.promotion;
     }
 }
