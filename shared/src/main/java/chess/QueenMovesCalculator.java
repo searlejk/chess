@@ -219,7 +219,9 @@ public class QueenMovesCalculator {
             i+=1;
         }
 
-
+        for (ChessMove move : moves){
+            System.out.println("move: "+move.getStartPosition()+" to: "+move.getEndPosition());
+        }
         return moves;
     }
 }

@@ -18,6 +18,12 @@ public class ChessPosition {
     }
 
     @Override
+    public String toString() {
+        String temp = "";
+        return temp+"("+this.getRow()+", "+this.getColumn()+")";
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null){
             System.out.println("Null compared");

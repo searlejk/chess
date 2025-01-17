@@ -54,7 +54,7 @@ public class MoveCalc {
 
 
         else{
-            throw new RuntimeException("Not implemented");
+            throw new RuntimeException("Gave Incorrect Chess Piece Type for MoveCall in MoveCalc Class");
         }
     }
 
