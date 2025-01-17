@@ -36,12 +36,14 @@ public class PawnMovesCalculator {
 
         boolean oneStep = false;
 
+
         ///  --------- WHITE -----------
         /// One Space
         if (row+1 >0 && row+1<=8) {
             if (board.getPiece(new ChessPosition(row, col)).getTeamColor() == WHITE) {
                 int newrow = row + 1;
                 int newcol = col;
+
                 if (board.getPiece(new ChessPosition(newrow, newcol)) != null) {
                     ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow, newcol)).getTeamColor();
 
@@ -49,8 +51,18 @@ public class PawnMovesCalculator {
                         /// No capture forward, only right or left
                     }
                 } else {
-                    moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
-                    oneStep = true;
+
+                    ///  Promotion Code
+                    if (newrow==8) {
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.BISHOP));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.ROOK));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.QUEEN));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.KNIGHT));
+                    }
+                    else {
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        oneStep = true;
+                    }
                 }
 
             }
@@ -83,7 +95,16 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        if (newrow==8) {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.BISHOP));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.ROOK));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.QUEEN));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.KNIGHT));
+                        }
+                        else {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                            oneStep = true;
+                        }
                     }
                 } else {
                     ///  No piece no movement
@@ -101,7 +122,16 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        if (newrow==8) {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.BISHOP));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.ROOK));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.QUEEN));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.KNIGHT));
+                        }
+                        else {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                            oneStep = true;
+                        }
                     }
                 } else {
                     ///  No piece no movement
@@ -110,7 +140,7 @@ public class PawnMovesCalculator {
             }
         }
 
-
+        oneStep = false;
         ///  --------- BLACK -----------
         /// One Space
         if (row-1 >0 && row-1<=8) {
@@ -124,12 +154,21 @@ public class PawnMovesCalculator {
                         /// No capture forward, only right or left
                     }
                 } else {
-                    moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
-                    oneStep = true;
-                }
 
+                    ///  Promotion Code
+                    if (newrow == 1) {
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.BISHOP));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.ROOK));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.QUEEN));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.KNIGHT));
+                    } else {
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        oneStep = true;
+                    }
+                }
             }
         }
+
         /// Two Spaces
         if (row-2 >0 && row-2<=8 && oneStep) {
             if (row==7 && board.getPiece(new ChessPosition(row,col)).getTeamColor() == BLACK) {
@@ -158,7 +197,14 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        if (newrow == 1) {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.BISHOP));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.ROOK));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.QUEEN));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.KNIGHT));
+                        } else {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        }
                     }
                 } else {
                     ///  No piece no movement
@@ -176,7 +222,14 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        if (newrow == 1) {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.BISHOP));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.ROOK));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.QUEEN));
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), ChessPiece.PieceType.KNIGHT));
+                        } else {
+                            moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
+                        }
                     }
                 } else {
                     ///  No piece no movement
