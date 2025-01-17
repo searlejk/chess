@@ -133,4 +133,30 @@ public class ChessBoard {
         this.addPiece(new ChessPosition(8,7),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
         this.addPiece(new ChessPosition(8,8),new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
     }
+
+    /**
+     *
+     *  *** WITHOUT CHECKING ANYTHING ***
+     *
+     *  --- Makes move on Board ---
+     *  Please check:
+     *  1) Piece in start position
+     *  2) Move is legal
+     *
+     */
+
+    public ChessBoard move(ChessPiece piece, ChessMove move){
+        ///  If newSpot is full, clear newSpot
+        if (this.getPiece(move.getEndPosition())!=null) {
+            this.remPiece(move.getEndPosition());
+        }
+
+        ///  Add Piece to newSpot
+        this.addPiece(move.getEndPosition(), piece);
+
+        ///  Clear oldSpot
+        this.remPiece(move.getStartPosition());
+
+        return this;
+    }
 }

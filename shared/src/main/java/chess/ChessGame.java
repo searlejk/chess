@@ -61,87 +61,45 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        /*
-
-        How to account for check when moving a piece
-        Also - How to prevent putting yourself in check
-
-        1) Copy current chess board
-        2) Make move on copied board
-        3) if king is still in danger, move can't be made
-        4) repeat
-        5) return list of updated possible moves
-
-         */
-
         ///  Create new Chess Game
         ChessGame futureGame = new ChessGame();
         ChessBoard futureBoard = this.board;
 
         ///  If there is a piece in the startPosition
         if (futureBoard.getPiece(move.getStartPosition()) != null) {
+            ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
+            TeamColor startTeamColor = piece.getTeamColor();
+
             ///  If there is a piece in the end Position
             if (futureBoard.getPiece(move.getEndPosition()) != null) {
-                ///  If you try to capture your own piece, you can't
-                if (futureBoard.getPiece(move.getEndPosition()).getTeamColor() == futureBoard.getPiece(move.getStartPosition()).getTeamColor()) {
+                TeamColor endTeamColor = futureBoard.getPiece(move.getStartPosition()).getTeamColor();
+
+                if (endTeamColor == startTeamColor) {
                     throw new InvalidMoveException("You can not Capture your own piece");
                 }
-
-                ///  Get Piece && teamColor
-                ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
-                TeamColor teamColor = piece.getTeamColor();
-
-                ///  Clear newSpot
-                futureBoard.remPiece(move.getEndPosition());
-
-                ///  Add Piece to newSpot
-                futureBoard.addPiece(move.getEndPosition(), piece);
-
-                ///  Clear oldSpot
-                futureBoard.remPiece(move.getStartPosition());
-
-                ///  Add futureBoard to futureGame
-                futureGame.board = futureBoard;
-
-                ///  Check futureGame for check
-                boolean check = futureGame.isInCheck(teamColor);
-
-                ///  If in check, throw InvalidMoveExeption
-                if (check) {
-                    throw new InvalidMoveException("Your king would be in danger");
-                }
-                ///  If not in check, make the move
-                else {
-                    this.board = futureBoard;
-                }
-            }else {
-                ///  If there is NOT a piece in the end Position
-                ///  Get Piece && teamColor
-                ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
-                TeamColor teamColor = piece.getTeamColor();
-
-                ///  Clear newSpot
-                futureBoard.remPiece(move.getEndPosition());
-
-                ///  Add Piece to newSpot
-                futureBoard.addPiece(move.getEndPosition(), piece);
-
-                ///  Clear oldSpot
-                futureBoard.remPiece(move.getStartPosition());
-
-                ///  Add futureBoard to futureGame
-                futureGame.board = futureBoard;
-
-                ///  Check futureGame for check
-                boolean check = futureGame.isInCheck(teamColor);
-
-                ///  If in check, throw InvalidMoveExeption
-                if (check) {
-                    throw new InvalidMoveException("Your king would be in danger");
-                }
             }
+
         }else {
             throw new InvalidMoveException("No piece in start Position");
+        }
+
+        ///  Get Piece && teamColor && type
+        ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
+        TeamColor teamColor = piece.getTeamColor();
+        ChessPiece.PieceType type = piece.getPieceType();
+
+
+        ///  Brute Force Move
+        futureBoard.move(piece,move);
+
+        futureGame.board = futureBoard;
+        if (futureGame.isInCheck(teamColor)) {
+            throw new InvalidMoveException("You can't place your king in check");
+        }
+
+        ///  If not in check, make the move
+        else {
+            this.board = futureBoard;
         }
     }
 
