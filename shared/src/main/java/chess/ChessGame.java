@@ -126,6 +126,17 @@ public class ChessGame {
         else {
             this.board = futureBoard;
         }
+
+        TeamColor oppTeamColor;
+
+        if (teamColor== TeamColor.WHITE){
+            oppTeamColor = TeamColor.BLACK;
+        }
+        else{
+            oppTeamColor = TeamColor.WHITE;
+        }
+
+        this.setTeamTurn(oppTeamColor);
     }
 
 
