@@ -75,38 +75,77 @@ public class ChessGame {
          */
 
         ///  Create new Chess Game
-        ChessGame futureBoard = new ChessGame();
+        ChessGame futureGame = new ChessGame();
+        ChessBoard futureBoard = this.board;
 
-        ///  Make move on chess board (in a for loop)
-        ///  Add Chessboard to
-        ///  Then check if the king isincheck
+        ///  If there is a piece in the startPosition
+        if (futureBoard.getPiece(move.getStartPosition()) != null) {
+            ///  If there is a piece in the end Position
+            if (futureBoard.getPiece(move.getEndPosition()) != null) {
+                ///  If you try to capture your own piece, you can't
+                if (futureBoard.getPiece(move.getEndPosition()).getTeamColor() == futureBoard.getPiece(move.getStartPosition()).getTeamColor()) {
+                    throw new InvalidMoveException("You can not Capture your own piece");
+                }
 
+                ///  Get Piece && teamColor
+                ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
+                TeamColor teamColor = piece.getTeamColor();
 
+                ///  Clear newSpot
+                futureBoard.remPiece(move.getEndPosition());
 
+                ///  Add Piece to newSpot
+                futureBoard.addPiece(move.getEndPosition(), piece);
 
-        if (this.isInCheck(this.currTurn)){
-            System.out.println(this.currTurn+" is in check, and can not move");
-        }else {
+                ///  Clear oldSpot
+                futureBoard.remPiece(move.getStartPosition());
 
-            ChessPosition startPosition = move.getStartPosition();
-            ChessPosition endPosition = move.getEndPosition();
+                ///  Add futureBoard to futureGame
+                futureGame.board = futureBoard;
 
-            ///  Save Piece
-            ChessPiece piece = board.getPiece(startPosition);
+                ///  Check futureGame for check
+                boolean check = futureGame.isInCheck(teamColor);
 
-            ///  Remove old Piece
-            board.remPiece(startPosition);
+                ///  If in check, throw InvalidMoveExeption
+                if (check) {
+                    throw new InvalidMoveException("Your king would be in danger");
+                }
+                ///  If not in check, make the move
+                else {
+                    this.board = futureBoard;
+                }
+            }else {
+                ///  If there is NOT a piece in the end Position
+                ///  Get Piece && teamColor
+                ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
+                TeamColor teamColor = piece.getTeamColor();
 
-            /// Kill Piece if there is one
-            if (board.getPiece(endPosition) != null) {
-                board.remPiece(endPosition);
+                ///  Clear newSpot
+                futureBoard.remPiece(move.getEndPosition());
+
+                ///  Add Piece to newSpot
+                futureBoard.addPiece(move.getEndPosition(), piece);
+
+                ///  Clear oldSpot
+                futureBoard.remPiece(move.getStartPosition());
+
+                ///  Add futureBoard to futureGame
+                futureGame.board = futureBoard;
+
+                ///  Check futureGame for check
+                boolean check = futureGame.isInCheck(teamColor);
+
+                ///  If in check, throw InvalidMoveExeption
+                if (check) {
+                    throw new InvalidMoveException("Your king would be in danger");
+                }
             }
-
-            /// Move Piece
-            board.addPiece(endPosition, piece);
+        }else {
+            throw new InvalidMoveException("No piece in start Position");
         }
-        ///throw new RuntimeException("Not implemented");
     }
+
+
 
     /**
      * Determines if the given team is in check
@@ -171,6 +210,7 @@ public class ChessGame {
         }
         return false;
     }
+
 
     /**
      * Determines if the given team is in checkmate
