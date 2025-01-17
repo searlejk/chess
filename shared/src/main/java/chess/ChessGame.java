@@ -65,14 +65,18 @@ public class ChessGame {
         ChessGame futureGame = new ChessGame();
         ChessBoard futureBoard = this.board;
 
+        ///  Declare start and end position
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+
         ///  If there is a piece in the startPosition
-        if (futureBoard.getPiece(move.getStartPosition()) != null) {
-            ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
+        if (futureBoard.getPiece(startPosition) != null) {
+            ChessPiece piece = futureBoard.getPiece(startPosition);
             TeamColor startTeamColor = piece.getTeamColor();
 
             ///  If there is a piece in the end Position
-            if (futureBoard.getPiece(move.getEndPosition()) != null) {
-                TeamColor endTeamColor = futureBoard.getPiece(move.getStartPosition()).getTeamColor();
+            if (futureBoard.getPiece(endPosition) != null) {
+                TeamColor endTeamColor = futureBoard.getPiece(endPosition).getTeamColor();
 
                 if (endTeamColor == startTeamColor) {
                     throw new InvalidMoveException("You can not Capture your own piece");
@@ -83,14 +87,35 @@ public class ChessGame {
             throw new InvalidMoveException("No piece in start Position");
         }
 
-        ///  Get Piece && teamColor && type
-        ChessPiece piece = futureBoard.getPiece(move.getStartPosition());
+        ///  Get Piece && teamColor
+        ChessPiece piece = futureBoard.getPiece(startPosition);
         TeamColor teamColor = piece.getTeamColor();
         ChessPiece.PieceType type = piece.getPieceType();
 
 
-        ///  Brute Force Move
-        futureBoard.move(piece,move);
+        ///  Verify if turn is correct
+        if (this.getTeamTurn()!=teamColor){
+            throw new InvalidMoveException("Its not your turn");
+        }
+
+
+        ///  Get moves
+        Collection<ChessMove> moves = piece.pieceMoves(futureBoard,startPosition);
+
+        ///  If NOT in given moves, then throw Exception
+        if (!moves.contains(move)){
+            throw new InvalidMoveException("Illegal move for this PieceType");
+        }
+
+        if(type == ChessPiece.PieceType.PAWN && move.getPromotionPiece()!=null){
+            ///  Pass Correct Piece into move function
+            ChessPiece promotionalPiece = new ChessPiece(piece.getTeamColor(),move.getPromotionPiece());
+            futureBoard.move(promotionalPiece,move);
+        }
+        else{
+            ///  Any other non-Pawn promotional moves
+            futureBoard.move(piece,move);
+        }
 
         futureGame.board = futureBoard;
         if (futureGame.isInCheck(teamColor)) {
