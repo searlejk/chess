@@ -49,7 +49,7 @@ public class PawnMovesCalculator {
                         /// No capture forward, only right or left
                     }
                 } else {
-                    moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), type));
+                    moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
                     oneStep = true;
                 }
 
@@ -68,7 +68,7 @@ public class PawnMovesCalculator {
                     }
                 }
                 else{
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                 }
             }
         }
@@ -83,7 +83,7 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), type));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
                     }
                 } else {
                     ///  No piece no movement
@@ -101,7 +101,7 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), type));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
                     }
                 } else {
                     ///  No piece no movement
@@ -124,7 +124,7 @@ public class PawnMovesCalculator {
                         /// No capture forward, only right or left
                     }
                 } else {
-                    moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), type));
+                    moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
                     oneStep = true;
                 }
 
@@ -143,7 +143,7 @@ public class PawnMovesCalculator {
                     }
                 }
                 else{
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                 }
             }
         }
@@ -158,7 +158,7 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), type));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
                     }
                 } else {
                     ///  No piece no movement
@@ -176,7 +176,7 @@ public class PawnMovesCalculator {
 
                     if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != teamColor) {
                         ///  Piece, Movement
-                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), type));
+                        moves.add(new ChessMove(new ChessPosition(row, col), new ChessPosition(newrow, newcol), null));
                     }
                 } else {
                     ///  No piece no movement

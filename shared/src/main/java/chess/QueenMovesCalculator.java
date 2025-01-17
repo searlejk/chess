@@ -42,7 +42,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -50,7 +50,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -65,7 +65,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -73,7 +73,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -88,7 +88,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -96,7 +96,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -113,7 +113,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -121,7 +121,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -136,7 +136,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -144,7 +144,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -159,7 +159,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -167,7 +167,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -182,7 +182,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -190,7 +190,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
@@ -207,7 +207,7 @@ public class QueenMovesCalculator {
                 ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
 
                 if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
                     break;
                 }
                 else{
@@ -215,7 +215,7 @@ public class QueenMovesCalculator {
                 }
             }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),type));
+            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
             i+=1;
         }
 
