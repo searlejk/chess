@@ -49,8 +49,28 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+
+
         ChessPiece piece = board.getPiece(startPosition);
-        return piece.pieceMoves(board,startPosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        for (ChessMove move: moves ){
+            try{
+                ChessBoard firstBoard = this.board;
+                ChessGame ogGame = new ChessGame();
+                ogGame.board = firstBoard;
+                ogGame.setTeamTurn(this.getTeamTurn());
+                ogGame.makeMove(move);
+
+
+                if (this.board!=ogGame.board) {
+                    validMoves.add(move);
+                }
+            } catch (InvalidMoveException e) {
+                System.out.println("Move is bad: "+move);
+            }
+        }
+        return validMoves;
     }
 
     /**
