@@ -23,7 +23,7 @@ public class ChessMove {
     @Override
     public String toString() {
         String temp = "";
-        return temp+"Move from: "+this.getStartPosition()+" to "+this.getEndPosition()+".";
+        return temp+"Move from: "+this.getStartPosition()+" to "+this.getEndPosition();
     }
 
     @Override

@@ -54,15 +54,16 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
+
+        ChessBoard firstBoard = this.board;
+        ChessGame ogGame = new ChessGame();
+        ogGame.setBoard(firstBoard);
+        ogGame.setTeamTurn(this.getTeamTurn());
+
+
         for (ChessMove move: moves ){
             try{
-                ChessBoard firstBoard = this.board;
-                ChessGame ogGame = new ChessGame();
-                ogGame.board = firstBoard;
-                ogGame.setTeamTurn(this.getTeamTurn());
                 ogGame.makeMove(move);
-
-
                 if (this.board!=ogGame.board) {
                     validMoves.add(move);
                 }
@@ -233,7 +234,23 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        /*
+
+        1) If in check
+        2) If in stalemate
+        3) Checkmate = true
+
+         */
+
+        boolean check = this.isInCheck(teamColor);
+        boolean inStaleMate = this.isInStalemate(teamColor);
+
+        if (check && inStaleMate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
