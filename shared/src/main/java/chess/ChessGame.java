@@ -3,6 +3,8 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static chess.ChessPiece.PieceType.QUEEN;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -253,6 +255,13 @@ public class ChessGame {
                         /// Create ChessMove Var for that chess piece
                         /// Check if that piece can move from: Its location, to the king's location
                         ChessMove tempMove = new ChessMove(currPosition,king,null);
+                        ///  if White promotion pawn, change tempMove
+                        if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE){
+                            tempMove = new ChessMove(currPosition,king,QUEEN);
+                        }
+                        if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK){
+                            tempMove = new ChessMove(currPosition,king,QUEEN);
+                        }
                         if (board.getPiece(currPosition).pieceMoves(board,currPosition).contains(tempMove)){
                             return true;
                         }
@@ -298,7 +307,23 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        Collection<ChessMove> validMoves = new ArrayList<>();
+
+        ///  Iterate over board to find pieces of teamColor
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if (board.getPiece(new ChessPosition(i, j))!=null && board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
+                    ChessPosition pos = new ChessPosition(i,j);
+                    if (this.validMoves(pos).isEmpty()){
+
+                    }else{
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
