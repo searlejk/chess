@@ -58,37 +58,56 @@ public class ChessGame {
         ChessGame ogGame = new ChessGame();
         ogGame.setBoard(this.board);
         ogGame.setTeamTurn(this.getTeamTurn());
+        boolean killedPiece = false;
+        ChessPiece deadPiece = new ChessPiece(TrueTeamTurn, ChessPiece.PieceType.BISHOP);
 
         for (ChessMove move: moves ){
             try{
+
+                /// If there is a piece in the end position save it
+                if (ogGame.board.getPiece(move.getEndPosition())!=null) {
+                    deadPiece = ogGame.board.getPiece(move.getEndPosition());
+                    killedPiece = true;
+                }
+
+                ogGame.setTeamTurn(piece.getTeamColor());
                 ogGame.makeMove(move);
 
                 ///  If no exception is thrown the code ends here
                 ///  Remove moved piece
                 this.board.remPiece(new ChessPosition(move.getEndPosition().getRow(),move.getEndPosition().getColumn()));
+                if (killedPiece){
+                    this.board.addPiece(new ChessPosition(move.getEndPosition().getRow(),move.getEndPosition().getColumn()),deadPiece);
+                }
 
                 ///  Place piece back
                 this.board.addPiece(startPosition,piece);
 
                 ///  Set turn back so I can check again
-                ogGame.setTeamTurn(TrueTeamTurn);
+                ogGame.setTeamTurn(piece.getTeamColor());
 
+                killedPiece = false;
                 validMoves.add(move);
 
             } catch (InvalidMoveException e) {
                 ///  Remove moved piece
                 this.board.remPiece(new ChessPosition(move.getEndPosition().getRow(),move.getEndPosition().getColumn()));
+                if (killedPiece){
+                    this.board.addPiece(new ChessPosition(move.getEndPosition().getRow(),move.getEndPosition().getColumn()),deadPiece);
+                }
 
                 ///  Place piece back
                 this.board.addPiece(startPosition,piece);
 
                 ///  Set turn back so I can check again
-                ogGame.setTeamTurn(TrueTeamTurn);
+                ogGame.setTeamTurn(piece.getTeamColor());
 
                 ///  Say "MOVE IS BAD"
+                killedPiece = false;
                 System.out.println("Move is bad: "+move);
             }
         }
+
         return validMoves;
     }
 
