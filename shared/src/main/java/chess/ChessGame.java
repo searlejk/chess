@@ -50,24 +50,42 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
-
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
+        TeamColor TrueTeamTurn = this.getTeamTurn();
 
-        ChessBoard firstBoard = this.board;
         ChessGame ogGame = new ChessGame();
-        ogGame.setBoard(firstBoard);
+        ogGame.setBoard(this.board);
         ogGame.setTeamTurn(this.getTeamTurn());
-
 
         for (ChessMove move: moves ){
             try{
                 ogGame.makeMove(move);
-                if (this.board!=ogGame.board) {
-                    validMoves.add(move);
-                }
+
+                ///  If no exception is thrown the code ends here
+                ///  Remove moved piece
+                this.board.remPiece(new ChessPosition(move.getEndPosition().getRow(),move.getEndPosition().getColumn()));
+
+                ///  Place piece back
+                this.board.addPiece(startPosition,piece);
+
+                ///  Set turn back so I can check again
+                ogGame.setTeamTurn(TrueTeamTurn);
+
+                validMoves.add(move);
+
             } catch (InvalidMoveException e) {
+                ///  Remove moved piece
+                this.board.remPiece(new ChessPosition(move.getEndPosition().getRow(),move.getEndPosition().getColumn()));
+
+                ///  Place piece back
+                this.board.addPiece(startPosition,piece);
+
+                ///  Set turn back so I can check again
+                ogGame.setTeamTurn(TrueTeamTurn);
+
+                ///  Say "MOVE IS BAD"
                 System.out.println("Move is bad: "+move);
             }
         }
