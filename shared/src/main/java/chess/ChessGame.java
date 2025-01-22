@@ -3,7 +3,8 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static chess.ChessPiece.PieceType.QUEEN;
+import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -13,7 +14,15 @@ import static chess.ChessPiece.PieceType.QUEEN;
  */
 public class ChessGame {
     private ChessBoard board = new ChessBoard();
-    private ChessGame.TeamColor currTurn = TeamColor.WHITE;
+    private ChessGame.TeamColor currTurn = WHITE;
+
+    ///  Sets all castling to true for white
+    private boolean wkc = true;
+    private boolean wqc = true;
+
+    ///  Sets all castling to true for black
+    private boolean bkc = true;
+    private boolean bqc = true;
 
     public ChessGame() {
         this.board.resetBoard();
@@ -110,6 +119,126 @@ public class ChessGame {
             }
         }
 
+        ///  If the team going is not in check
+        boolean proceed = false;
+        if (TrueTeamTurn== WHITE){
+            if (this.wqc | this.wkc){
+                proceed = true;
+            }
+        }
+        if (TrueTeamTurn==TeamColor.BLACK){
+            if (this.bqc | this.bkc){
+                proceed = true;
+            }
+        }
+
+        if (proceed){
+            if (!this.isInCheck(TrueTeamTurn)){
+                if (TrueTeamTurn== WHITE){
+                    if (this.wqc){
+                        ChessPosition empty1 = new ChessPosition(1,3);
+                        ChessPosition empty2 = new ChessPosition(1,4);
+
+                        if (this.board.getPiece(empty1)==null && this.board.getPiece(empty2)==null){
+                            ///  Make board with extra kings and check for check
+                            ChessPiece whiteKing = new ChessPiece(WHITE,KING);
+
+                            this.board.addPiece(empty1,whiteKing);
+                            this.board.addPiece(empty2,whiteKing);
+
+                            ogGame.setBoard(this.board);
+                            ogGame.setTeamTurn(WHITE);
+
+                            ///  If no check, then add move
+                            if(!ogGame.isInCheck(WHITE)){
+                                ///  Add move here to valid Moves
+                            }
+
+                            this.board.remPiece(empty1);
+                            this.board.remPiece(empty2);
+                            ///  Add White Queen Side Castle move as option
+                        }
+                    }
+                    if (this.wkc){
+                        ChessPosition empty1 = new ChessPosition(1,6);
+                        ChessPosition empty2 = new ChessPosition(1,7);
+
+                        if (this.board.getPiece(empty1)==null && this.board.getPiece(empty2)==null) {
+                            ///  Make board with extra kings and check for check
+                            ChessPiece whiteKing = new ChessPiece(WHITE, KING);
+
+                            this.board.addPiece(empty1, whiteKing);
+                            this.board.addPiece(empty2, whiteKing);
+
+                            ogGame.setBoard(this.board);
+                            ogGame.setTeamTurn(WHITE);
+
+                            ///  If no check, then add move
+                            if (!ogGame.isInCheck(WHITE)) {
+                                ///  Add move here to valid Moves
+                            }
+
+                            this.board.remPiece(empty1);
+                            this.board.remPiece(empty2);
+
+                        }
+                    }
+                }
+                if (TrueTeamTurn==TeamColor.BLACK){
+                    if (this.bqc){
+                        ChessPosition empty1 = new ChessPosition(8,3);
+                        ChessPosition empty2 = new ChessPosition(8,4);
+
+                        if (this.board.getPiece(empty1)==null && this.board.getPiece(empty2)==null){
+                            ///  Make board with extra kings and check for check
+                            ChessPiece blackKing = new ChessPiece(TeamColor.BLACK,KING);
+
+                            this.board.addPiece(empty1,blackKing);
+                            this.board.addPiece(empty2,blackKing);
+
+                            ogGame.setBoard(this.board);
+                            ogGame.setTeamTurn(TeamColor.BLACK);
+
+                            ///  If no check, then add move
+                            if(!ogGame.isInCheck(TeamColor.BLACK)){
+                                ///  Add move here to valid Moves
+                            }
+
+                            this.board.remPiece(empty1);
+                            this.board.remPiece(empty2);
+                            ///  Add White Queen Side Castle move as option
+                        }
+                    }
+                    if (this.bkc){
+                        ChessPosition empty1 = new ChessPosition(8,6);
+                        ChessPosition empty2 = new ChessPosition(8,7);
+
+                        if (this.board.getPiece(empty1)==null && this.board.getPiece(empty2)==null) {
+                            ///  Make board with extra kings and check for check
+                            ChessPiece blackKing = new ChessPiece(TeamColor.BLACK, KING);
+
+                            this.board.addPiece(empty1, blackKing);
+                            this.board.addPiece(empty2, blackKing);
+
+                            ogGame.setBoard(this.board);
+                            ogGame.setTeamTurn(TeamColor.BLACK);
+
+                            ///  If no check, then add move
+                            if (!ogGame.isInCheck(TeamColor.BLACK)) {
+                                ///  Add move here to valid Moves
+                            }
+
+                            this.board.remPiece(empty1);
+                            this.board.remPiece(empty2);
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         return validMoves;
     }
 
@@ -184,16 +313,84 @@ public class ChessGame {
 
         ///  If not in check, make the move
         else {
+
+            /*
+
+            ***** THIS CHECKS THAT VALID PIECES ARE ON THE BOARD AND HAVEN'T MOVED FOR CASTLING *****
+
+             */
+
+            ///  IF moving a KING set Castling false for that team color
+            if (piece.getPieceType()==KING){
+                if (piece.getTeamColor() == WHITE){
+                    this.wkc = false;
+                    this.wqc = false;
+                }
+                if (piece.getTeamColor() == TeamColor.BLACK){
+                    this.bkc = false;
+                    this.bqc = false;
+                }
+            }
+            ///  IF moving a left-side ROOK set Castling false
+            if (piece.getPieceType()==ROOK){
+                /// If left side rook
+                if (move.getStartPosition().getColumn()==1){
+                    if (piece.getTeamColor()== WHITE){
+                        this.wqc = false;
+                    }
+                    if (piece.getTeamColor()==TeamColor.BLACK){
+                        this.bqc = false;
+                    }
+                }
+                /// If right side rook
+                if (move.getStartPosition().getColumn()==8){
+                    if (piece.getTeamColor()== WHITE){
+                        this.wkc = false;
+                    }
+                    if (piece.getTeamColor()==TeamColor.BLACK){
+                        this.bkc = false;
+                    }
+                }
+            }
+
+
+            Collection<ChessPosition> rookPositions = new ArrayList<>();
+            rookPositions.add(new ChessPosition(1,1));
+            rookPositions.add(new ChessPosition(1,8));
+            rookPositions.add(new ChessPosition(8,1));
+            rookPositions.add(new ChessPosition(8,8));
+
+
+            if (rookPositions.contains(move.getEndPosition())) {
+                ChessPiece endPiece = this.board.getPiece(move.getEndPosition());
+                if (endPiece.getTeamColor() == WHITE) {
+                    if (move.getEndPosition().getColumn() == 8){
+                        this.wkc = false;
+                    }
+                    else if (move.getEndPosition().getColumn()==1){
+                        this.wqc = false;
+                    }
+                }
+                if (endPiece.getTeamColor() == TeamColor.BLACK) {
+                    if (move.getEndPosition().getColumn() == 8){
+                        this.bkc = false;
+                    }
+                    else if (move.getEndPosition().getColumn()==1){
+                        this.bqc = false;
+                    }
+                }
+            }
+
             this.board = futureBoard;
         }
 
         TeamColor oppTeamColor;
 
-        if (teamColor== TeamColor.WHITE){
+        if (teamColor== WHITE){
             oppTeamColor = TeamColor.BLACK;
         }
         else{
-            oppTeamColor = TeamColor.WHITE;
+            oppTeamColor = WHITE;
         }
 
         this.setTeamTurn(oppTeamColor);
@@ -215,13 +412,13 @@ public class ChessGame {
         3)  if they can, the king is in check
 
          */
-        TeamColor oppColor = TeamColor.WHITE;
+        TeamColor oppColor = WHITE;
 
-        if (teamColor == TeamColor.WHITE){
+        if (teamColor == WHITE){
             oppColor = TeamColor.BLACK;
         }
         if (teamColor == TeamColor.BLACK){
-            oppColor = teamColor.WHITE;
+            oppColor = WHITE;
         }
 
         ///  Find king of team color:
@@ -256,7 +453,7 @@ public class ChessGame {
                         /// Check if that piece can move from: Its location, to the king's location
                         ChessMove tempMove = new ChessMove(currPosition,king,null);
                         ///  if White promotion pawn, change tempMove
-                        if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE){
+                        if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == WHITE){
                             tempMove = new ChessMove(currPosition,king,QUEEN);
                         }
                         if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK){
@@ -292,8 +489,8 @@ public class ChessGame {
 
         TeamColor trueTeamColor = this.getTeamTurn();
 
-        if (this.getTeamTurn() == TeamColor.WHITE){
-            trueTeamColor = TeamColor.WHITE;
+        if (this.getTeamTurn() == WHITE){
+            trueTeamColor = WHITE;
         }
         if (this.getTeamTurn() == TeamColor.BLACK){
             trueTeamColor = TeamColor.BLACK;
@@ -345,8 +542,8 @@ public class ChessGame {
 
         TeamColor trueTeamColor = this.getTeamTurn();
 
-        if (this.getTeamTurn() == TeamColor.WHITE){
-            trueTeamColor = TeamColor.WHITE;
+        if (this.getTeamTurn() == WHITE){
+            trueTeamColor = WHITE;
         }
         if (this.getTeamTurn() == TeamColor.BLACK){
             trueTeamColor = TeamColor.BLACK;
