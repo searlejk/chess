@@ -536,7 +536,7 @@ public class ChessGame {
         3) Checkmate = true
 
          */
-        boolean InStalemate = true;
+        boolean InStalemate = false;
 
         TeamColor trueTeamColor = this.getTeamTurn();
 
@@ -547,27 +547,24 @@ public class ChessGame {
             trueTeamColor = TeamColor.BLACK;
         }
 
-        while (InStalemate==true) {
-            for (int i = 1; i < 9; i++) {
-                for (int j = 1; j < 9; j++) {
-                    ///  If there is a chess piece && Its team color is the one we are checking
-                    if (board.getPiece(new ChessPosition(i, j)) != null && board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ///  If there is a chess piece && Its team color is the one we are checking
+                if (board.getPiece(new ChessPosition(i, j))!=null && board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
 
-                        ///  See if it has any validMoves
-                        ChessPosition pos = new ChessPosition(i, j);
-                        this.setTeamTurn(trueTeamColor);
-                        if (this.validMoves(pos).size() == 0) {
+                    ///  See if it has any validMoves
+                    ChessPosition pos = new ChessPosition(i,j);
+                    this.setTeamTurn(trueTeamColor);
+                    if (this.validMoves(pos).size() == 0){
 
-                        } else {
-                            InStalemate = false;
-                            break;
-                        }
+                    }else{
+                        InStalemate = false;
                     }
                 }
             }
-            break;
         }
 
+        InStalemate = true;
         boolean check = this.isInCheck(teamColor);
 
 
