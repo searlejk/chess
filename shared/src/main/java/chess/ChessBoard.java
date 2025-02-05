@@ -5,6 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.*;
+import static chess.ChessPiece.PieceType.ROOK;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -15,6 +20,70 @@ public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
         
+    }
+
+    @Override
+    public String toString() {
+        int[] list = new int[]{1,2,3,4,5,6,7,8};
+        String superString = "\n";
+
+        for (int i : list){
+            for (int j : list){
+                ChessPosition pos = new ChessPosition(i,j);
+                if (this.getPiece(pos)!=null){
+                    ChessPiece.PieceType type = this.getPiece(pos).getPieceType();
+                    ChessGame.TeamColor color = this.getPiece(pos).getTeamColor();
+
+                    if (color==WHITE){
+                        if (type==PAWN){
+                            superString+="|P|";
+                        }
+                        if (type==KING){
+                            superString+="|K|";
+                        }
+                        if (type==QUEEN){
+                            superString+="|Q|";
+                        }
+                        if (type==KNIGHT){
+                            superString+="|N|";
+                        }
+                        if (type==BISHOP){
+                            superString+="|B|";
+                        }
+                        if (type==ROOK){
+                            superString+="|R|";
+                        }
+                    }
+                    else if (color==BLACK){
+                        if (type==PAWN){
+                            superString+="|p|";
+                        }
+                        if (type==KING){
+                            superString+="|k|";
+                        }
+                        if (type==QUEEN){
+                            superString+="|q|";
+                        }
+                        if (type==KNIGHT){
+                            superString+="|n|";
+                        }
+                        if (type==BISHOP){
+                            superString+="|b|";
+                        }
+                        if (type==ROOK){
+                            superString+="|r|";
+                        }
+
+                    }
+
+                }
+                else{
+                    superString+="| |";
+                }
+            }
+            superString+="\n";
+        }
+        return superString;
     }
 
     @Override
