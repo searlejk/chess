@@ -1,0 +1,12 @@
+To do their work, service classes need to make heavy use
+of the Model classes and Data Access classes described above.
+
+Each service method receives a Request object,
+containing all the information it needs to do its work.
+
+
+public class UserService {
+	public RegisterResult register(RegisterRequest registerRequest) {}
+	public LoginResult login(LoginRequest loginRequest) {}
+	public void logout(LogoutRequest logoutRequest) {}
+}
