@@ -1,5 +1,6 @@
 package server;
 
+import server.handlers.RegisterHandler;
 import spark.*;
 
 public class Server {
@@ -11,6 +12,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", (req, res) -> {
+            (new RegisterHandler()).handleRequest(req,res);
             return "post user";
         });
 
