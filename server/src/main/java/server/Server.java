@@ -1,11 +1,9 @@
 package server;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessProvider;
 import dataaccess.MemoryDataAccess;
-import server.handlers.ListGamesHandler;
-import server.handlers.LoginHandler;
-import server.handlers.LogoutHandler;
-import server.handlers.RegisterHandler;
+import server.handlers.*;
 import spark.*;
 
 public class Server {
@@ -35,6 +33,9 @@ public class Server {
 
         // ListGames EndPoint
         Spark.get("/game", (req, res) -> (new ListGamesHandler()).handleListGames(req,res));
+
+        // CreateGame EndPoint
+        Spark.post("/game", (req, res) -> (new CreateGameHandler()).handleCreateGame(req,res));
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();

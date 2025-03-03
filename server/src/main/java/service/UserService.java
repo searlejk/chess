@@ -1,22 +1,16 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import dataaccess.DataAccessProvider;
 import model.*;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
-    private static final MemoryDataAccess dataAccess = new MemoryDataAccess();
+    private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
 
-    /*
-        I want to do this
-        1) Get user to see if it exists
-        2) if not then CreateUser
-        3) CreateAuth
-        4) return register result
-         */
     public static AuthData makeAuthData(String username) {
         String authToken = UUID.randomUUID().toString();
         return new AuthData(authToken,username);
@@ -35,7 +29,7 @@ public class UserService {
         ///  Otherwise
         ///  1) add new user
         UserData user = new UserData(username,password,email);
-        dataAccess.addUserData(user);
+        dataAccess.addUser(user);
 
         ///  2) Create authToken and store in authData
         AuthData authData = makeAuthData(username);
@@ -70,11 +64,12 @@ public class UserService {
 
     public static LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException {
         String authToken = logoutRequest.authToken();
+        UserData user = dataAccess.getUserByAuth(authToken);
 
         ///  if there is a user with that authToken
-        if (dataAccess.getUserByAuth(authToken)!=null){
+        if (user!=null){
             ///  Clear their authToken data
-            dataAccess.deleteAuth(dataAccess.getUserByAuth(authToken));
+            dataAccess.deleteAuth(authToken);
         } else{
             ///  if there is NO user with that authToken
             throw new DataAccessException("No User with authToken: "+authToken);

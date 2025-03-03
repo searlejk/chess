@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.LogoutRequest;
 import model.LogoutResult;
-import model.RegisterRequest;
-import model.RegisterResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -14,11 +12,15 @@ public class LogoutHandler {
     public String handleLogout(Request req, Response res) {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
-        for (String header : req.headers()) {
-            System.out.println(header + ": " + req.headers(header));
-        }
+//        for (String header : req.headers()) {
+//            System.out.println(header + ": " + req.headers(header));
+//        }
 
         String authToken = req.headers("Authorization");
+        if (authToken == null) {
+            res.status(401);
+            return serializer.toJson(new LogoutResult());
+        }
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
 
         LogoutResult logoutResult;

@@ -8,26 +8,29 @@ import spark.Request;
 import spark.Response;
 import service.GameService;
 
-public class ListGamesHandler {
-    public String handleListGames(Request req, Response res) {
+public class CreateGameHandler {
+    public String handleCreateGame(Request req, Response res) {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
 
+        GameName gameName = serializer.fromJson(req.body(), GameName.class);
+        String trueGameName = gameName.gameName();
         String authToken = req.headers("Authorization");
-        ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+        CreateGameRequest createGameRequest = new CreateGameRequest(trueGameName,authToken);
 
-        ListGamesResult listGamesResult;
+
+
+        CreateGameResult createGameResult = null;
 
         try{
-            listGamesResult = GameService.listGames(listGamesRequest);
+            createGameResult = GameService.createGame(createGameRequest);
             res.status(200);
         }
         catch(DataAccessException e){
             res.status(400);
-            listGamesResult = new ListGamesResult(null);
         }
 
-        String answer = serializer.toJson(listGamesResult);
+        String answer = serializer.toJson(createGameResult);
         System.out.println("Generated Response: " + answer);
         return answer;
     }
