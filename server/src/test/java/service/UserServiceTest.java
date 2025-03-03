@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessProvider;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
+import model.RegisterRequest;
 import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,6 @@ class UserServiceTest {
 
     @AfterEach
     void tearDown() {
-        ///this.data = new MemoryDataAccess();
     }
 
     @Test
@@ -49,8 +49,22 @@ class UserServiceTest {
     }
 
     @Test
-    void register() {
+    void register_DoubleRegister_throwsException() {
+        RegisterRequest req = new RegisterRequest("username", "password", "email");
 
+        assertDoesNotThrow(() -> UserService.register(req),
+                "No Throw");
+
+        assertThrows(DataAccessException.class, () -> UserService.register(req),
+                "Yes Should Throw");
+    }
+
+    @Test
+    void register_CorrectRegister() {
+        RegisterRequest req = new RegisterRequest("username", "password", "email");
+
+        assertDoesNotThrow(() -> UserService.register(req),
+                    "No Throw");
     }
 
     @Test
