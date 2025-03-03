@@ -2,7 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
+import Exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
 
@@ -52,27 +52,14 @@ public class GameService {
     public static EmptyResult joinGame(JoinRequest joinRequest) throws DataAccessException {
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
-        String teamColor = joinRequest.playerColor().toString();
+        ChessGame.TeamColor teamColor = joinRequest.playerColor();
 
-        if (teamColor== "WHITE"){
-            ChessGame.TeamColor newColor = ChessGame.TeamColor.WHITE;
+        UserService.checkAuthToken(authToken);
+
+        ///  if the game doesn't exist
+        if (dataAccess.getGame(gameID)==null) {
+            throw new
         }
-        if (teamColor=="BLACK"){
-            ChessGame.TeamColor newColor = ChessGame.TeamColor.BLACK;
-        } else {
-            throw new DataAccessException("Color not Black or white: ");
-        }
-
-        if (dataAccess.getUserByAuth(authToken)!=null){
-            ///  Do nothing
-
-        } else{
-            ///  if there is NO user with that authToken
-            throw new DataAccessException("No User with authToken: " + authToken);
-        }
-
-        ///  if the game exists
-        if (dataAccess.getGame(gameID)!=null) {
             ///  add username to correct color in gamedata
             /*
             1) get username from authtoken userdata

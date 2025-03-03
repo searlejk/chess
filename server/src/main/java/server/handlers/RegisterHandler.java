@@ -1,6 +1,6 @@
 package server.handlers;
 
-import dataaccess.DataAccessException;
+import Exceptions.DataAccessException;
 import model.ErrorResult;
 import model.RegisterRequest;
 import model.RegisterResult;

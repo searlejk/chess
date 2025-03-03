@@ -1,15 +1,24 @@
 package service;
 
+import Exceptions.IncorrectCredentialsException;
+import Exceptions.InvalidAuthToken;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
+import Exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
-
 import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
     private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
+
+    public static void checkAuthToken(String authToken) throws DataAccessException {
+        if (dataAccess.getUserByAuth(authToken)!=null){
+            return;
+        }else {
+            throw new InvalidAuthToken("Error: authToken not valid: " + authToken);
+        }
+    }
 
     public static void clearUsersAndAuth(){
         dataAccess.clearUsersAndAuth();
@@ -45,24 +54,24 @@ public class UserService {
         String username = loginRequest.username();
         String password = loginRequest.password();
 
-        ///  if username is in database
-        if (dataAccess.getUser(username)!=null){
-            /// If password matches
-            if (Objects.equals(dataAccess.getUser(username).password(), password)){
-                // Do nothing if everything is correct, thus hitting the block below
-            } else{
-                throw new DataAccessException("Incorrect password");
-            }
 
-        } else{
-            throw new DataAccessException("Username not in database");
+
+        ///  if username is missing
+        if (dataAccess.getUser(username)==null) {
+            /// Throw error
+            throw new IncorrectCredentialsException("Username not in database");
+        } else {
+            ///  if username in database
+            if (!Objects.equals(dataAccess.getUser(username).password(), password)) {
+                throw new IncorrectCredentialsException("Incorrect password");
+            } else {
+            ///  if username & password correct:
+                AuthData authData = makeAuthData(username);
+                dataAccess.addAuthData(authData);
+                return new LoginResult(username,authData.authToken());
+            }
         }
 
-        ///  1) Create authToken and store in authData
-        AuthData authData = makeAuthData(username);
-        dataAccess.addAuthData(authData);
-
-        return new LoginResult(username,authData.authToken());
     }
 
     public static EmptyResult logout(LogoutRequest logoutRequest) throws DataAccessException {
@@ -75,7 +84,7 @@ public class UserService {
             dataAccess.deleteAuth(authToken);
         } else{
             ///  if there is NO user with that authToken
-            throw new DataAccessException("No User with authToken: "+authToken);
+            throw new DataAccessException("Error: No User with authToken: "+authToken);
         }
 
         return new EmptyResult();

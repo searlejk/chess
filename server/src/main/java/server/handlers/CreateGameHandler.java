@@ -1,7 +1,7 @@
 package server.handlers;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import Exceptions.DataAccessException;
 import model.*;
 import service.UserService;
 import spark.Request;
@@ -17,7 +17,15 @@ public class CreateGameHandler {
         String trueGameName = gameName.gameName();
         String authToken = req.headers("Authorization");
         CreateGameRequest createGameRequest = new CreateGameRequest(trueGameName,authToken);
+        ErrorResult errorResult;
 
+        try {
+            UserService.checkAuthToken(authToken);
+        } catch(DataAccessException | NullPointerException e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: Invalid AuthToken");
+            return serializer.toJson(errorResult);
+        }
 
 
         CreateGameResult createGameResult = null;
@@ -25,6 +33,7 @@ public class CreateGameHandler {
         try{
             createGameResult = GameService.createGame(createGameRequest);
             res.status(200);
+
         }
         catch(DataAccessException e){
             res.status(400);
