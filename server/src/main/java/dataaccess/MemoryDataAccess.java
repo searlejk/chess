@@ -18,6 +18,10 @@ public class MemoryDataAccess implements DataAccess {
         return Users.values();
     }
 
+    public Collection<AuthData> listAuthDatas() {
+        return authData.values();
+    }
+
     public UserData addUser(UserData user) {
         user = new UserData(user.username(), user.password(),user.email());
 
@@ -48,5 +52,22 @@ public class MemoryDataAccess implements DataAccess {
 
     public void addGame(GameData gameData, int gameID) {
         Games.put(gameID,gameData);
+    }
+
+    public GameData getGame(int gameID){
+        return Games.get(gameID);
+    }
+
+    public void remGame(int gameID){
+        Games.remove(gameID);
+    }
+
+    public void clearUsersAndAuth() {
+        authData.clear();
+        Users.clear();
+    }
+
+    public void clearGames() {
+        Games.clear();
     }
 }

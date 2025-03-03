@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.DataAccessProvider;
 import dataaccess.MemoryDataAccess;
 import server.handlers.*;
@@ -37,8 +38,19 @@ public class Server {
         // CreateGame EndPoint
         Spark.post("/game", (req, res) -> (new CreateGameHandler()).handleCreateGame(req,res));
 
+        // CreateGame EndPoint
+        Spark.put("/game", (req, res) -> (new JoinGameHandler()).handleJoinGame(req,res));
+
+        // Clear EndPoint
+        Spark.delete("/db", (req, res) -> (new ClearHandler()).handleClear(req,res));
+
+        Spark.exception(DataAccessException.class, (ex, req, res) -> {
+            res.status(400);
+            res.body("{\"message\":\"" + ex.getMessage() + "\"}");
+        });
+
         //This line initializes the server and can be removed once you have a functioning endpoint
-        Spark.init();
+        ///Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();

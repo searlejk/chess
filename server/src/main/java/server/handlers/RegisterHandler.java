@@ -28,15 +28,11 @@ public class RegisterHandler {
 
         }
         catch(DataAccessException e){
-            res.status(401);
-            registerResult = new RegisterResult("username already taken",null);
+            res.status(403);
+            registerResult = new RegisterResult("Error: Username Unavailable",null);
         }
 
-        if (registerResult.authToken() == null) {
-            res.status(400);
-        } else {
-            res.status(200);
-        }
+        res.status(200);
 
         String answer = serializer.toJson(registerResult);
         System.out.println("Generated Response: " + answer);

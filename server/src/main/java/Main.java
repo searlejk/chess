@@ -13,7 +13,5 @@ public class Main {
         Server temp = new Server();
         temp.run(8080);
 
-
-
     }
 }

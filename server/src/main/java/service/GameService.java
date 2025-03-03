@@ -11,6 +11,10 @@ import static org.eclipse.jetty.util.LazyList.size;
 public class GameService {
     private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
 
+    public static void clearGames(){
+        dataAccess.clearGames();
+    }
+
     public static ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException{
         String authToken = listGamesRequest.authToken();
 
@@ -35,7 +39,7 @@ public class GameService {
 
         } else{
             ///  if there is NO user with that authToken
-            throw new DataAccessException("No User with authToken: "+authToken);
+            throw new DataAccessException("No User with authToken: " + authToken);
         }
 
         int gameID = size(dataAccess.listGames());
@@ -44,4 +48,64 @@ public class GameService {
 
         return new CreateGameResult(gameID);
     }
+
+    public static EmptyResult joinGame(JoinRequest joinRequest) throws DataAccessException {
+        int gameID = joinRequest.gameID();
+        String authToken = joinRequest.authToken();
+        String teamColor = joinRequest.playerColor().toString();
+
+        if (teamColor== "WHITE"){
+            ChessGame.TeamColor newColor = ChessGame.TeamColor.WHITE;
+        }
+        if (teamColor=="BLACK"){
+            ChessGame.TeamColor newColor = ChessGame.TeamColor.BLACK;
+        } else {
+            throw new DataAccessException("Color not Black or white: ");
+        }
+
+        if (dataAccess.getUserByAuth(authToken)!=null){
+            ///  Do nothing
+
+        } else{
+            ///  if there is NO user with that authToken
+            throw new DataAccessException("No User with authToken: " + authToken);
+        }
+
+        ///  if the game exists
+        if (dataAccess.getGame(gameID)!=null) {
+            ///  add username to correct color in gamedata
+            /*
+            1) get username from authtoken userdata
+            2) get gameData
+            3) delete old game data
+            4) make new gameData with username added to WHITE or BLACK
+
+             */
+            UserData user = dataAccess.getUserByAuth(authToken);
+            String username = user.username();
+            GameData gamedata = dataAccess.getGame(gameID);
+            dataAccess.remGame(gameID);
+            GameData newGameData = null;
+            if (teamColor!=null) {
+                if (teamColor == "WHITE") {
+                    newGameData = new GameData(gameID, username, gamedata.blackUsername(), gamedata.gameName(), gamedata.game());
+                }
+                if (teamColor == "BLACK") {
+                    newGameData = new GameData(gameID, gamedata.whiteUsername(), username, gamedata.gameName(), gamedata.game());
+                } else {
+                    throw new DataAccessException("Incorrect Color Type given: " + teamColor);
+                }
+            } else{
+                throw new DataAccessException("null color: " + teamColor);
+            }
+            dataAccess.addGame(newGameData, gameID);
+
+        } else {
+            throw new DataAccessException("No such game with gameID: " + gameID);
+        }
+
+        return new EmptyResult();
+
+    }
+
 }

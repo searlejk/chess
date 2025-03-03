@@ -11,6 +11,9 @@ import java.util.UUID;
 public class UserService {
     private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
 
+    public static void clearUsersAndAuth(){
+        dataAccess.clearUsersAndAuth();
+    }
     public static AuthData makeAuthData(String username) {
         String authToken = UUID.randomUUID().toString();
         return new AuthData(authToken,username);
@@ -62,7 +65,7 @@ public class UserService {
         return new LoginResult(username,authData.authToken());
     }
 
-    public static LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException {
+    public static EmptyResult logout(LogoutRequest logoutRequest) throws DataAccessException {
         String authToken = logoutRequest.authToken();
         UserData user = dataAccess.getUserByAuth(authToken);
 
@@ -75,7 +78,7 @@ public class UserService {
             throw new DataAccessException("No User with authToken: "+authToken);
         }
 
-        return new LogoutResult();
+        return new EmptyResult();
     }
 
 }

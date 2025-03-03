@@ -17,4 +17,16 @@ public interface DataAccess {
     Collection<GameData> listGames();
 
     void addGame(GameData gameData,int gameID);
+
+    GameData getGame(int gameID);
+
+    void remGame(int gameID);
+
+    void clearUsersAndAuth();
+
+    void clearGames();
+
+    Collection<UserData> listUserDatas();
+
+    Collection<AuthData> listAuthDatas();
 }

@@ -21,7 +21,6 @@ public class LoginHandler {
 
         try{
             loginResult = UserService.login(loginRequest);
-
         }
         catch(DataAccessException e){
             res.status(401);

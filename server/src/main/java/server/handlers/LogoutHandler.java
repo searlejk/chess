@@ -3,7 +3,7 @@ package server.handlers;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.LogoutRequest;
-import model.LogoutResult;
+import model.EmptyResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -19,22 +19,22 @@ public class LogoutHandler {
         String authToken = req.headers("Authorization");
         if (authToken == null) {
             res.status(401);
-            return serializer.toJson(new LogoutResult());
+            return serializer.toJson(new EmptyResult());
         }
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
 
-        LogoutResult logoutResult;
+        EmptyResult emptyResult;
 
         try{
-            logoutResult = UserService.logout(logoutRequest);
+            emptyResult = UserService.logout(logoutRequest);
             res.status(200);
         }
         catch(DataAccessException e){
             res.status(400);
-            logoutResult = new LogoutResult();
+            emptyResult = new EmptyResult();
         }
 
-        String answer = serializer.toJson(logoutResult);
+        String answer = serializer.toJson(emptyResult);
         System.out.println("Generated Response: " + answer);
         return answer;
     }
