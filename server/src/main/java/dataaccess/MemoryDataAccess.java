@@ -12,7 +12,7 @@ public class MemoryDataAccess implements DataAccess {
     private int nextId = 1;
     final private HashMap<String, UserData> Users = new HashMap<>();
     final private HashMap<Integer, GameData> Games = new HashMap<>();
-    final private HashMap<String, AuthData> authData = new HashMap<String, AuthData>();
+    final private HashMap<String, AuthData> authData = new HashMap<>();
 
     public Collection<UserData> listUserDatas() {
         return Users.values();
@@ -53,7 +53,7 @@ public class MemoryDataAccess implements DataAccess {
         return Games.values();
     }
 
-    public void addGame(GameData gameData, int gameID) {
+    public void addGame(int gameID, GameData gameData) {
         Games.put(gameID,gameData);
     }
 

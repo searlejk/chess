@@ -1,5 +1,6 @@
 package server.handlers;
 
+import Exceptions.IncorrectCredentialsException;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -26,7 +27,7 @@ public class JoinGameHandler {
 
         int gameID = tempBody.gameID();
         String inputColor = tempBody.playerColor();
-        if (inputColor == null) {
+        if (inputColor == null ) {
             res.status(400);
             return "Invalid team color";
         }
@@ -55,6 +56,11 @@ public class JoinGameHandler {
         try{
             GameService.joinGame(joinRequest);
             res.status(200);
+        }
+        catch(IncorrectCredentialsException e){
+            res.status(400);
+            errorResult = new ErrorResult("Error: incorrect gameID");
+            return serializer.toJson(errorResult);
         }
         catch(DataAccessException | NullPointerException e){
             res.status(401);

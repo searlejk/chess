@@ -1,5 +1,6 @@
 package service;
 
+import Exceptions.IncorrectCredentialsException;
 import Exceptions.NoGameFoundException;
 import chess.ChessGame;
 import dataaccess.DataAccess;
@@ -11,6 +12,7 @@ import static org.eclipse.jetty.util.LazyList.size;
 
 public class GameService {
     private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
+    private static int nextGameID = 1;
 
     public static void clearGames() {
         dataAccess.clearGames();
@@ -26,23 +28,17 @@ public class GameService {
     }
 
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
+
         String gameName = createGameRequest.gameName();
         String authToken = createGameRequest.authToken();
 
+        UserService.checkAuthToken(authToken);
 
-        if (dataAccess.getUserByAuth(authToken) != null) {
-            ///  Do nothing
+        GameData gameData = new GameData(nextGameID, "", "", gameName, new ChessGame());
+        dataAccess.addGame(nextGameID, gameData);
 
-        } else {
-            ///  if there is NO user with that authToken
-            throw new DataAccessException("No User with authToken: " + authToken);
-        }
-
-        int gameID = size(dataAccess.listGames());
-        GameData gameData = new GameData(gameID, "", "", gameName, new ChessGame());
-        dataAccess.addGame(gameData, gameID);
-
-        return new CreateGameResult(gameID);
+        nextGameID+=1;
+        return new CreateGameResult(nextGameID-1);
     }
 
     public static void joinGame(JoinRequest joinRequest) throws DataAccessException {
@@ -62,7 +58,10 @@ public class GameService {
              */
 
         ///  if the game doesn't exist
-        if (dataAccess.getGame(gameID) == null || dataAccess.listGames()==null) {
+        if (dataAccess.getGame(gameID) == null){
+            throw new IncorrectCredentialsException("Missing gameID");
+        }
+        if (dataAccess.listGames()==null) {
             throw new NoGameFoundException("Error: No game for gameID: " + gameID);
         }
         /// get username
@@ -85,7 +84,7 @@ public class GameService {
         }
 
         ///  add updated game to database
-        dataAccess.addGame(newGame, gameID);
+        dataAccess.addGame(gameID,newGame);
 
 
     }
