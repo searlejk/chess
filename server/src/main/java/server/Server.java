@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
+import server.handlers.LoginHandler;
 import server.handlers.RegisterHandler;
 import spark.*;
 
@@ -20,8 +21,12 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+
+        // Register EndPoint
         Spark.post("/user", (req, res) -> (new RegisterHandler()).handleRequest(req,res));
 
+        // Login EndPoint
+        Spark.post("/session", (req, res) -> (new LoginHandler()).handleLogin(req,res));
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
 

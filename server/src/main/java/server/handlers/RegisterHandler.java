@@ -2,7 +2,7 @@ package server.handlers;
 
 import dataaccess.DataAccessException;
 import model.RegisterRequest;
-import model.RegisterResponse;
+import model.RegisterResult;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;
@@ -21,24 +21,24 @@ public class RegisterHandler {
 
         RegisterRequest registerRequest = serializer.fromJson(req.body(), RegisterRequest.class);
 
-        RegisterResponse registerResponse;
+        RegisterResult registerResult;
 
         try{
-            registerResponse = UserService.register(registerRequest);
+            registerResult = UserService.register(registerRequest);
 
         }
         catch(DataAccessException e){
             res.status(401);
-            registerResponse = new RegisterResponse("username already taken",null);
+            registerResult = new RegisterResult("username already taken",null);
         }
 
-        if (registerResponse.authToken() == null) {
+        if (registerResult.authToken() == null) {
             res.status(400);
         } else {
             res.status(200);
         }
 
-        String answer = serializer.toJson(registerResponse);
+        String answer = serializer.toJson(registerResult);
         System.out.println("Generated Response: " + answer);
         return answer;
     }
