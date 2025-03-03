@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.DataAccessProvider;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.UserData;
@@ -16,13 +17,14 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        // If you want a fresh in-memory DB each time:
-        data = new MemoryDataAccess();
+        DataAccessProvider.dataAccess.clearGames();
+        DataAccessProvider.dataAccess.clearUsersAndAuth();
+        this.data = DataAccessProvider.dataAccess;
     }
 
     @AfterEach
     void tearDown() {
-        this.data = new MemoryDataAccess();
+        ///this.data = new MemoryDataAccess();
     }
 
     @Test
@@ -48,6 +50,7 @@ class UserServiceTest {
 
     @Test
     void register() {
+
     }
 
     @Test
