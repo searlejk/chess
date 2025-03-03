@@ -1,5 +1,7 @@
 package service;
 
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.RegisterResponse;
@@ -23,14 +25,14 @@ public class UserService {
         return new AuthData(authToken,username);
     }
 
-    public static RegisterResponse register(RegisterRequest registerRequest) {
+    public static RegisterResponse register(RegisterRequest registerRequest) throws DataAccessException {
         String username = registerRequest.username();
         String password = registerRequest.password();
         String email = registerRequest.email();
 
         ///  If username is already used, give error
         if (dataAccess.getUser(username)!=null){
-            return new RegisterResponse(null, "Error: Username already taken");
+            throw new DataAccessException("Username is taken");
         }
 
         ///  Otherwise

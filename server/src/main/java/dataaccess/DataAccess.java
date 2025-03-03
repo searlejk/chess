@@ -8,11 +8,11 @@ import java.util.Collection;
 
 public interface DataAccess {
 
-    UserData addUser(UserData userdata); /// Add throws Exception here
+    UserData addUser(UserData userdata) throws DataAccessException;
 
     ///Collection<GameData> listGames(); /// Add throws Exception here
 
-    UserData getUser(String username); /// Add throws Exception here
+    UserData getUser(String username) throws DataAccessException;
 
     ///void deleteUser(String username); /// Add throws Exception here
 

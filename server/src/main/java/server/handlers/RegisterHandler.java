@@ -1,5 +1,6 @@
 package server.handlers;
 
+import dataaccess.DataAccessException;
 import model.RegisterRequest;
 import model.RegisterResponse;
 import spark.Request;
@@ -19,7 +20,17 @@ public class RegisterHandler {
         System.out.println("Received Request Body: " + req.body());
 
         RegisterRequest registerRequest = serializer.fromJson(req.body(), RegisterRequest.class);
-        RegisterResponse registerResponse = UserService.register(registerRequest);
+
+        RegisterResponse registerResponse;
+
+        try{
+            registerResponse = UserService.register(registerRequest);
+
+        }
+        catch(DataAccessException e){
+            res.status(401);
+            registerResponse = new RegisterResponse("username already taken",null);
+        }
 
         if (registerResponse.authToken() == null) {
             res.status(400);
