@@ -53,12 +53,13 @@ public class JoinGameHandler {
         EmptyResult getGameResult = null;
 
         try{
-            getGameResult = GameService.joinGame(joinRequest);
+            GameService.joinGame(joinRequest);
             res.status(200);
         }
-        catch(DataAccessException e){
-            res.status(400);
-            throw new DataAccessException("Error: incorrect color input");
+        catch(DataAccessException | NullPointerException e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: incorrect Color input");
+            return serializer.toJson(errorResult);
         }
 
         String answer = serializer.toJson(getGameResult);

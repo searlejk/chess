@@ -1,5 +1,6 @@
 package service;
 
+import Exceptions.NoGameFoundException;
 import chess.ChessGame;
 import dataaccess.DataAccess;
 import Exceptions.DataAccessException;
@@ -11,88 +12,81 @@ import static org.eclipse.jetty.util.LazyList.size;
 public class GameService {
     private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
 
-    public static void clearGames(){
+    public static void clearGames() {
         dataAccess.clearGames();
     }
 
-    public static ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException{
+    public static ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
         String authToken = listGamesRequest.authToken();
 
-        ///  if there is a user with that authToken
-        if (dataAccess.getUserByAuth(authToken)!=null){
-            ///  Do nothing
-
-        } else{
-            ///  if there is NO user with that authToken
-            throw new DataAccessException("No User with authToken: "+authToken);
-        }
+        ///  check authToken
+        UserService.checkAuthToken(authToken);
 
         return new ListGamesResult(dataAccess.listGames());
     }
+
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
         String gameName = createGameRequest.gameName();
         String authToken = createGameRequest.authToken();
 
 
-        if (dataAccess.getUserByAuth(authToken)!=null){
+        if (dataAccess.getUserByAuth(authToken) != null) {
             ///  Do nothing
 
-        } else{
+        } else {
             ///  if there is NO user with that authToken
             throw new DataAccessException("No User with authToken: " + authToken);
         }
 
         int gameID = size(dataAccess.listGames());
-        GameData gameData = new GameData(gameID,"","",gameName,new ChessGame());
-        dataAccess.addGame(gameData,gameID);
+        GameData gameData = new GameData(gameID, "", "", gameName, new ChessGame());
+        dataAccess.addGame(gameData, gameID);
 
         return new CreateGameResult(gameID);
     }
 
-    public static EmptyResult joinGame(JoinRequest joinRequest) throws DataAccessException {
+    public static void joinGame(JoinRequest joinRequest) throws DataAccessException {
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
-        ChessGame.TeamColor teamColor = joinRequest.playerColor();
+        String teamColor = joinRequest.playerColor().toString();
 
+        /// check authToken
         UserService.checkAuthToken(authToken);
 
-        ///  if the game doesn't exist
-        if (dataAccess.getGame(gameID)==null) {
-            throw new
-        }
-            ///  add username to correct color in gamedata
-            /*
-            1) get username from authtoken userdata
+        /*
+            1) get username from authToken userdata
             2) get gameData
             3) delete old game data
             4) make new gameData with username added to WHITE or BLACK
 
              */
-            UserData user = dataAccess.getUserByAuth(authToken);
-            String username = user.username();
-            GameData gamedata = dataAccess.getGame(gameID);
-            dataAccess.remGame(gameID);
-            GameData newGameData = null;
-            if (teamColor!=null) {
-                if (teamColor == "WHITE") {
-                    newGameData = new GameData(gameID, username, gamedata.blackUsername(), gamedata.gameName(), gamedata.game());
-                }
-                if (teamColor == "BLACK") {
-                    newGameData = new GameData(gameID, gamedata.whiteUsername(), username, gamedata.gameName(), gamedata.game());
-                } else {
-                    throw new DataAccessException("Incorrect Color Type given: " + teamColor);
-                }
-            } else{
-                throw new DataAccessException("null color: " + teamColor);
-            }
-            dataAccess.addGame(newGameData, gameID);
 
-        } else {
-            throw new DataAccessException("No such game with gameID: " + gameID);
+        ///  if the game doesn't exist
+        if (dataAccess.getGame(gameID) == null || dataAccess.listGames()==null) {
+            throw new NoGameFoundException("Error: No game for gameID: " + gameID);
+        }
+        /// get username
+        String username = dataAccess.getUserByAuth(authToken).username();
+
+        /// save old game locally
+        /// delete old game from db
+        GameData oldGame = dataAccess.getGame(gameID);
+        dataAccess.remGame(gameID);
+
+        GameData newGame = null;
+        /// make new game if white
+        if (teamColor.equals("WHITE")) {
+            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
         }
 
-        return new EmptyResult();
+        /// make new game if black
+        if (teamColor.equals("BLACK")) {
+            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
+        }
+
+        ///  add updated game to database
+        dataAccess.addGame(newGame, gameID);
+
 
     }
-
 }

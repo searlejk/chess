@@ -3,10 +3,8 @@ package service;
 import dataaccess.DataAccess;
 import Exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
-import model.AuthData;
-import model.LoginRequest;
-import model.RegisterRequest;
-import model.UserData;
+import model.*;
+import org.eclipse.jetty.util.log.Log;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +18,9 @@ class UserServiceTest {
     void setUp() {
         DataAccessProvider.dataAccess.clearGames();
         DataAccessProvider.dataAccess.clearUsersAndAuth();
+        RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
+        LoginRequest loginReq = new LoginRequest("username", "password");
+        LoginRequest wrongCredentials = new LoginRequest("username", "paasdfd");
         this.data = DataAccessProvider.dataAccess;
     }
 
@@ -44,9 +45,10 @@ class UserServiceTest {
     }
 
 
-    @Test
-    void makeAuthData() {
-    }
+//    @Test
+//    void makeAuthData() {
+//
+//    }
 
     @Test
     void register_DoubleRegister_throwsException() {
@@ -98,6 +100,43 @@ class UserServiceTest {
     }
 
     @Test
-    void logout() {
+    void logout_CorrectLogout() {
+        RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
+
+        assertDoesNotThrow(() -> UserService.register(registerReq),
+                "No Throw");
+
+        LoginRequest loginReq = new LoginRequest("username", "password");
+        String authToken = "";
+
+        try {
+            LoginResult loginResult = UserService.login(loginReq);
+            authToken = loginResult.authToken();
+        } catch(DataAccessException e){
+
+        }
+
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        assertDoesNotThrow(() -> UserService.logout(logoutRequest),
+                "No Throw");
     }
+
+    @Test
+    void logout_WrongLogout_throwsException() {
+        RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
+
+        assertDoesNotThrow(() -> UserService.register(registerReq),
+                "No Throw");
+
+        LoginRequest loginReq = new LoginRequest("username", "password");
+        String authToken = "12345";
+
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        assertThrows(NullPointerException.class, () -> UserService.logout(logoutRequest),
+                "Yes Throw");
+    }
+
+
+
+
 }
