@@ -48,8 +48,9 @@ public class UserService {
         String username = loginRequest.username();
         String password = loginRequest.password();
 
-        ///  If username is already used, give error
+        ///  if username is in database
         if (dataAccess.getUser(username)!=null){
+            /// If password matches
             if (Objects.equals(dataAccess.getUser(username).password(), password)){
                 // Do nothing if everything is correct, thus hitting the block below
             } else{
@@ -67,6 +68,19 @@ public class UserService {
         return new LoginResult(username,authData.authToken());
     }
 
+    public static LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException {
+        String authToken = logoutRequest.authToken();
 
-    /// public void logout(LogoutRequest logoutRequest) {}
+        ///  if there is a user with that authToken
+        if (dataAccess.getUserByAuth(authToken)!=null){
+            ///  Clear their authToken data
+            dataAccess.deleteAuth(dataAccess.getUserByAuth(authToken));
+        } else{
+            ///  if there is NO user with that authToken
+            throw new DataAccessException("No User with authToken: "+authToken);
+        }
+
+        return new LogoutResult();
+    }
+
 }

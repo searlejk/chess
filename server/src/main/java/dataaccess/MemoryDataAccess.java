@@ -11,7 +11,7 @@ public class MemoryDataAccess implements DataAccess {
     private int nextId = 1;
     final private HashMap<String, UserData> Users = new HashMap<>();
     final private HashMap<Integer, GameData> Games = new HashMap<>();
-    final private HashMap<String, AuthData> authDatas = new HashMap<String, AuthData>();
+    final private HashMap<String, AuthData> authData = new HashMap<String, AuthData>();
 
     public UserData addUserData(UserData user) {
         user = new UserData(user.username(), user.password(),user.email());
@@ -24,22 +24,6 @@ public class MemoryDataAccess implements DataAccess {
         return Users.values();
     }
 
-
-    public UserData getUserData(String username) {
-        for (UserData user : Users.values()){
-            if (user.username()==username){
-                System.out.println("username: "+username+" found");
-                return user;
-            }
-            else{
-                System.out.println("username: "+username+" not found");
-                return user;
-            }
-
-        }
-        return null;
-    }
-
     public UserData addUser(UserData user) {
         user = new UserData(user.username(), user.password(),user.email());
 
@@ -48,11 +32,19 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void addAuthData(AuthData authData) {
-        authDatas.put(authData.authToken(),authData);
+        this.authData.put(authData.authToken(),authData);
     }
 
     public UserData getUser(String username) {
         return Users.get(username);
     }
 
+    public UserData getUserByAuth(String authToken){
+        String username = authData.get(authToken).username();
+        return Users.get(username);
+    }
+
+    public void deleteAuth(UserData user){
+        authData.remove(user.username());
+    }
 }
