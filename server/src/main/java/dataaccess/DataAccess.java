@@ -16,7 +16,7 @@ public interface DataAccess {
 
     Collection<GameData> listGames();
 
-    void addGame(int gameID, GameData gameData);
+    GameData addGame(Integer inputGameID,GameData gameData);
 
     GameData getGame(int gameID);
 

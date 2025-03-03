@@ -5,11 +5,16 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
+import java.util.random.*;
+
+import static org.eclipse.jetty.util.LazyList.size;
 
 public class MemoryDataAccess implements DataAccess {
-    private int nextId = 1;
     final private HashMap<String, UserData> Users = new HashMap<>();
     final private HashMap<Integer, GameData> Games = new HashMap<>();
     final private HashMap<String, AuthData> authData = new HashMap<>();
@@ -26,6 +31,7 @@ public class MemoryDataAccess implements DataAccess {
         user = new UserData(user.username(), user.password(),user.email());
 
         Users.put(user.username(), user);
+        System.out.println(Users.values());
         return user;
     }
 
@@ -53,8 +59,18 @@ public class MemoryDataAccess implements DataAccess {
         return Games.values();
     }
 
-    public void addGame(int gameID, GameData gameData) {
-        Games.put(gameID,gameData);
+    public GameData addGame(Integer inputGameID, GameData gameData) {
+        int gameID;
+        if (inputGameID==0){
+            gameID = new Random().nextInt(1000);
+        } else {
+            gameID = inputGameID;
+        }
+        GameData newGameData = new GameData(gameID,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
+        System.out.println("Added game " + gameID + ": " + newGameData.gameName());
+        Games.put(gameID,newGameData);
+        System.out.println(Games.values());
+        return newGameData;
     }
 
     public GameData getGame(int gameID){

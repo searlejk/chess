@@ -37,6 +37,8 @@ public class CreateGameHandler {
         }
         catch(DataAccessException e){
             res.status(400);
+            errorResult = new ErrorResult("Error: Creating Game Failed");
+            return serializer.toJson(errorResult);
         }
 
         String answer = serializer.toJson(createGameResult);

@@ -27,6 +27,7 @@ public class ListGamesHandler {
             return serializer.toJson(errorResult);
         }
 
+        System.out.println(listGamesResult);
         String answer = serializer.toJson(listGamesResult);
         System.out.println("Generated Response: " + answer);
         return answer;

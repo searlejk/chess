@@ -28,7 +28,7 @@ class GameServiceTest {
     @Test
     void clearGames() {
 
-        data.addGame(1, new GameData(1,"white","black","coolgame",new ChessGame()));
+        data.addGame(0, new GameData(1,"white","black","coolgame"));
         data.clearGames();
 
         assertTrue(data.listGames().isEmpty(), "Games should be empty after clear");

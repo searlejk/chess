@@ -4,8 +4,6 @@ import dataaccess.DataAccess;
 import Exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
-import org.eclipse.jetty.util.log.Log;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,14 +16,7 @@ class UserServiceTest {
     void setUp() {
         DataAccessProvider.dataAccess.clearGames();
         DataAccessProvider.dataAccess.clearUsersAndAuth();
-        RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
-        LoginRequest loginReq = new LoginRequest("username", "password");
-        LoginRequest wrongCredentials = new LoginRequest("username", "paasdfd");
         this.data = DataAccessProvider.dataAccess;
-    }
-
-    @AfterEach
-    void tearDown() {
     }
 
     @Test
@@ -44,11 +35,6 @@ class UserServiceTest {
         assertTrue(data.listAuthDatas().isEmpty(), "Auth data should be empty after clear");
     }
 
-
-//    @Test
-//    void makeAuthData() {
-//
-//    }
 
     @Test
     void register_DoubleRegister_throwsException() {

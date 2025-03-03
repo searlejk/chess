@@ -2,11 +2,14 @@ package service;
 
 import Exceptions.IncorrectCredentialsException;
 import Exceptions.NoGameFoundException;
+import Exceptions.TeamTakenException;
 import chess.ChessGame;
 import dataaccess.DataAccess;
 import Exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
+
+import java.util.Objects;
 
 import static org.eclipse.jetty.util.LazyList.size;
 
@@ -34,17 +37,16 @@ public class GameService {
 
         UserService.checkAuthToken(authToken);
 
-        GameData gameData = new GameData(nextGameID, "", "", gameName, new ChessGame());
-        dataAccess.addGame(nextGameID, gameData);
+        GameData gameData = new GameData(0, null, null, gameName);
+        GameData newGameData = dataAccess.addGame(0, gameData);
 
-        nextGameID+=1;
-        return new CreateGameResult(nextGameID-1);
+        return new CreateGameResult(newGameData.gameID());
     }
 
     public static void joinGame(JoinRequest joinRequest) throws DataAccessException {
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
-        String teamColor = joinRequest.playerColor().toString();
+        String teamColor = joinRequest.playerColor();
 
         /// check authToken
         UserService.checkAuthToken(authToken);
@@ -58,7 +60,7 @@ public class GameService {
              */
 
         ///  if the game doesn't exist
-        if (dataAccess.getGame(gameID) == null){
+        if (dataAccess.getGame(gameID)==null){
             throw new IncorrectCredentialsException("Missing gameID");
         }
         if (dataAccess.listGames()==null) {
@@ -70,21 +72,28 @@ public class GameService {
         /// save old game locally
         /// delete old game from db
         GameData oldGame = dataAccess.getGame(gameID);
-        dataAccess.remGame(gameID);
 
         GameData newGame = null;
         /// make new game if white
         if (teamColor.equals("WHITE")) {
-            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
+            if (!Objects.equals(oldGame.whiteUsername(), null)){
+                throw new TeamTakenException("White Team Taken");
+            }
+            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName());
         }
 
         /// make new game if black
         if (teamColor.equals("BLACK")) {
-            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
+            if (!Objects.equals(oldGame.blackUsername(), null)){
+                throw new TeamTakenException("Black Team Taken");
+            }
+            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName());
         }
 
-        ///  add updated game to database
-        dataAccess.addGame(gameID,newGame);
+        ///  delete old game
+        /// add updated game to database
+        dataAccess.remGame(gameID);
+        dataAccess.addGame(gameID, newGame);
 
 
     }
