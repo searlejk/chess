@@ -14,16 +14,17 @@ public class ListGamesHandler {
 
         String authToken = req.headers("Authorization");
         ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
-
         ListGamesResult listGamesResult;
+        ErrorResult errorResult;
 
         try{
             listGamesResult = GameService.listGames(listGamesRequest);
             res.status(200);
         }
-        catch(DataAccessException e){
-            res.status(400);
-            listGamesResult = new ListGamesResult(null);
+        catch(DataAccessException | NullPointerException e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: 1 of 3 required fields were null");
+            return serializer.toJson(errorResult);
         }
 
         String answer = serializer.toJson(listGamesResult);

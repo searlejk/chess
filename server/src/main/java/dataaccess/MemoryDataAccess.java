@@ -39,7 +39,10 @@ public class MemoryDataAccess implements DataAccess {
 
     public UserData getUserByAuth(String authToken){
         String username = authData.get(authToken).username();
-        return Users.get(username);
+        if (username!=null) {
+            return Users.get(username);
+        }
+        return null;
     }
 
     public void deleteAuth(String authToken){
