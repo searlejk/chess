@@ -1,6 +1,7 @@
 package server.handlers;
 
 import dataaccess.DataAccessException;
+import model.ErrorResult;
 import model.RegisterRequest;
 import model.RegisterResult;
 import spark.Request;
@@ -21,7 +22,13 @@ public class RegisterHandler {
 
         RegisterRequest registerRequest = serializer.fromJson(req.body(), RegisterRequest.class);
 
-        RegisterResult registerResult;
+        RegisterResult registerResult = null;
+        ErrorResult errorResult = null;
+        if (registerRequest.email()==null || registerRequest.username() == null || registerRequest.password()==null){
+            res.status(400);
+            errorResult = new ErrorResult("Error: 1 of 3 required fields were null");
+            return serializer.toJson(errorResult);
+        }
 
         try{
             registerResult = UserService.register(registerRequest);
@@ -29,13 +36,24 @@ public class RegisterHandler {
         }
         catch(DataAccessException e){
             res.status(403);
-            registerResult = new RegisterResult("Error: Username Unavailable",null);
+            errorResult = new ErrorResult("Error: Username Unavailable");
         }
 
-        res.status(200);
+        if (res.status()!=403) {
+            res.status(200);
+        }
 
-        String answer = serializer.toJson(registerResult);
-        System.out.println("Generated Response: " + answer);
+        String answer;
+        if (errorResult!=null) {
+            res.type("application/json");
+            answer = serializer.toJson(errorResult);
+            System.out.println("Generated Response: " + answer);
+        } else{
+            res.type("application/json");
+            answer = serializer.toJson(registerResult);
+            System.out.println("Generated Response: " + answer);
+        }
+
         return answer;
     }
 

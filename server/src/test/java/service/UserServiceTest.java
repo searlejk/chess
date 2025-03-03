@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessProvider;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
+import model.LoginRequest;
 import model.RegisterRequest;
 import model.UserData;
 import org.junit.jupiter.api.AfterEach;
@@ -68,7 +69,33 @@ class UserServiceTest {
     }
 
     @Test
-    void login() {
+    void login_CorrectLogin() {
+        RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
+
+        assertDoesNotThrow(() -> UserService.register(registerReq),
+                "No Throw");
+
+        LoginRequest loginReq = new LoginRequest("username", "password");
+
+        assertDoesNotThrow(() -> UserService.login(loginReq),
+                "No Throw");
+    }
+
+    @Test
+    void login_WrongCredentials_throwsException() {
+        RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
+        LoginRequest loginReq = new LoginRequest("username", "password");
+        LoginRequest wrongCredentials = new LoginRequest("username", "paasdfd");
+
+        assertDoesNotThrow(() -> UserService.register(registerReq),
+                "No Throw");
+
+
+        assertDoesNotThrow(() -> UserService.login(loginReq),
+                "No Throw");
+
+
+        assertThrows(DataAccessException.class, () -> UserService.login(wrongCredentials));
     }
 
     @Test
