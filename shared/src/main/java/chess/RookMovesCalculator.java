@@ -19,7 +19,10 @@ public class RookMovesCalculator {
     }
 
 
-    public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPos) {
+    public Collection<ChessMove> legalMoves(
+            ChessBoard board,
+            ChessPosition myPos) {
+
         Collection<ChessMove> moves = new ArrayList<>();
         ChessPiece piece = board.getPiece(myPos);
         ChessGame.TeamColor color = piece.getTeamColor();
