@@ -19,8 +19,8 @@ public class KingMovesCalculator {
 
 
     public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPos) {
-        int[] kingRowOffsets = { 1, 1, 1, 0, 0, -1, -1, -1 };
-        int[] kingColOffsets = { 1, 0, -1, 1, -1, 1, 0, -1 };
+        int[] kingRowOffsets = { 1, 1,  1, 0,  0, -1, -1, -1 };
+        int[] kingColOffsets = { 1, 0, -1, 1, -1,  1,  0, -1 };
         // board
         // myPos
         ChessGame.TeamColor color = board.getPiece(myPos).getTeamColor();
