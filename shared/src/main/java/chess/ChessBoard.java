@@ -24,67 +24,36 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        int[] list = new int[]{1,2,3,4,5,6,7,8};
-        String superString = "\n";
+        StringBuilder sb = new StringBuilder("\n");
+        for (int row = 1; row <= 8; row++){
+            for (int col = 1; col <= 8; col++){
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = this.getPiece(pos);
 
-        for (int i : list){
-            for (int j : list){
-                ChessPosition pos = new ChessPosition(i,j);
-                if (this.getPiece(pos)!=null){
-                    ChessPiece.PieceType type = this.getPiece(pos).getPieceType();
-                    ChessGame.TeamColor color = this.getPiece(pos).getTeamColor();
-
-                    if (color==WHITE){
-                        if (type==PAWN){
-                            superString+="|P|";
-                        }
-                        if (type==KING){
-                            superString+="|K|";
-                        }
-                        if (type==QUEEN){
-                            superString+="|Q|";
-                        }
-                        if (type==KNIGHT){
-                            superString+="|N|";
-                        }
-                        if (type==BISHOP){
-                            superString+="|B|";
-                        }
-                        if (type==ROOK){
-                            superString+="|R|";
-                        }
+                if (piece!=null){
+                    String symbol;
+                    switch(piece.getPieceType()){
+                        case PAWN:   symbol = "P"; break;
+                        case KING:   symbol = "K"; break;
+                        case QUEEN:  symbol = "Q"; break;
+                        case ROOK:   symbol = "R"; break;
+                        case KNIGHT: symbol = "N"; break;
+                        case BISHOP: symbol = "B"; break;
+                        default:    symbol = " "; break;
                     }
-                    else if (color==BLACK){
-                        if (type==PAWN){
-                            superString+="|p|";
-                        }
-                        if (type==KING){
-                            superString+="|k|";
-                        }
-                        if (type==QUEEN){
-                            superString+="|q|";
-                        }
-                        if (type==KNIGHT){
-                            superString+="|n|";
-                        }
-                        if (type==BISHOP){
-                            superString+="|b|";
-                        }
-                        if (type==ROOK){
-                            superString+="|r|";
-                        }
-
+                    if (piece.getTeamColor()==BLACK){
+                        symbol = symbol.toLowerCase();
                     }
-
-                }
-                else{
-                    superString+="| |";
+                    sb.append("|").append(symbol).append("|");
+                } else {
+                    sb.append("| |");
                 }
             }
-            superString+="\n";
+            sb.append("\n");
         }
-        return superString;
+        return sb.toString();
     }
+
 
     @Override
     public boolean equals(Object obj) {
