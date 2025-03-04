@@ -31,8 +31,8 @@ public class MoveCalc {
         }
 
         if (this.type == ChessPiece.PieceType.KNIGHT){
-            KnightMovesCalculator temp = new KnightMovesCalculator(board,startPosition,type);
-            return temp.legalMoves();
+            KnightMovesCalculator temp = new KnightMovesCalculator(board,startPosition);
+            return temp.legalMoves(board,startPosition);
         }
 
         if (this.type == ChessPiece.PieceType.PAWN){
