@@ -26,15 +26,15 @@ public class ChessPosition {
     @Override
     public boolean equals(Object obj) {
         if (obj == null){
-            System.out.println("Null compared");
+            System.out.println("Null compared object");
             return false;
         }
         if (obj == this){
-            System.out.println("Comparing same object True");
+            System.out.println("Comparing the same object True");
             return true;
         }
         if (this.getClass() != obj.getClass()){
-            System.out.println("False not same object compared");
+            System.out.println("False not the same object compared");
             return false;
         }
 
