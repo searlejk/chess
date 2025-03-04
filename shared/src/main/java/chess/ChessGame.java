@@ -306,32 +306,28 @@ public class ChessGame {
         if (this.getTeamTurn() == BLACK) {
             trueTeamColor = BLACK;
         }
-        while (inStalemate == true) {
-            for (int i = 1; i < 9; i++) {
-                for (int j = 1; j < 9; j++) {
-                    ///  If there is a chess piece && Its team color is the one we are checking
-                    if (board.getPiece(new ChessPosition(i, j)) != null && board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
-                        ///  See if it has any validMoves
-                        ChessPosition pos = new ChessPosition(i, j);
-                        this.setTeamTurn(trueTeamColor);
-                        if (this.validMoves(pos).size() == 0) {
-                        } else {
-                            inStalemate = false;
-                            break;
-                        }
-                    }
+
+        outer:
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(pos);
+
+                if (piece==null) continue;
+                ChessGame.TeamColor pieceColor = piece.getTeamColor();
+                if (pieceColor!=teamColor) continue;
+
+                ///  See if it has any validMoves
+                this.setTeamTurn(trueTeamColor);
+                if (!this.validMoves(pos).isEmpty()) {
+                    inStalemate = false;
+                    break outer;
                 }
             }
-            break;
         }
         boolean check = this.isInCheck(teamColor);
 
-
-        if (check && inStalemate) {
-            return true;
-        } else {
-            return false;
-        }
+        return check && inStalemate;
     }
 
     /**
@@ -349,29 +345,19 @@ public class ChessGame {
 
         TeamColor trueTeamColor = this.getTeamTurn();
 
-        if (this.getTeamTurn() == WHITE){
-            trueTeamColor = WHITE;
-        }
-        if (this.getTeamTurn() == BLACK){
-            trueTeamColor = BLACK;
-        }
-
-
-
         ///  Iterate over board to find pieces of teamColor
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ///  If there is a chess piece && Its team color is the one we are checking
-                if (board.getPiece(new ChessPosition(i, j))!=null && board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(pos);
 
-                    ///  See if it has any validMoves
-                    ChessPosition pos = new ChessPosition(i,j);
-                    this.setTeamTurn(trueTeamColor);
-                    if (this.validMoves(pos).size() == 0){
+                if (piece==null) continue;
+                if (piece.getTeamColor()!=teamColor) continue;
 
-                    }else{
-                        return false;
-                    }
+                ///  See if it has any validMoves
+                this.setTeamTurn(trueTeamColor);
+                if (!this.validMoves(pos).isEmpty()){
+                    return false;
                 }
             }
         }
