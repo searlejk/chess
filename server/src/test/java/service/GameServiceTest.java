@@ -1,4 +1,4 @@
-package service;
+package java.passoff.service;
 
 import chess.ChessGame;
 import dataaccess.DataAccess;
