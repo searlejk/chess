@@ -1,8 +1,7 @@
 package server.handlers;
 
-import Exceptions.IncorrectCredentialsException;
 import com.google.gson.Gson;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import model.ErrorResult;
 import model.LoginRequest;
 import model.LoginResult;

@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +37,7 @@ class UserServiceTest {
 
 
     @Test
-    void register_DoubleRegister_throwsException() {
+    void registerDoubleRegisterThrowsException() {
         RegisterRequest req = new RegisterRequest("username", "password", "email");
 
         assertDoesNotThrow(() -> UserService.register(req),
@@ -48,7 +48,7 @@ class UserServiceTest {
     }
 
     @Test
-    void register_CorrectRegister() {
+    void registerCorrectRegister() {
         RegisterRequest req = new RegisterRequest("username", "password", "email");
 
         assertDoesNotThrow(() -> UserService.register(req),
@@ -56,7 +56,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_CorrectLogin() {
+    void loginCorrectLogin() {
         RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
 
         assertDoesNotThrow(() -> UserService.register(registerReq),
@@ -69,7 +69,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_WrongCredentials_throwsException() {
+    void loginWrongCredentialsThrowsException() {
         RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
         LoginRequest loginReq = new LoginRequest("username", "password");
         LoginRequest wrongCredentials = new LoginRequest("username", "paasdfd");
@@ -86,7 +86,7 @@ class UserServiceTest {
     }
 
     @Test
-    void logout_CorrectLogout() {
+    void logoutCorrectLogout() {
         RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
 
         assertDoesNotThrow(() -> UserService.register(registerReq),
@@ -108,7 +108,7 @@ class UserServiceTest {
     }
 
     @Test
-    void logout_WrongLogout_throwsException() {
+    void logoutWrongLogoutThrowsException() {
         RegisterRequest registerReq = new RegisterRequest("username", "password", "email");
 
         assertDoesNotThrow(() -> UserService.register(registerReq),

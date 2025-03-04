@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class KingMovesCalculator {
     private final ChessBoard board;
@@ -24,7 +23,7 @@ public class KingMovesCalculator {
         return this.startPosition;
     }
 
-    public Collection<ChessMove> LegalMoves() {
+    public Collection<ChessMove> legalMoves() {
         Collection<ChessMove> moves = new ArrayList<>();
         int row = this.startPosition.getRow();
         int col = this.startPosition.getColumn();

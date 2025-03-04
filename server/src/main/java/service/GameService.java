@@ -1,17 +1,14 @@
 package service;
 
-import Exceptions.IncorrectCredentialsException;
-import Exceptions.NoGameFoundException;
-import Exceptions.TeamTakenException;
-import chess.ChessGame;
+import exceptions.IncorrectCredentialsException;
+import exceptions.NoGameFoundException;
+import exceptions.TeamTakenException;
 import dataaccess.DataAccess;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
 
 import java.util.Objects;
-
-import static org.eclipse.jetty.util.LazyList.size;
 
 public class GameService {
     private static final DataAccess dataAccess = DataAccessProvider.dataAccess;

@@ -1,8 +1,7 @@
 package server.handlers;
 
-import Exceptions.InvalidAuthToken;
 import com.google.gson.Gson;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import model.ErrorResult;
 import model.LogoutRequest;
 import model.EmptyResult;

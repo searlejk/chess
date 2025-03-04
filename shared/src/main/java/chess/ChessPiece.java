@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -44,10 +43,6 @@ public class ChessPiece {
         return this.type;
     }
 
-    public void Print(ChessPosition myPosition, ChessPiece.PieceType type) {
-        System.out.println("("+ myPosition.getColumn()+", "+myPosition.getRow()+ ") Type: "+ type);
-    }
-
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -57,6 +52,6 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         MoveCalc movecalc = new MoveCalc(board,myPosition,this.type);
-        return movecalc.MoveCall();
+        return movecalc.moveCalc();
     }
 }

@@ -1,7 +1,5 @@
 package chess;
 
-import javax.lang.model.type.NullType;
-import java.util.ArrayList;
 import java.util.Collection;
 
 public class MoveCalc {
@@ -21,35 +19,35 @@ public class MoveCalc {
     /**
      * @return ChessPosition of starting location
      */
-    public Collection<ChessMove> MoveCall() {
+    public Collection<ChessMove> moveCalc() {
         if (this.type == ChessPiece.PieceType.BISHOP){
             BishopMovesCalculator temp = new BishopMovesCalculator(board,startPosition,type);
-            return temp.LegalMoves();
+            return temp.legalMoves();
         }
 
         if (this.type == ChessPiece.PieceType.KING){
             KingMovesCalculator temp = new KingMovesCalculator(board,startPosition,type);
-            return temp.LegalMoves();
+            return temp.legalMoves();
         }
 
         if (this.type == ChessPiece.PieceType.KNIGHT){
             KnightMovesCalculator temp = new KnightMovesCalculator(board,startPosition,type);
-            return temp.LegalMoves();
+            return temp.legalMoves();
         }
 
         if (this.type == ChessPiece.PieceType.PAWN){
             PawnMovesCalculator temp = new PawnMovesCalculator(board,startPosition,type);
-            return temp.LegalMoves();
+            return temp.legalMoves();
         }
 
         if (this.type == ChessPiece.PieceType.QUEEN){
             QueenMovesCalculator temp = new QueenMovesCalculator(board,startPosition,type);
-            return temp.LegalMoves();
+            return temp.legalMoves();
         }
 
         if (this.type == ChessPiece.PieceType.ROOK){
             RookMovesCalculator temp = new RookMovesCalculator(board,startPosition,type);
-            return temp.LegalMoves();
+            return temp.legalMoves();
         }
 
 

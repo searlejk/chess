@@ -1,11 +1,10 @@
 package server.handlers;
 
-import Exceptions.IncorrectCredentialsException;
-import Exceptions.TeamTakenException;
-import chess.ChessGame;
+import exceptions.IncorrectCredentialsException;
+import exceptions.TeamTakenException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import model.*;
 import spark.Request;
 import spark.Response;

@@ -1,7 +1,7 @@
 package server;
 
 import dataaccess.DataAccess;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import server.handlers.*;
 import spark.*;

@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -27,7 +26,7 @@ public class PawnMovesCalculator {
         return this.startPosition;
     }
 
-    public Collection<ChessMove> LegalMoves() {
+    public Collection<ChessMove> legalMoves() {
         Collection<ChessMove> moves = new ArrayList<>();
         int row = this.startPosition.getRow();
         int col = this.startPosition.getColumn();

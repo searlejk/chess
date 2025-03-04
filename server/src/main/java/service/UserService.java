@@ -1,9 +1,9 @@
 package service;
 
-import Exceptions.IncorrectCredentialsException;
-import Exceptions.InvalidAuthToken;
+import exceptions.IncorrectCredentialsException;
+import exceptions.InvalidAuthToken;
 import dataaccess.DataAccess;
-import Exceptions.DataAccessException;
+import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.*;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package Exceptions;
+package exceptions;
 
 public class IncorrectCredentialsException extends DataAccessException {
     public IncorrectCredentialsException(String message) {
