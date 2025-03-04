@@ -37,10 +37,10 @@ public class JoinGameHandler {
 
 
         ///  update string to uppercase
-        String UpperColor = inputColor.toUpperCase();
+        String upperCaseColor = inputColor.toUpperCase();
 
 
-        JoinRequest joinRequest = new JoinRequest(UpperColor,gameID,authToken);
+        JoinRequest joinRequest = new JoinRequest(upperCaseColor,gameID,authToken);
         EmptyResult getGameResult = null;
 
         try{

@@ -61,13 +61,13 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
-        TeamColor TrueTeamTurn = this.getTeamTurn();
+        TeamColor trueTeamTurn = this.getTeamTurn();
 
         ChessGame ogGame = new ChessGame();
         ogGame.setBoard(this.board);
         ogGame.setTeamTurn(this.getTeamTurn());
         boolean killedPiece = false;
-        ChessPiece deadPiece = new ChessPiece(TrueTeamTurn, ChessPiece.PieceType.BISHOP);
+        ChessPiece deadPiece = new ChessPiece(trueTeamTurn, ChessPiece.PieceType.BISHOP);
 
         for (ChessMove move : moves) {
             try {
@@ -288,7 +288,7 @@ public class ChessGame {
         2) If in stalemate
         3) Checkmate = true
          */
-        boolean InStalemate = true;
+        boolean inStalemate = true;
         TeamColor trueTeamColor = this.getTeamTurn();
 
         if (this.getTeamTurn() == TeamColor.WHITE) {
@@ -297,7 +297,7 @@ public class ChessGame {
         if (this.getTeamTurn() == TeamColor.BLACK) {
             trueTeamColor = TeamColor.BLACK;
         }
-        while (InStalemate == true) {
+        while (inStalemate == true) {
             for (int i = 1; i < 9; i++) {
                 for (int j = 1; j < 9; j++) {
                     ///  If there is a chess piece && Its team color is the one we are checking
@@ -307,7 +307,7 @@ public class ChessGame {
                         this.setTeamTurn(trueTeamColor);
                         if (this.validMoves(pos).size() == 0) {
                         } else {
-                            InStalemate = false;
+                            inStalemate = false;
                             break;
                         }
                     }
@@ -318,7 +318,7 @@ public class ChessGame {
         boolean check = this.isInCheck(teamColor);
 
 
-        if (check && InStalemate) {
+        if (check && inStalemate) {
             return true;
         } else {
             return false;
