@@ -51,22 +51,24 @@ public class MoveCalcHelper {
 
     }
 
-    public void calcLegalMovesFromAllPositions(
+    public Collection<ChessMove> calcLegalMovesFromAllPositions(
             int[] rowOffsets,
             int[] colOffsets,
-            Collection<ChessMove> legalMoves,
             ChessBoard board,
             ChessPosition myPos,
             ChessGame.TeamColor color){
 
         Collection<ChessPosition> allPos = new ArrayList<>();
+        Collection<ChessMove> legalMoves = new ArrayList<>();
 
+        // builds allPos - All Positions it could move
         for (int i = 0; i < rowOffsets.length; i++){
             allPos.add(new ChessPosition(
                     myPos.getRow() + rowOffsets[i],
                     myPos.getColumn() + colOffsets[i]));
         }
 
+        // logic for adding moves to legalMoves
         for (ChessPosition pos : allPos){
             int row = pos.getRow();
             int col = pos.getColumn();
@@ -85,5 +87,6 @@ public class MoveCalcHelper {
                 legalMoves.add(move);
             }
         }
+        return legalMoves;
     }
 }
