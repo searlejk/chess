@@ -26,8 +26,8 @@ public class MoveCalc {
         }
 
         if (this.type == ChessPiece.PieceType.KING){
-            KingMovesCalculator temp = new KingMovesCalculator(board,startPosition,type);
-            return temp.legalMoves();
+            KingMovesCalculator temp = new KingMovesCalculator(board,startPosition);
+            return temp.legalMoves(board,startPosition);
         }
 
         if (this.type == ChessPiece.PieceType.KNIGHT){
