@@ -46,8 +46,8 @@ public class MoveCalc {
         }
 
         if (this.type == ChessPiece.PieceType.ROOK){
-            RookMovesCalculator temp = new RookMovesCalculator(board,startPosition,type);
-            return temp.legalMoves();
+            RookMovesCalculator temp = new RookMovesCalculator(board,startPosition);
+            return temp.legalMoves(board,startPosition);
         }
 
 
