@@ -224,9 +224,6 @@ public class ChessGame {
         if (teamColor == WHITE) {
             oppColor = BLACK;
         }
-        if (teamColor == BLACK) {
-            oppColor = WHITE;
-        }
 
         ///  Find king of team color:
         ChessPosition kingPos = new ChessPosition(1,1);
@@ -237,9 +234,9 @@ public class ChessGame {
                 ChessPosition pos = new ChessPosition(row,col);
                 ChessPiece piece = board.getPiece(pos);
 
-                if (piece==null) continue;
-                if (piece.getTeamColor()!=teamColor) continue;
-                if (piece.getPieceType()!=KING) continue;
+                if (piece==null) { continue; }
+                if (piece.getTeamColor()!=teamColor) { continue; }
+                if (piece.getPieceType()!=KING) { continue; }
 
                 kingPos = pos;
                 System.out.println("Found KING at: " + pos);
@@ -253,16 +250,12 @@ public class ChessGame {
             for (int col = 1; col < 9; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(pos);
-                if (piece == null) {
-                    continue;
-                }
+                if (piece == null) { continue; }
 
                 ChessGame.TeamColor pieceColor = piece.getTeamColor();
                 ChessPiece.PieceType pieceType = piece.getPieceType();
 
-                if (pieceColor!=oppColor) {
-                    continue;
-                }
+                if (pieceColor!=oppColor) { continue; }
 
                 ChessMove move = new ChessMove(pos, kingPos, null);
 
@@ -313,9 +306,9 @@ public class ChessGame {
                 ChessPosition pos = new ChessPosition(row,col);
                 ChessPiece piece = board.getPiece(pos);
 
-                if (piece==null) continue;
+                if (piece==null) { continue; }
                 ChessGame.TeamColor pieceColor = piece.getTeamColor();
-                if (pieceColor!=teamColor) continue;
+                if (pieceColor!=teamColor) { continue; }
 
                 ///  See if it has any validMoves
                 this.setTeamTurn(trueTeamColor);
@@ -351,8 +344,8 @@ public class ChessGame {
                 ChessPosition pos = new ChessPosition(row,col);
                 ChessPiece piece = board.getPiece(pos);
 
-                if (piece==null) continue;
-                if (piece.getTeamColor()!=teamColor) continue;
+                if (piece==null) { continue; }
+                if (piece.getTeamColor()!=teamColor) { continue; }
 
                 ///  See if it has any validMoves
                 this.setTeamTurn(trueTeamColor);
