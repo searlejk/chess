@@ -258,10 +258,12 @@ public class ChessGame {
                         /// Check if that piece can move from: Its location, to the king's location
                         ChessMove tempMove = new ChessMove(currPosition, king, null);
                         ///  if White promotion pawn, change tempMove
-                        if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE) {
+                        if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                                board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE) {
                             tempMove = new ChessMove(currPosition, king, QUEEN);
                         }
-                        if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK) {
+                        if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                                board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK) {
                             tempMove = new ChessMove(currPosition, king, QUEEN);
                         }
                         if (board.getPiece(currPosition).pieceMoves(board, currPosition).contains(tempMove)) {
