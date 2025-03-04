@@ -70,17 +70,22 @@ public class ChessBoard {
             return false;
         }
 
-        ChessBoard c = (ChessBoard)obj;
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                if (c.getPiece(new ChessPosition(i, j))!=null && this.getPiece(new ChessPosition(i, j))!=null) {
-                    if (c.getPiece(new ChessPosition(i, j)).getPieceType() == this.getPiece(new ChessPosition(i, j)).getPieceType()) {
-                        System.out.println("MATCH");
-                    } else {
-                        System.out.println("This ("+i+", "+j+") doesn't match");
-                        return false;
-                    }
+        ChessBoard other = (ChessBoard)obj;
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece pieceOther = other.getPiece(pos);
+                ChessPiece pieceThis = this.getPiece(pos);
+
+                if (pieceThis == null || pieceOther == null){
+                    continue;
                 }
+
+                if (pieceThis.getPieceType()!=pieceOther.getPieceType()){
+                    System.out.println("This ("+row+", "+col+") doesn't match");
+                    return false;
+                }
+                System.out.println("MATCH");
             }
         }
 
