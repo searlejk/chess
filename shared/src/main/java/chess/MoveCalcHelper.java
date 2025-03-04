@@ -6,14 +6,14 @@ import java.util.Collection;
 public class MoveCalcHelper {
 
     // creates just one instance
-    private static final MoveCalcHelper instance = new MoveCalcHelper();
+    private static final MoveCalcHelper INSTANCE = new MoveCalcHelper();
 
     // private constructor so it can't be instantiated
     private MoveCalcHelper() { };
 
     // provides public access to this instance
     public static MoveCalcHelper getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     public void slidingMovesCalc(
