@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -51,7 +52,53 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        MoveCalc movecalc = new MoveCalc(board,myPosition,this.type);
-        return movecalc.moveCalc();
+        PieceType type = board.getPiece(myPosition).getPieceType();
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        if (type == PieceType.BISHOP){
+            BishopMovesCalculator b_calc = new BishopMovesCalculator(board,myPosition);
+            moves = b_calc.legalMoves(board,myPosition);
+            return moves;
+
+        }
+        if (type == PieceType.ROOK){
+            RookMovesCalculator r_calc = new RookMovesCalculator(board,myPosition);
+            moves = r_calc.legalMoves(board,myPosition);
+            return moves;
+
+        }
+        if (type == PieceType.QUEEN){
+            RookMovesCalculator r_calc = new RookMovesCalculator(board,myPosition);
+            moves = r_calc.legalMoves(board,myPosition);
+
+            BishopMovesCalculator b_calc = new BishopMovesCalculator(board,myPosition);
+            for (ChessMove move :b_calc.legalMoves(board,myPosition)){
+                moves.add(move);
+            }
+            return moves;
+
+        }
+        if (type == PieceType.KING){
+            KingMovesCalculator K_calc = new KingMovesCalculator(board,myPosition);
+            moves = K_calc.legalMoves(board,myPosition);
+            return moves;
+
+        }
+        if (type == PieceType.KNIGHT){
+            KnightMovesCalculator Knight_calc = new KnightMovesCalculator(board,myPosition);
+            moves = Knight_calc.legalMoves(board,myPosition);
+            return moves;
+
+        }
+        if (type == PieceType.PAWN){
+            PawnMovesCalculator p_calc = new PawnMovesCalculator(board,myPosition);
+            moves = p_calc.legalMoves(board,myPosition);
+            return moves;
+
+        }
+
+
+        System.out.print("ChessPiece PieceMoves broke");
+        return moves;
     }
 }
