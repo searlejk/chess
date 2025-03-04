@@ -21,8 +21,8 @@ public class MoveCalc {
      */
     public Collection<ChessMove> moveCalc() {
         if (this.type == ChessPiece.PieceType.BISHOP){
-            BishopMovesCalculator temp = new BishopMovesCalculator(board,startPosition,type);
-            return temp.legalMoves();
+            BishopMovesCalculator temp = new BishopMovesCalculator(board,startPosition);
+            return temp.legalMoves(board,startPosition);
         }
 
         if (this.type == ChessPiece.PieceType.KING){

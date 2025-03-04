@@ -3,129 +3,118 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Represents a single chess piece
+ * <p>
+ * Note: You can add to this class, but you may not alter
+ * signature of the existing methods.
+ */
 public class BishopMovesCalculator {
-    private final ChessBoard board;
-    private final ChessPosition startPosition;
-    private final ChessPiece.PieceType type;
+    private ChessPosition pos;
+    private ChessBoard board;
 
-
-    public BishopMovesCalculator(ChessBoard board, ChessPosition startPosition, ChessPiece.PieceType type) {
+    public BishopMovesCalculator(ChessBoard board, ChessPosition pos) {
         this.board = board;
-        this.startPosition = startPosition;
-        this.type = type;
-
+        this.pos = pos;
     }
 
-    /**
-     * @return ChessPosition of starting location
-     */
-    public ChessPosition getStartPosition() {
-        return this.startPosition;
-    }
 
-    public Collection<ChessMove> legalMoves() {
+    public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
-        int row = this.startPosition.getRow();
-        int col = this.startPosition.getColumn();
-        System.out.println("("+this.startPosition.getRow() +", "+this.startPosition.getColumn()+ ") This is the start Position");
+        ChessPiece piece = board.getPiece(myPosition);
+        ChessGame.TeamColor color = piece.getTeamColor();
 
+        boolean loop = true;
+        boolean reset = false;
 
-        ///  --------- FIRST -----------
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
 
-        int i = 1;
-        while (row+i >0 && col+i > 0 && row+i<=8 && col+i<=8){
-            int newrow = row+i;
-            int newcol = col+i;
+        int inc1 = 1;
+        int inc2 = 1;
 
-            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
-                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
+        int checkRow = row+inc1;
+        int checkCol = col+inc2;
 
-                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-                    break;
+        while(loop){
+
+            if (checkRow<=8 && checkRow>=1 && checkCol<=8 && checkCol >=1 && !reset){
+                ChessPosition nextPos = new ChessPosition(checkRow,checkCol);
+                ChessMove move = new ChessMove(myPosition,nextPos,null);
+                if (board.getPiece(nextPos)!=null){
+                    if (board.getPiece(nextPos).getTeamColor()==color){
+                        reset=true;
+                        checkRow = row+inc1;
+                        checkCol = col+inc2;
+                    }else{
+                        moves.add(move);
+                        reset = true;
+                        checkRow = row+inc1;
+                        checkCol = col+inc2;
+                    }
+
+                }else{
+                    moves.add(move);
+                    int[] BothIncs  = this.incUpdate(inc1,inc2);
+                    inc1 += BothIncs[0];
+                    inc2 += BothIncs[1];
+                    checkRow = row+inc1;
+                    checkCol = col+inc2;
                 }
-                else{
-                    break;
-                }
-            }
 
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-            i+=1;
-        }
+            }else{
+                int[] BothIncs  = this.incReset(inc1,inc2);
+                inc1 = BothIncs[0];
+                inc2 = BothIncs[1];
+                checkRow = row+inc1;
+                checkCol = col+inc2;
+                reset = false;
 
-        ///  ----------- SECOND -----------
-
-        i=1;
-        while (row-i >0 && col+i > 0 && row-i<=8 && col+i<=8){
-            int newrow = row-i;
-            int newcol = col+i;
-
-            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
-                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
-
-                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-                    break;
-                }
-                else{
-                    break;
-                }
-            }
-
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-            i+=1;
-        }
-
-        ///  ----------------- THIRD -------------
-
-        i=1;
-        while (row-i >0 && col-i > 0 && row-i<=8 && col-i<=8){
-            int newrow = row-i;
-            int newcol = col-i;
-
-            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
-                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
-
-                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-                    break;
-                }
-                else{
+                if (inc1==0 && inc2 == 0){
                     break;
                 }
             }
-
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-            i+=1;
         }
-
-
-        ///  ------------- FOURTH -------------
-
-
-        i=1;
-        while (row+i >0 && col-i > 0 && row+i<=8 && col-i<=8){
-            int newrow = row+i;
-            int newcol = col-i;
-
-            if (board.getPiece(new ChessPosition(newrow,newcol))!=null){
-                ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(newrow,newcol)).getTeamColor();
-
-                if (board.getPiece(new ChessPosition(row,col)).getTeamColor() != teamColor){
-                    moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-                    break;
-                }
-                else{
-                    break;
-                }
-            }
-
-            moves.add(new ChessMove(new ChessPosition(row,col),new ChessPosition(newrow,newcol),null));
-            i+=1;
-        }
-
-        System.out.println(moves);
         return moves;
     }
 
+
+    private int[] incUpdate(int inc1,int inc2){
+        if (inc1>0 && inc2>0){
+            return new int[]{1,1};
+        }
+        if (inc1>0 && inc2<0){
+            return new int[]{1,-1};
+        }
+        if (inc1<0 && inc2>0){
+            return new int[]{-1,1};
+        }
+        if (inc1<0 && inc2<0){
+            return new int[]{-1,-1};
+        }
+
+        System.out.print("You broke incUpdate Bishop");
+        return new int[]{9,9};
+
+    }
+
+
+    private int[] incReset(int inc1,int inc2){
+        if (inc1>0 && inc2>0){
+            return new int[]{1,-1};
+        }
+        if (inc1>0 && inc2<0){
+            return new int[]{-1,1};
+        }
+        if (inc1<0 && inc2>0){
+            return new int[]{-1,-1};
+        }
+        if (inc1<0 && inc2<0){
+            return new int[]{0,0};
+        }
+
+        System.out.print("You broke incReset Bishop");
+        return new int[]{9,9};
+
+    }
 }
