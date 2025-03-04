@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class MoveCalcHelper {
@@ -51,11 +52,20 @@ public class MoveCalcHelper {
     }
 
     public void calcLegalMovesFromAllPositions(
-            Collection<ChessPosition> allPos,
+            int[] rowOffsets,
+            int[] colOffsets,
             Collection<ChessMove> legalMoves,
             ChessBoard board,
             ChessPosition myPos,
             ChessGame.TeamColor color){
+
+        Collection<ChessPosition> allPos = new ArrayList<>();
+
+        for (int i = 0; i < rowOffsets.length; i++){
+            allPos.add(new ChessPosition(
+                    myPos.getRow() + rowOffsets[i],
+                    myPos.getColumn() + colOffsets[i]));
+        }
 
         for (ChessPosition pos : allPos){
             int row = pos.getRow();

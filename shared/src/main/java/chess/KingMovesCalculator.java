@@ -19,46 +19,24 @@ public class KingMovesCalculator {
     }
 
 
-    public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        ChessPiece piece = board.getPiece(myPosition);
-        ChessGame.TeamColor color = piece.getTeamColor();
+    public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPos) {
+        int[] kingRowOffsets = { 1, 1, 1, 0, 0, -1, -1, -1 };
+        int[] kingColOffsets = { 1, 0, -1, 1, -1, 1, 0, -1 };
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+        // board
+        // myPos
+        ChessGame.TeamColor color = board.getPiece(myPos).getTeamColor();
 
-        Collection<ChessPosition> posList = new ArrayList<>();
+        // Pass everything into MoveCalcHelper
+        MoveCalcHelper.getInstance().calcLegalMovesFromAllPositions(
+                kingRowOffsets,
+                kingColOffsets,
+                legalMoves,
+                board,
+                myPos,
+                color
+        );
 
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-
-        posList.add(new ChessPosition(row+1,col));
-        posList.add(new ChessPosition(row-1,col));
-        posList.add(new ChessPosition(row,col+1));
-        posList.add(new ChessPosition(row,col-1));
-        posList.add(new ChessPosition(row+1,col+1));
-        posList.add(new ChessPosition(row+1,col-1));
-        posList.add(new ChessPosition(row-1,col+1));
-        posList.add(new ChessPosition(row-1,col-1));
-
-
-        for (ChessPosition pos : posList){
-            if (pos.getRow()>8 | pos.getRow()<1 | pos.getColumn() <1 | pos.getColumn()>8){
-                continue;
-            }
-
-            ChessMove move = new ChessMove(myPosition,pos,null);
-
-            if (board.getPiece(pos)!=null){
-                if (board.getPiece(pos).getTeamColor()==color){
-                    continue;
-                }
-                else{
-                    moves.add(move);
-                    continue;
-                }
-            }else{
-                moves.add(move);
-                continue;
-            }
-        }
-        return moves;
+        return legalMoves;
     }
 }

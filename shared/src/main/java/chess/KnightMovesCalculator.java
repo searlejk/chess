@@ -20,24 +20,17 @@ public class KnightMovesCalculator {
 
 
     public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPos) {
-        Collection<ChessPosition> allPos = new ArrayList<>();
+        int[] knightRowOffsets = { 2, 2, 1, 1, -1, -1, -2, -2 };
+        int[] knightColOffsets = { 1, -1, 2, -2, 2, -2, 1, -1 };
         Collection<ChessMove> legalMoves = new ArrayList<>();
         // board
         // myPos
         ChessGame.TeamColor color = board.getPiece(myPos).getTeamColor();
 
-        // add all Knight Positions to allPos
-        int[] knightRowOffsets = { 2, 2, 1, 1, -1, -1, -2, -2 };
-        int[] knightColOffsets = { 1, -1, 2, -2, 2, -2, 1, -1 };
-
-        for (int i = 0; i < knightRowOffsets.length; i++) {
-            allPos.add(new ChessPosition(
-                    myPos.getRow() + knightRowOffsets[i],
-                    myPos.getColumn() + knightColOffsets[i]));
-        }
-
+        // Pass everything into MoveCalcHelper
         MoveCalcHelper.getInstance().calcLegalMovesFromAllPositions(
-                allPos,
+                knightRowOffsets,
+                knightColOffsets,
                 legalMoves,
                 board,
                 myPos,
