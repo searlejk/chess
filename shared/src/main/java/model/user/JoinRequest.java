@@ -1,6 +1,4 @@
-package model;
-
-import chess.ChessGame;
+package model.user;
 
 public record JoinRequest(
         String playerColor,

@@ -1,9 +1,9 @@
 package server.handlers;
 
 import exceptions.DataAccessException;
-import model.ErrorResult;
-import model.RegisterRequest;
-import model.RegisterResult;
+import model.other.ErrorResult;
+import model.user.RegisterRequest;
+import model.user.RegisterResult;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;

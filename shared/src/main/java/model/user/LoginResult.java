@@ -1,4 +1,4 @@
-package model;
+package model.user;
 
 public record LoginResult(
         String username,

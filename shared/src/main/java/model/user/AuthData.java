@@ -1,3 +1,3 @@
-package model;
+package model.user;
 
 public record AuthData(String authToken, String username) {}

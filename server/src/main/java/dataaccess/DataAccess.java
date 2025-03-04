@@ -1,9 +1,9 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
-import model.UserData;
-import model.AuthData;
-import model.GameData;
+import model.user.UserData;
+import model.user.AuthData;
+import model.game.GameData;
 
 import java.util.Collection;
 

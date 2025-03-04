@@ -1,6 +1,4 @@
-package model;
-
-import chess.ChessGame;
+package model.game;
 
 public record GameData(
         int gameID,

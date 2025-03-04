@@ -5,7 +5,9 @@ import exceptions.InvalidAuthToken;
 import dataaccess.DataAccess;
 import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
-import model.*;
+import model.other.EmptyResult;
+import model.user.*;
+
 import java.util.Objects;
 import java.util.UUID;
 

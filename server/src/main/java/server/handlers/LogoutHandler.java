@@ -2,9 +2,9 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import exceptions.DataAccessException;
-import model.ErrorResult;
-import model.LogoutRequest;
-import model.EmptyResult;
+import model.other.ErrorResult;
+import model.user.LogoutRequest;
+import model.other.EmptyResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;

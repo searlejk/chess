@@ -6,7 +6,8 @@ import exceptions.TeamTakenException;
 import dataaccess.DataAccess;
 import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
-import model.*;
+import model.game.*;
+import model.user.JoinRequest;
 
 import java.util.Objects;
 
