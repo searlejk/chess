@@ -10,10 +10,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
-    private static final DataAccess dataAccess = DataAccessProvider.DATA_ACCESS;
+    private static final DataAccess DATA_ACCESS = DataAccessProvider.DATA_ACCESS;
 
     public static void checkAuthToken(String authToken) throws DataAccessException {
-        if (dataAccess.getUserByAuth(authToken)!=null){
+        if (DATA_ACCESS.getUserByAuth(authToken)!=null){
             return;
         }else {
             throw new InvalidAuthToken("Error: authToken not valid: " + authToken);
@@ -21,7 +21,7 @@ public class UserService {
     }
 
     public static void clearUsersAndAuth(){
-        dataAccess.clearUsersAndAuth();
+        DATA_ACCESS.clearUsersAndAuth();
     }
     public static AuthData makeAuthData(String username) {
         String authToken = UUID.randomUUID().toString();
@@ -34,18 +34,18 @@ public class UserService {
         String email = registerRequest.email();
 
         ///  If username is already used, give error
-        if (dataAccess.getUser(username)!=null){
+        if (DATA_ACCESS.getUser(username)!=null){
             throw new DataAccessException("Username is taken");
         }
 
         ///  Otherwise
         ///  1) add new user
         UserData user = new UserData(username,password,email);
-        dataAccess.addUser(user);
+        DATA_ACCESS.addUser(user);
 
         ///  2) Create authToken and store in authData
         AuthData authData = makeAuthData(username);
-        dataAccess.addAuthData(authData);
+        DATA_ACCESS.addAuthData(authData);
 
         return new RegisterResult(username,authData.authToken());
     }
@@ -57,17 +57,17 @@ public class UserService {
 
 
         ///  if username is missing
-        if (dataAccess.getUser(username)==null) {
+        if (DATA_ACCESS.getUser(username)==null) {
             /// Throw error
             throw new IncorrectCredentialsException("Username not in database");
         } else {
             ///  if username in database
-            if (!Objects.equals(dataAccess.getUser(username).password(), password)) {
+            if (!Objects.equals(DATA_ACCESS.getUser(username).password(), password)) {
                 throw new IncorrectCredentialsException("Incorrect password");
             } else {
             ///  if username & password correct:
                 AuthData authData = makeAuthData(username);
-                dataAccess.addAuthData(authData);
+                DATA_ACCESS.addAuthData(authData);
                 return new LoginResult(username,authData.authToken());
             }
         }
@@ -76,12 +76,12 @@ public class UserService {
 
     public static EmptyResult logout(LogoutRequest logoutRequest) throws DataAccessException {
         String authToken = logoutRequest.authToken();
-        UserData user = dataAccess.getUserByAuth(authToken);
+        UserData user = DATA_ACCESS.getUserByAuth(authToken);
 
         ///  if there is a user with that authToken
         if (user!=null){
             ///  Clear their authToken data
-            dataAccess.deleteAuth(authToken);
+            DATA_ACCESS.deleteAuth(authToken);
         } else{
             ///  if there is NO user with that authToken
             throw new DataAccessException("Error: No User with authToken: "+authToken);
