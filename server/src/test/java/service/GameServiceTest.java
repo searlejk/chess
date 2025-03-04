@@ -1,9 +1,7 @@
 package service;
 
-import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessProvider;
-import dataaccess.MemoryDataAccess;
 import model.GameData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +14,9 @@ class GameServiceTest {
 
     @BeforeEach
     void setUp() {
-        DataAccessProvider.dataAccess.clearGames();
-        DataAccessProvider.dataAccess.clearUsersAndAuth();
-        this.data = DataAccessProvider.dataAccess;
+        DataAccessProvider.DATA_ACCESS.clearGames();
+        DataAccessProvider.DATA_ACCESS.clearUsersAndAuth();
+        this.data = DataAccessProvider.DATA_ACCESS;
     }
 
     @AfterEach

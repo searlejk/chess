@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
-    private static final DataAccess dataAccess = DataAccessProvider.dataAccess;
+    private static final DataAccess dataAccess = DataAccessProvider.DATA_ACCESS;
 
     public static void checkAuthToken(String authToken) throws DataAccessException {
         if (dataAccess.getUserByAuth(authToken)!=null){

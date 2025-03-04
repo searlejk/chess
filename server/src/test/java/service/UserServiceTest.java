@@ -14,9 +14,9 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        DataAccessProvider.dataAccess.clearGames();
-        DataAccessProvider.dataAccess.clearUsersAndAuth();
-        this.data = DataAccessProvider.dataAccess;
+        DataAccessProvider.DATA_ACCESS.clearGames();
+        DataAccessProvider.DATA_ACCESS.clearUsersAndAuth();
+        this.data = DataAccessProvider.DATA_ACCESS;
     }
 
     @Test
