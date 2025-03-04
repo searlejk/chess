@@ -36,8 +36,8 @@ public class MoveCalc {
         }
 
         if (this.type == ChessPiece.PieceType.PAWN){
-            PawnMovesCalculator temp = new PawnMovesCalculator(board,startPosition,type);
-            return temp.legalMoves();
+            PawnMovesCalculator temp = new PawnMovesCalculator(board,startPosition);
+            return temp.legalMoves(board,startPosition);
         }
 
         if (this.type == ChessPiece.PieceType.QUEEN){
