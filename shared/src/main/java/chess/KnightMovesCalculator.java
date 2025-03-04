@@ -19,46 +19,31 @@ public class KnightMovesCalculator {
     }
 
 
-    public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        ChessPiece piece = board.getPiece(myPosition);
-        ChessGame.TeamColor color = piece.getTeamColor();
+    public Collection<ChessMove> legalMoves(ChessBoard board, ChessPosition myPos) {
+        Collection<ChessPosition> allPos = new ArrayList<>();
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+        // board
+        // myPos
+        ChessGame.TeamColor color = board.getPiece(myPos).getTeamColor();
 
-        Collection<ChessPosition> posList = new ArrayList<>();
+        // add all Knight Positions to allPos
+        int[] knightRowOffsets = { 2, 2, 1, 1, -1, -1, -2, -2 };
+        int[] knightColOffsets = { 1, -1, 2, -2, 2, -2, 1, -1 };
 
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-
-        posList.add(new ChessPosition(row+1,col+2));
-        posList.add(new ChessPosition(row+1,col-2));
-        posList.add(new ChessPosition(row-1,col+2));
-        posList.add(new ChessPosition(row-1,col-2));
-        posList.add(new ChessPosition(row+2,col+1));
-        posList.add(new ChessPosition(row+2,col-1));
-        posList.add(new ChessPosition(row-2,col+1));
-        posList.add(new ChessPosition(row-2,col-1));
-
-
-        for (ChessPosition pos : posList){
-            if (pos.getRow()>8 | pos.getRow()<1 | pos.getColumn() <1 | pos.getColumn()>8){
-                continue;
-            }
-
-            ChessMove move = new ChessMove(myPosition,pos,null);
-
-            if (board.getPiece(pos)!=null){
-                if (board.getPiece(pos).getTeamColor()==color){
-                    continue;
-                }
-                else{
-                    moves.add(move);
-                    continue;
-                }
-            }else{
-                moves.add(move);
-                continue;
-            }
+        for (int i = 0; i < knightRowOffsets.length; i++) {
+            allPos.add(new ChessPosition(
+                    myPos.getRow() + knightRowOffsets[i],
+                    myPos.getColumn() + knightColOffsets[i]));
         }
-        return moves;
+
+        MoveCalcHelper.getInstance().calcLegalMovesFromAllPositions(
+                allPos,
+                legalMoves,
+                board,
+                myPos,
+                color
+        );
+
+        return legalMoves;
     }
 }

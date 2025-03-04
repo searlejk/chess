@@ -2,16 +2,16 @@ package chess;
 
 import java.util.Collection;
 
-public class SlidingMovesCalc {
+public class MoveCalcHelper {
 
     // creates just one instance
-    private static final SlidingMovesCalc instance = new SlidingMovesCalc();
+    private static final MoveCalcHelper instance = new MoveCalcHelper();
 
     // private constructor so it can't be instantiated
-    private SlidingMovesCalc() { };
+    private MoveCalcHelper() { };
 
     // provides public access to this instance
-    public static SlidingMovesCalc getInstance() {
+    public static MoveCalcHelper getInstance() {
         return instance;
     }
 
@@ -48,5 +48,32 @@ public class SlidingMovesCalc {
             col += incCol;
         }
 
+    }
+
+    public void calcLegalMovesFromAllPositions(
+            Collection<ChessPosition> allPos,
+            Collection<ChessMove> legalMoves,
+            ChessBoard board,
+            ChessPosition myPos,
+            ChessGame.TeamColor color){
+
+        for (ChessPosition pos : allPos){
+            int row = pos.getRow();
+            int col = pos.getColumn();
+            ChessMove move = new ChessMove(myPos,pos,null);
+
+            if (row > 8 | row < 1 | col < 1 | col > 8){
+                continue;
+            }
+
+            if (board.getPiece(pos)!=null){
+                if (board.getPiece(pos).getTeamColor()!=color){
+                    legalMoves.add(move);
+                }
+
+            }else{
+                legalMoves.add(move);
+            }
+        }
     }
 }

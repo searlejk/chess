@@ -28,16 +28,16 @@ public class RookMovesCalculator {
         ChessGame.TeamColor color = piece.getTeamColor();
 
         // calculate sliding moves:
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,1,0,color);
 
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,-1,0,color);
 
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,0,1,color);
 
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,0,-1,color);
 
         return moves;

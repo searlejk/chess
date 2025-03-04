@@ -31,16 +31,16 @@ public class BishopMovesCalculator {
         ChessGame.TeamColor color = piece.getTeamColor();
 
         // calculate sliding moves:
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,1,1,color);
 
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,1,-1,color);
 
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,-1,-1,color);
 
-        SlidingMovesCalc.getInstance().slidingMovesCalc(
+        MoveCalcHelper.getInstance().slidingMovesCalc(
                 moves,board,myPos,-1,1,color);
 
         return moves;
