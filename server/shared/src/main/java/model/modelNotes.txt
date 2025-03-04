@@ -1,9 +1,0 @@
-You will add your record classes here, yes these three:
-1) AuthData
-2) GameData
-3) UserData
-
-but also others:
-- LoginRequest
-- RegisterRequest
-- Basically all of the Requests and also the result classes

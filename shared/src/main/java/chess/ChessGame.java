@@ -43,10 +43,10 @@ public class ChessGame {
         BLACK;
 
 
-//        @Override
-//        public String toString() {
-//            return name().toLowerCase();
-//        }
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 
     /**
