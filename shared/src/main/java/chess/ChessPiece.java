@@ -56,43 +56,43 @@ public class ChessPiece {
         Collection<ChessMove> moves = new ArrayList<>();
 
         if (type == PieceType.BISHOP){
-            BishopMovesCalculator b_calc = new BishopMovesCalculator(board,myPosition);
-            moves = b_calc.legalMoves(board,myPosition);
+            BishopMovesCalculator bCalc = new BishopMovesCalculator(board,myPosition);
+            moves = bCalc.legalMoves(board,myPosition);
             return moves;
 
         }
         if (type == PieceType.ROOK){
-            RookMovesCalculator r_calc = new RookMovesCalculator(board,myPosition);
-            moves = r_calc.legalMoves(board,myPosition);
+            RookMovesCalculator rCalc = new RookMovesCalculator(board,myPosition);
+            moves = rCalc.legalMoves(board,myPosition);
             return moves;
 
         }
         if (type == PieceType.QUEEN){
-            RookMovesCalculator r_calc = new RookMovesCalculator(board,myPosition);
-            moves = r_calc.legalMoves(board,myPosition);
+            RookMovesCalculator rCalc = new RookMovesCalculator(board,myPosition);
+            moves = rCalc.legalMoves(board,myPosition);
 
-            BishopMovesCalculator b_calc = new BishopMovesCalculator(board,myPosition);
-            for (ChessMove move :b_calc.legalMoves(board,myPosition)){
+            BishopMovesCalculator bCalc = new BishopMovesCalculator(board,myPosition);
+            for (ChessMove move :bCalc.legalMoves(board,myPosition)){
                 moves.add(move);
             }
             return moves;
 
         }
         if (type == PieceType.KING){
-            KingMovesCalculator K_calc = new KingMovesCalculator(board,myPosition);
-            moves = K_calc.legalMoves(board,myPosition);
+            KingMovesCalculator kCalc = new KingMovesCalculator(board,myPosition);
+            moves = kCalc.legalMoves(board,myPosition);
             return moves;
 
         }
         if (type == PieceType.KNIGHT){
-            KnightMovesCalculator Knight_calc = new KnightMovesCalculator(board,myPosition);
-            moves = Knight_calc.legalMoves(board,myPosition);
+            KnightMovesCalculator knightCalc = new KnightMovesCalculator(board,myPosition);
+            moves = knightCalc.legalMoves(board,myPosition);
             return moves;
 
         }
         if (type == PieceType.PAWN){
-            PawnMovesCalculator p_calc = new PawnMovesCalculator(board,myPosition);
-            moves = p_calc.legalMoves(board,myPosition);
+            PawnMovesCalculator pawnCalc = new PawnMovesCalculator(board,myPosition);
+            moves = pawnCalc.legalMoves(board,myPosition);
             return moves;
 
         }

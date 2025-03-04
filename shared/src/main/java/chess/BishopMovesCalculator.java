@@ -55,17 +55,17 @@ public class BishopMovesCalculator {
 
                 }else{
                     moves.add(move);
-                    int[] BothIncs  = this.incUpdate(inc1,inc2);
-                    inc1 += BothIncs[0];
-                    inc2 += BothIncs[1];
+                    int[] bothIncs = this.incUpdate(inc1,inc2);
+                    inc1 += bothIncs[0];
+                    inc2 += bothIncs[1];
                     checkRow = row+inc1;
                     checkCol = col+inc2;
                 }
 
             }else{
-                int[] BothIncs  = this.incReset(inc1,inc2);
-                inc1 = BothIncs[0];
-                inc2 = BothIncs[1];
+                int[] bothIncs  = this.incReset(inc1,inc2);
+                inc1 = bothIncs[0];
+                inc2 = bothIncs[1];
                 checkRow = row+inc1;
                 checkCol = col+inc2;
                 reset = false;
