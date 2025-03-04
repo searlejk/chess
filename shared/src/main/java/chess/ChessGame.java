@@ -3,7 +3,9 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static chess.ChessPiece.PieceType.QUEEN;
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -13,7 +15,7 @@ import static chess.ChessPiece.PieceType.QUEEN;
  */
 public class ChessGame {
     private ChessBoard board = new ChessBoard();
-    private ChessGame.TeamColor currTurn = TeamColor.WHITE;
+    private ChessGame.TeamColor currTurn = WHITE;
 
     public ChessGame() {
         this.board.resetBoard();
@@ -173,7 +175,7 @@ public class ChessGame {
             throw new InvalidMoveException("Illegal move for this PieceType");
         }
 
-        if (type == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null) {
+        if (type == PAWN && move.getPromotionPiece() != null) {
             ///  Pass Correct Piece into move function
             ChessPiece promotionalPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
             futureBoard.move(promotionalPiece, move);
@@ -194,10 +196,10 @@ public class ChessGame {
 
         TeamColor oppTeamColor;
 
-        if (teamColor == TeamColor.WHITE) {
-            oppTeamColor = TeamColor.BLACK;
+        if (teamColor == WHITE) {
+            oppTeamColor = BLACK;
         } else {
-            oppTeamColor = TeamColor.WHITE;
+            oppTeamColor = WHITE;
         }
 
         this.setTeamTurn(oppTeamColor);
@@ -217,67 +219,65 @@ public class ChessGame {
         2)  for each Piece check their moves to see if they can reach the king's square
         3)  if they can, the king is in check
          */
-        TeamColor oppColor = TeamColor.WHITE;
+        TeamColor oppColor = WHITE;
 
-        if (teamColor == TeamColor.WHITE) {
-            oppColor = TeamColor.BLACK;
+        if (teamColor == WHITE) {
+            oppColor = BLACK;
         }
-        if (teamColor == TeamColor.BLACK) {
-            oppColor = teamColor.WHITE;
+        if (teamColor == BLACK) {
+            oppColor = WHITE;
         }
 
         ///  Find king of team color:
-        ChessPosition king = new ChessPosition(1, 1);
+        ChessPosition kingPos = new ChessPosition(1,1);
 
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                if (board.getPiece(new ChessPosition(i, j)) != null) {
-                    if (board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
-                        if (board.getPiece(new ChessPosition(i, j)).getPieceType() == ChessPiece.PieceType.KING) {
-                            king = new ChessPosition(i, j);
-                            System.out.println("Found " + board.getPiece(new ChessPosition(i, j)).getPieceType() + " at: (" + i + ", " + j + ")");
-                        }
-                    }
-                }
+        outer:
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(pos);
+
+                if (piece==null) continue;
+                if (piece.getTeamColor()!=teamColor) continue;
+                if (piece.getPieceType()!=KING) continue;
+
+                kingPos = pos;
+                System.out.println("Found KING at: " + pos);
+                break outer;
             }
         }
 
-        System.out.println("king location: " + king);
+        System.out.println("king location: " + kingPos);
 
-        ///  List of Opposing pieces:
-        Collection<ChessPiece> oppPieces = new ArrayList<>();
-
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition currPosition = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(currPosition);
-                ///  If there is a piece
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(pos);
                 if (piece == null) {
                     continue;
                 }
-                if (piece.getTeamColor()!=oppColor) {
+
+                ChessGame.TeamColor pieceColor = piece.getTeamColor();
+                ChessPiece.PieceType pieceType = piece.getPieceType();
+
+                if (pieceColor!=oppColor) {
                     continue;
                 }
 
-                ///  If that piece matches Opposing team's color
-                if (board.getPiece(currPosition).getTeamColor() == oppColor) {
-                    /// Create ChessMove Var for that chess piece
-                    /// Check if that piece can move from: Its location, to the king's location
-                    ChessMove tempMove = new ChessMove(currPosition, king, null);
-                    ///  if White promotion pawn, change tempMove
-                    if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
-                            board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE) {
-                        tempMove = new ChessMove(currPosition, king, QUEEN);
-                    }
-                    if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
-                            board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK) {
-                        tempMove = new ChessMove(currPosition, king, QUEEN);
-                    }
-                    if (board.getPiece(currPosition).pieceMoves(board, currPosition).contains(tempMove)) {
-                        return true;
-                    }
+                ChessMove move = new ChessMove(pos, kingPos, null);
 
+                // update move for promotional pawns (either WHITE or BLACK)
+                if (pieceColor == WHITE && pieceType == PAWN && row == 7){
+                    move = new ChessMove(pos, kingPos, QUEEN);
                 }
+
+                if (pieceColor == BLACK && pieceType == PAWN && row == 2) {
+                    move = new ChessMove(pos, kingPos, QUEEN);
+                }
+                if (piece.pieceMoves(board, pos).contains(move)) {
+                    return true;
+                }
+
             }
         }
         return false;
@@ -300,11 +300,11 @@ public class ChessGame {
         boolean inStalemate = true;
         TeamColor trueTeamColor = this.getTeamTurn();
 
-        if (this.getTeamTurn() == TeamColor.WHITE) {
-            trueTeamColor = TeamColor.WHITE;
+        if (this.getTeamTurn() == WHITE) {
+            trueTeamColor = WHITE;
         }
-        if (this.getTeamTurn() == TeamColor.BLACK) {
-            trueTeamColor = TeamColor.BLACK;
+        if (this.getTeamTurn() == BLACK) {
+            trueTeamColor = BLACK;
         }
         while (inStalemate == true) {
             for (int i = 1; i < 9; i++) {
@@ -349,11 +349,11 @@ public class ChessGame {
 
         TeamColor trueTeamColor = this.getTeamTurn();
 
-        if (this.getTeamTurn() == TeamColor.WHITE){
-            trueTeamColor = TeamColor.WHITE;
+        if (this.getTeamTurn() == WHITE){
+            trueTeamColor = WHITE;
         }
-        if (this.getTeamTurn() == TeamColor.BLACK){
-            trueTeamColor = TeamColor.BLACK;
+        if (this.getTeamTurn() == BLACK){
+            trueTeamColor = BLACK;
         }
 
 
