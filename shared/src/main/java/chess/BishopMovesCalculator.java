@@ -33,6 +33,8 @@ public class BishopMovesCalculator {
         int inc1 = 1;
         int inc2 = 1;
 
+
+        /// here to
         int checkRow = row+inc1;
         int checkCol = col+inc2;
 
@@ -52,6 +54,9 @@ public class BishopMovesCalculator {
                         checkRow = row+inc1;
                         checkCol = col+inc2;
                     }
+
+            ///  here
+
 
                 }else{
                     moves.add(move);

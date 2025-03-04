@@ -250,26 +250,33 @@ public class ChessGame {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition currPosition = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(currPosition);
                 ///  If there is a piece
-                if (board.getPiece(currPosition) != null) {
-                    ///  If that piece matches Opposing team's color
-                    if (board.getPiece(currPosition).getTeamColor() == oppColor) {
-                        /// Create ChessMove Var for that chess piece
-                        /// Check if that piece can move from: Its location, to the king's location
-                        ChessMove tempMove = new ChessMove(currPosition, king, null);
-                        ///  if White promotion pawn, change tempMove
-                        if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
-                                board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE) {
-                            tempMove = new ChessMove(currPosition, king, QUEEN);
-                        }
-                        if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
-                                board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK) {
-                            tempMove = new ChessMove(currPosition, king, QUEEN);
-                        }
-                        if (board.getPiece(currPosition).pieceMoves(board, currPosition).contains(tempMove)) {
-                            return true;
-                        }
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getTeamColor()!=oppColor) {
+                    continue;
+                }
+
+                ///  If that piece matches Opposing team's color
+                if (board.getPiece(currPosition).getTeamColor() == oppColor) {
+                    /// Create ChessMove Var for that chess piece
+                    /// Check if that piece can move from: Its location, to the king's location
+                    ChessMove tempMove = new ChessMove(currPosition, king, null);
+                    ///  if White promotion pawn, change tempMove
+                    if (i == 7 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                            board.getPiece(currPosition).getTeamColor() == TeamColor.WHITE) {
+                        tempMove = new ChessMove(currPosition, king, QUEEN);
                     }
+                    if (i == 2 && board.getPiece(currPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                            board.getPiece(currPosition).getTeamColor() == TeamColor.BLACK) {
+                        tempMove = new ChessMove(currPosition, king, QUEEN);
+                    }
+                    if (board.getPiece(currPosition).pieceMoves(board, currPosition).contains(tempMove)) {
+                        return true;
+                    }
+
                 }
             }
         }
