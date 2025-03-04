@@ -3,9 +3,8 @@ package model;
 import chess.ChessGame;
 
 public record GameData(
-        int gameID,
+        Integer gameID,
         String whiteUsername,
         String blackUsername,
-        String gameName,
-        ChessGame game) {
+        String gameName){
 }
