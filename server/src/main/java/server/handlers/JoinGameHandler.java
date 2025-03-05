@@ -66,14 +66,19 @@ public class JoinGameHandler {
             errorResult = new ErrorResult("Error: Invalid Auth Token");
             return serializer.toJson(errorResult);
         }
-//        catch(NullPointerException e){
-//            res.status(400);
-//            errorResult = new ErrorResult("Error: incorrect Color input");
-//            return serializer.toJson(errorResult);
-//        }
+        catch(NullPointerException e){
+            res.status(400);
+            errorResult = new ErrorResult("Error: incorrect Color input");
+            return serializer.toJson(errorResult);
+        }
         catch(DataAccessException e){
             res.status(401);
             errorResult = new ErrorResult("Error: Data Access Exception");
+            return serializer.toJson(errorResult);
+        }
+        catch(Exception e){
+            res.status(410);
+            errorResult = new ErrorResult("Error: Unhandled exception (JoinGame block)");
             return serializer.toJson(errorResult);
         }
 
