@@ -32,7 +32,7 @@ public class JoinGameHandler {
             inputColor = tempBody.playerColor();
             System.out.println("input color: " + inputColor);
         }
-        catch(Exception e){
+        catch(NullPointerException e){
             res.status(400);
             errorResult = new ErrorResult("Error: null pointer exception");
             return serializer.toJson(errorResult);
@@ -64,7 +64,7 @@ public class JoinGameHandler {
             return serializer.toJson(errorResult);
         }
         catch(NullPointerException e){
-            res.status(400);
+            res.status(401);
             errorResult = new ErrorResult("Error: incorrect Color input");
             return serializer.toJson(errorResult);
         }
