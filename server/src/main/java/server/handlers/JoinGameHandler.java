@@ -1,5 +1,6 @@
 package server.handlers;
 
+import com.google.gson.JsonSyntaxException;
 import exceptions.IncorrectCredentialsException;
 import exceptions.NoGameFoundException;
 import exceptions.TeamTakenException;
@@ -22,7 +23,7 @@ public class JoinGameHandler {
         ErrorResult errorResult;
 
         GetGameBody tempBody;
-        chess.ChessGame.TeamColor inputColor;
+        String inputColor;
         int gameID;
 
         try {
@@ -31,7 +32,7 @@ public class JoinGameHandler {
             inputColor = tempBody.playerColor();
             System.out.println("input color: " + inputColor);
         }
-        catch(NullPointerException e){
+        catch(Exception e){
             res.status(400);
             errorResult = new ErrorResult("Error: null pointer exception");
             return serializer.toJson(errorResult);
@@ -40,7 +41,7 @@ public class JoinGameHandler {
         ///  update string to uppercase
         //String upperCaseColor = inputColor.toUpperCase();
 
-        JoinRequest joinRequest = new JoinRequest(inputColor.name(),gameID,authToken);
+        JoinRequest joinRequest = new JoinRequest(inputColor,gameID,authToken);
         EmptyResult getGameResult;
 
         try{

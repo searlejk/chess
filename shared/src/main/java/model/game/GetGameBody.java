@@ -1,6 +1,6 @@
 package model.game;
 
 public record GetGameBody(
-        chess.ChessGame.TeamColor playerColor,
+        String playerColor,
         Integer gameID){
 }
