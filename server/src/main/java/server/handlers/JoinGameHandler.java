@@ -63,9 +63,14 @@ public class JoinGameHandler {
             errorResult = new ErrorResult("Error: no game found");
             return serializer.toJson(errorResult);
         }
-        catch(DataAccessException | NullPointerException e){
+        catch(NullPointerException e){
             res.status(400);
             errorResult = new ErrorResult("Error: incorrect Color input");
+            return serializer.toJson(errorResult);
+        }
+        catch(DataAccessException e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: Data Access Exception");
             return serializer.toJson(errorResult);
         }
 
