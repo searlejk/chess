@@ -64,7 +64,7 @@ public class JoinGameHandler {
             return serializer.toJson(errorResult);
         }
         catch(DataAccessException | NullPointerException e){
-            res.status(401);
+            res.status(400);
             errorResult = new ErrorResult("Error: incorrect Color input");
             return serializer.toJson(errorResult);
         }
