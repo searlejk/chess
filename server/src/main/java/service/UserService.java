@@ -15,9 +15,7 @@ public class UserService {
     private static final DataAccess DATA_ACCESS = DataAccessProvider.DATA_ACCESS;
 
     public static void checkAuthToken(String authToken) throws DataAccessException {
-        if (DATA_ACCESS.getUserByAuth(authToken)!=null){
-            return;
-        }else {
+        if (DATA_ACCESS.getUserByAuth(authToken)==null){
             throw new InvalidAuthToken("Error: authToken not valid: " + authToken);
         }
     }

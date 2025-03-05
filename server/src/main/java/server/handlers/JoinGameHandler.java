@@ -4,7 +4,6 @@ import exceptions.IncorrectCredentialsException;
 import exceptions.NoGameFoundException;
 import exceptions.TeamTakenException;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import exceptions.DataAccessException;
 import model.game.GetGameBody;
 import model.other.EmptyResult;
@@ -20,22 +19,28 @@ public class JoinGameHandler {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
         String authToken = req.headers("Authorization");
-
-
-        GetGameBody tempBody;
-        tempBody = serializer.fromJson(req.body(), GetGameBody.class);
-
-        int gameID = tempBody.gameID();
-        String inputColor = tempBody.playerColor();
-        System.out.println("input color: " + inputColor);
-
         ErrorResult errorResult;
 
+        GetGameBody tempBody;
+        chess.ChessGame.TeamColor inputColor;
+        int gameID;
+
+        try {
+            tempBody = serializer.fromJson(req.body(), GetGameBody.class);
+            gameID = tempBody.gameID();
+            inputColor = tempBody.playerColor();
+            System.out.println("input color: " + inputColor);
+        }
+        catch(NullPointerException e){
+            res.status(400);
+            errorResult = new ErrorResult("Error: null pointer exception");
+            return serializer.toJson(errorResult);
+        }
+
         ///  update string to uppercase
-        String upperCaseColor = inputColor.toUpperCase();
+        //String upperCaseColor = inputColor.toUpperCase();
 
-
-        JoinRequest joinRequest = new JoinRequest(upperCaseColor,gameID,authToken);
+        JoinRequest joinRequest = new JoinRequest(inputColor.name(),gameID,authToken);
         EmptyResult getGameResult;
 
         try{
@@ -62,6 +67,7 @@ public class JoinGameHandler {
             errorResult = new ErrorResult("Error: incorrect Color input");
             return serializer.toJson(errorResult);
         }
+
 
         String answer = serializer.toJson(getGameResult);
         System.out.println("Generated Response: " + answer);

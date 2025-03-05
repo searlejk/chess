@@ -43,12 +43,7 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK;
-
-
-        @Override
-        public String toString() {
-            return name().toLowerCase();
-        }
+        
     }
 
     /**

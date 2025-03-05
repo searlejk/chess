@@ -61,9 +61,9 @@ public class MemoryDataAccess implements DataAccess {
             gameID = inputGameID;
         }
         GameData newGameData = new GameData(gameID,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
-        System.out.println("Added game " + gameID + ": " + newGameData.gameName());
+        //System.out.println("Added game " + gameID + ": " + newGameData.gameName());
         games.put(gameID,newGameData);
-        System.out.println(games.values());
+        //System.out.println(games.values());
         return newGameData;
     }
 

@@ -31,7 +31,7 @@ public class CreateGameHandler {
         }
 
 
-        CreateGameResult createGameResult = null;
+        CreateGameResult createGameResult;
 
         try{
             createGameResult = GameService.createGame(createGameRequest);
