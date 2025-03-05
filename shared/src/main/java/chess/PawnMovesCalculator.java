@@ -64,22 +64,65 @@ public class PawnMovesCalculator {
             ChessPiece endPiece = board.getPiece(endPos);
             Collection<ChessPiece.PieceType> promoList = List.of(QUEEN, KNIGHT, BISHOP, ROOK);
 
-
             // diagonal move with no piece to capture
             if (endCol!=col && endPiece==null){
                 legalMoves.remove(move);
+                continue;
             }
 
             // forward single move with piece blocking way
             if (endPiece!=null && endCol==col){
                 legalMoves.remove(move);
+                continue;
             }
 
             // forward double illegal start position
             if ((endRow==row+2 && row!=2) ||
-                 endRow==row-2 && row!=7){
+                    endRow==row-2 && row!=7){
                 legalMoves.remove(move);
+                continue;
             }
+
+            // WHITE diagonal promotion update
+            if (endRow==8 && color==WHITE && endCol!=col){
+                legalMoves.remove(move);
+                for (ChessPiece.PieceType promo : promoList ){
+                    ChessMove promoMove = new ChessMove(myPos,endPos,promo);
+                    legalMoves.add(promoMove);
+                }
+                continue;
+            }
+
+            // WHITE straight promotion update
+            if (endRow==8 && color==WHITE){
+                legalMoves.remove(move);
+                for (ChessPiece.PieceType promo : promoList ){
+                    ChessMove promoMove = new ChessMove(myPos,endPos,promo);
+                    legalMoves.add(promoMove);
+                }
+                continue;
+            }
+
+            // BLACK diagonal promotion update
+            if (endRow==1 && color==BLACK && endCol!=col){
+                legalMoves.remove(move);
+                for (ChessPiece.PieceType promo : promoList ){
+                    ChessMove promoMove = new ChessMove(myPos,endPos,promo);
+                    legalMoves.add(promoMove);
+                }
+                continue;
+            }
+
+            // BLACK straight promotion update
+            if (endRow==1 && color==BLACK){
+                legalMoves.remove(move);
+                for (ChessPiece.PieceType promo : promoList ){
+                    ChessMove promoMove = new ChessMove(myPos,endPos,promo);
+                    legalMoves.add(promoMove);
+                }
+                continue;
+            }
+
 
             // forward double WHITE move
             ChessPosition midWhitePos = new ChessPosition(row+1,col);
@@ -95,23 +138,7 @@ public class PawnMovesCalculator {
                 legalMoves.remove(move);
             }
 
-            // WHITE promotion update
-            if (endRow==8){
-                legalMoves.remove(move);
-                for (ChessPiece.PieceType promo : promoList ){
-                    ChessMove promoMove = new ChessMove(myPos,endPos,promo);
-                    legalMoves.add(promoMove);
-                }
-            }
 
-            // BLACK promotion update
-            if (endRow==1){
-                legalMoves.remove(move);
-                for (ChessPiece.PieceType promo : promoList ){
-                    ChessMove promoMove = new ChessMove(myPos,endPos,promo);
-                    legalMoves.add(promoMove);
-                }
-            }
 
         }
 
