@@ -13,8 +13,8 @@ public class ListGamesHandler {
     public String handleListGames(Request req, Response res) {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
-
         String authToken = req.headers("Authorization");
+
         ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
         ListGamesResult listGamesResult;
         ErrorResult errorResult;

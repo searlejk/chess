@@ -7,6 +7,7 @@ import dataaccess.DataAccess;
 import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.game.*;
+import model.other.EmptyResult;
 import model.user.JoinRequest;
 
 import java.util.Objects;
@@ -41,7 +42,7 @@ public class GameService {
         return new CreateGameResult(newGameData.gameID());
     }
 
-    public static void joinGame(JoinRequest joinRequest) throws DataAccessException {
+    public static EmptyResult joinGame(JoinRequest joinRequest) throws DataAccessException {
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
         String teamColor = joinRequest.playerColor();
@@ -93,6 +94,6 @@ public class GameService {
         DATA_ACCESS.remGame(gameID);
         DATA_ACCESS.addGame(gameID, newGame);
 
-
+        return new EmptyResult();
     }
 }

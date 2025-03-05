@@ -1,6 +1,7 @@
 package server.handlers;
 
 import exceptions.IncorrectCredentialsException;
+import exceptions.NoGameFoundException;
 import exceptions.TeamTakenException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -18,36 +19,27 @@ public class JoinGameHandler {
     public String handleJoinGame(Request req, Response res) throws DataAccessException {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
-        ErrorResult errorResult;
+        String authToken = req.headers("Authorization");
+
 
         GetGameBody tempBody;
-        try {
-            tempBody = serializer.fromJson(req.body(), GetGameBody.class);
-        } catch (JsonSyntaxException e) {
-            res.status(400);
-            return "Invalid request body";
-        }
+        tempBody = serializer.fromJson(req.body(), GetGameBody.class);
 
         int gameID = tempBody.gameID();
         String inputColor = tempBody.playerColor();
-        if (inputColor == null ) {
-            res.status(400);
-            return "Invalid team color";
-        }
         System.out.println("input color: " + inputColor);
 
-        String authToken = req.headers("Authorization");
-
+        ErrorResult errorResult;
 
         ///  update string to uppercase
         String upperCaseColor = inputColor.toUpperCase();
 
 
         JoinRequest joinRequest = new JoinRequest(upperCaseColor,gameID,authToken);
-        EmptyResult getGameResult = null;
+        EmptyResult getGameResult;
 
         try{
-            GameService.joinGame(joinRequest);
+            getGameResult = GameService.joinGame(joinRequest);
             res.status(200);
         }
         catch(TeamTakenException e){
@@ -58,6 +50,11 @@ public class JoinGameHandler {
         catch(IncorrectCredentialsException e){
             res.status(400);
             errorResult = new ErrorResult("Error: incorrect gameID");
+            return serializer.toJson(errorResult);
+        }
+        catch(NoGameFoundException e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: no game found");
             return serializer.toJson(errorResult);
         }
         catch(DataAccessException | NullPointerException e){
