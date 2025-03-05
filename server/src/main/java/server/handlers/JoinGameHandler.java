@@ -1,11 +1,8 @@
 package server.handlers;
 
 import com.google.gson.JsonSyntaxException;
-import exceptions.IncorrectCredentialsException;
-import exceptions.NoGameFoundException;
-import exceptions.TeamTakenException;
+import exceptions.*;
 import com.google.gson.Gson;
-import exceptions.DataAccessException;
 import model.game.GetGameBody;
 import model.other.EmptyResult;
 import model.other.ErrorResult;
@@ -44,6 +41,7 @@ public class JoinGameHandler {
         JoinRequest joinRequest = new JoinRequest(inputColor,gameID,authToken);
         EmptyResult getGameResult;
 
+
         try{
             getGameResult = GameService.joinGame(joinRequest);
             res.status(200);
@@ -63,11 +61,16 @@ public class JoinGameHandler {
             errorResult = new ErrorResult("Error: no game found");
             return serializer.toJson(errorResult);
         }
-        catch(NullPointerException e){
-            res.status(400);
-            errorResult = new ErrorResult("Error: incorrect Color input");
+        catch(InvalidAuthToken e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: Invalid Auth Token");
             return serializer.toJson(errorResult);
         }
+//        catch(NullPointerException e){
+//            res.status(400);
+//            errorResult = new ErrorResult("Error: incorrect Color input");
+//            return serializer.toJson(errorResult);
+//        }
         catch(DataAccessException e){
             res.status(401);
             errorResult = new ErrorResult("Error: Data Access Exception");

@@ -1,5 +1,6 @@
 package dataaccess;
 
+import exceptions.InvalidAuthToken;
 import model.user.AuthData;
 import model.game.GameData;
 import model.user.UserData;
@@ -37,8 +38,13 @@ public class MemoryDataAccess implements DataAccess {
         return users.get(username);
     }
 
-    public UserData getUserByAuth(String authToken){
-        String username = authData.get(authToken).username();
+    public UserData getUserByAuth(String authToken) throws InvalidAuthToken {
+        String username;
+        try {
+            username = authData.get(authToken).username();
+        } catch(NullPointerException e){
+            throw new InvalidAuthToken("Invalid Auth Token used in getUserByAuth");
+        }
         if (username!=null) {
             return users.get(username);
         }

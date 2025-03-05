@@ -1,6 +1,7 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
+import exceptions.InvalidAuthToken;
 import model.user.UserData;
 import model.user.AuthData;
 import model.game.GameData;
@@ -11,7 +12,7 @@ public interface DataAccess {
     UserData addUser(UserData userdata) throws DataAccessException;
     UserData getUser(String username) throws DataAccessException;
     void addAuthData(AuthData authData) throws DataAccessException;
-    UserData getUserByAuth(String authToken) throws DataAccessException;
+    UserData getUserByAuth(String authToken) throws InvalidAuthToken;
     void deleteAuth(String authToken) throws DataAccessException;
 
     Collection<GameData> listGames();
