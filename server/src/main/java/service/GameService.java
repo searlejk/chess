@@ -16,7 +16,7 @@ public class GameService {
     private static final DataAccess DATA_ACCESS = DataAccessProvider.getDataAccess();
     private static int nextGameID = 1;
 
-    public static void clearGames() {
+    public static void clearGames() throws DataAccessException {
         DATA_ACCESS.clearGames();
     }
 

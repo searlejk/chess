@@ -97,14 +97,14 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public void clearUsersAndAuth() {
-
+    public void clearUsersAndAuth() throws ResponseException{
+        executeUpdate("TRUNCATE userData");
+        executeUpdate("TRUNCATE authData");
     }
 
     @Override
     public void clearGames() throws ResponseException {
-        var statement = "TRUNCATE gameData";
-        executeUpdate(statement);
+        executeUpdate("TRUNCATE gameData");
     }
 
     public UserData getUser(int id) throws ResponseException {

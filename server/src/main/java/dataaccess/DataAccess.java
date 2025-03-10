@@ -24,9 +24,9 @@ public interface DataAccess {
 
     void remGame(int gameID);
 
-    void clearUsersAndAuth();
+    void clearUsersAndAuth() throws exception.ResponseException;
 
-    void clearGames();
+    void clearGames() throws DataAccessException;
 
     Collection<UserData> listUserDatas() throws exception.ResponseException;
 

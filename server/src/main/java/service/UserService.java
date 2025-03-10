@@ -21,7 +21,11 @@ public class UserService {
     }
 
     public static void clearUsersAndAuth(){
-        DATA_ACCESS.clearUsersAndAuth();
+        try {
+            DATA_ACCESS.clearUsersAndAuth();
+        }catch (Exception e){
+            System.out.print("ClearUsersAndAuth failed in UserService");
+        }
     }
     public static AuthData makeAuthData(String username) {
         String authToken = UUID.randomUUID().toString();

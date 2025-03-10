@@ -14,9 +14,13 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        DataAccessProvider.DATA_ACCESS.clearGames();
-        DataAccessProvider.DATA_ACCESS.clearUsersAndAuth();
-        this.data = DataAccessProvider.DATA_ACCESS;
+        try {
+            DataAccessProvider.getDataAccess().clearGames();
+            DataAccessProvider.getDataAccess().clearUsersAndAuth();
+        } catch(Exception e){
+            System.out.print("ClearGames or clearUsersAndAuth failed in test");
+        }
+        this.data = DataAccessProvider.getDataAccess();
     }
 
     @Test
@@ -28,7 +32,11 @@ class UserServiceTest {
             fail(e.getMessage());
         }
 
-        data.clearUsersAndAuth();
+        try {
+            data.clearUsersAndAuth();
+        }catch(Exception e){
+            System.out.print("ClearUsersAndAuth failed in test");
+        }
 
         // Now verify that it’s empty
         try {

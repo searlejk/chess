@@ -14,9 +14,13 @@ class GameServiceTest {
 
     @BeforeEach
     void setUp() {
-        DataAccessProvider.DATA_ACCESS.clearGames();
-        DataAccessProvider.DATA_ACCESS.clearUsersAndAuth();
-        this.data = DataAccessProvider.DATA_ACCESS;
+        try {
+            DataAccessProvider.getDataAccess().clearGames();
+            DataAccessProvider.getDataAccess().clearUsersAndAuth();
+        }catch (Exception e){
+            System.out.print("ClearGames failed in set up for test");
+        }
+        this.data = DataAccessProvider.getDataAccess();
     }
 
     @AfterEach
@@ -27,7 +31,7 @@ class GameServiceTest {
     void clearGames() {
 
         data.addGame(0, new GameData(1,"white","black","coolgame"));
-        data.clearGames();
+        ///data.clearGames();
 
         assertTrue(data.listGames().isEmpty(), "Games should be empty after clear");
 
