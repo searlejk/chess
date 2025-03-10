@@ -8,12 +8,12 @@ import model.game.GameData;
 
 import java.util.Collection;
 
-public interface DataAccess {
-    UserData addUser(UserData userdata) throws DataAccessException;
-    UserData getUser(String username) throws DataAccessException;
-    void addAuthData(AuthData authData) throws DataAccessException;
-    UserData getUserByAuth(String authToken) throws DataAccessException;
-    void deleteAuth(String authToken) throws DataAccessException;
+public interface DataAccessMySqlInterface {
+    UserData addUser(UserData userdata) throws exception.ResponseException;
+    UserData getUser(String username) throws exception.ResponseException;
+    void addAuthData(AuthData authData) throws exception.ResponseException;
+    UserData getUserByAuth(String authToken) throws exception.ResponseException;
+    void deleteAuth(String authToken) throws exception.ResponseException;
 
     Collection<GameData> listGames();
 

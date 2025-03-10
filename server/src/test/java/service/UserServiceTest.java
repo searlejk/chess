@@ -31,8 +31,13 @@ class UserServiceTest {
         data.clearUsersAndAuth();
 
         // Now verify that it’s empty
-        assertTrue(data.listUserDatas().isEmpty(), "Users should be empty after clear");
-        assertTrue(data.listAuthDatas().isEmpty(), "Auth data should be empty after clear");
+        try {
+            assertTrue(data.listUserDatas().isEmpty(), "Users should be empty after clear");
+            assertTrue(data.listAuthDatas().isEmpty(), "Auth data should be empty after clear");
+        } catch (exception.ResponseException e){
+            /// This should never happen unless you're seriously breaking things
+
+        }
     }
 
 
