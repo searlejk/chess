@@ -76,11 +76,6 @@ public class JoinGameHandler {
             errorResult = new ErrorResult("Error: Data Access Exception");
             return serializer.toJson(errorResult);
         }
-        catch(Exception e){
-            res.status(410);
-            errorResult = new ErrorResult("Error: Unhandled exception (JoinGame block)");
-            return serializer.toJson(errorResult);
-        }
 
 
         String answer = serializer.toJson(getGameResult);
