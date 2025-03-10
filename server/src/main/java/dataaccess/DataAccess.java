@@ -6,6 +6,7 @@ import model.user.UserData;
 import model.user.AuthData;
 import model.game.GameData;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
 public interface DataAccess {

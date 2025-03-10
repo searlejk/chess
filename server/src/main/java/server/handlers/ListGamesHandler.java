@@ -10,7 +10,7 @@ import spark.Response;
 import service.GameService;
 
 public class ListGamesHandler {
-    public String handleListGames(Request req, Response res) {
+    public String handle(Request req, Response res) {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
         String authToken = req.headers("Authorization");

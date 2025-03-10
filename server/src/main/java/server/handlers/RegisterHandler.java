@@ -15,7 +15,7 @@ public class RegisterHandler {
 
     }
 
-    public String handleRequest(Request req, Response res) {
+    public String handle(Request req, Response res) {
         var serializer = new Gson();
 
         System.out.println("Received Request Body: " + req.body());
@@ -24,6 +24,7 @@ public class RegisterHandler {
 
         RegisterResult registerResult = null;
         ErrorResult errorResult = null;
+
         if (registerRequest.email()==null || registerRequest.username() == null || registerRequest.password()==null){
             res.status(400);
             errorResult = new ErrorResult("Error: 1 of 3 required fields were null");
@@ -38,6 +39,10 @@ public class RegisterHandler {
             res.status(403);
             errorResult = new ErrorResult("Error: Username Unavailable");
         }
+        catch(Exception e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: UserService.register really broke");
+        }
 
         if (res.status()!=403) {
             res.status(200);
@@ -47,7 +52,7 @@ public class RegisterHandler {
         if (errorResult!=null) {
             res.type("application/json");
             answer = serializer.toJson(errorResult);
-            System.out.println("Generated Response: " + answer);
+            System.out.println("Error Generated Response: " + answer);
         } else{
             res.type("application/json");
             answer = serializer.toJson(registerResult);

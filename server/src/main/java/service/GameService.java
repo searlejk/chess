@@ -13,7 +13,7 @@ import model.user.JoinRequest;
 import java.util.Objects;
 
 public class GameService {
-    private static final DataAccess DATA_ACCESS = DataAccessProvider.DATA_ACCESS;
+    private static final DataAccess DATA_ACCESS = DataAccessProvider.getDataAccess();
     private static int nextGameID = 1;
 
     public static void clearGames() {

@@ -7,6 +7,7 @@ import exceptions.InvalidAuthToken;
 import model.game.GameData;
 import model.user.AuthData;
 import model.user.UserData;
+import spark.Response;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,16 +24,41 @@ public class MySqlDataAccess implements DataAccess {
         configureDatabase();
     }
 
-    public UserData addUser(UserData user) throws ResponseException{
-        var statement = "INSERT INTO userData (name, type, json) VALUES (?, ?, ?)";
-        var json = new Gson().toJson(user);
-        var id = executeUpdate(statement, user.username(), user.password(), json);
-        return new UserData(user.username(), user.password(), user.email());
+    @Override
+    public UserData addUser(UserData user) throws DataAccessException {
+        String sql = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
+        int newId = executeUpdate(sql,
+                user.username(),
+                user.password(),
+                user.email());
+
+        System.out.println("[SQL] - User Added: "+ user.username());
+        return user;
     }
 
-    @Override
+
+
     public UserData getUser(String username) throws ResponseException {
-        return null;
+        String sql = "SELECT username, password, email FROM userData WHERE username=?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1,username);
+
+            try (ResultSet rs = ps.executeQuery()){
+                if (rs.next()){
+                    return new UserData(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email")
+                    );
+                } else {
+                    return null;
+                }
+            }
+
+        } catch(SQLException e){
+            throw new ResponseException(500, "Unable to query userData: " + e.getMessage());
+        }
     }
 
     @Override
@@ -76,11 +102,12 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public void clearGames(){
-
+    public void clearGames() throws ResponseException {
+        var statement = "TRUNCATE gameData";
+        executeUpdate(statement);
     }
 
-    public UserData getUserData(int id) throws ResponseException {
+    public UserData getUser(int id) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, json FROM userData WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -130,11 +157,8 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private UserData readUserData(ResultSet rs) throws SQLException {
-        var id = rs.getInt("id");
         var json = rs.getString("json");
-        var user = new Gson().fromJson(json, UserData.class);
-        return user;
-        ///return user.setId(id);
+        return new Gson().fromJson(json, UserData.class);
     }
 
     private int executeUpdate(String statement, Object... params) throws ResponseException {
@@ -178,11 +202,11 @@ public class MySqlDataAccess implements DataAccess {
             """
     CREATE TABLE IF NOT EXISTS userData (
       `id` int NOT NULL AUTO_INCREMENT,
-      `name` varchar(256) NOT NULL,
+      `username` varchar(256) NOT NULL,
       `password` varchar(256) NOT NULL,
       `email` varchar(256) NOT NULL,
       PRIMARY KEY (`id`),
-      INDEX(name),
+      INDEX(username),
       INDEX(password),
       INDEX(email)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

@@ -1,6 +1,5 @@
 package server.handlers;
 
-import com.google.gson.JsonSyntaxException;
 import exceptions.*;
 import com.google.gson.Gson;
 import model.game.GetGameBody;
@@ -13,7 +12,7 @@ import service.GameService;
 
 
 public class JoinGameHandler {
-    public String handleJoinGame(Request req, Response res) throws DataAccessException {
+    public String handle(Request req, Response res) throws DataAccessException {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
         String authToken = req.headers("Authorization");

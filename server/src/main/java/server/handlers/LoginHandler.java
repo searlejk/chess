@@ -10,7 +10,7 @@ import spark.Request;
 import spark.Response;
 
 public class LoginHandler {
-    public String handleLogin(Request req, Response res) {
+    public String handle(Request req, Response res) {
         var serializer = new Gson();
         System.out.println("Received Request Body: " + req.body());
         LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);

@@ -1,17 +1,14 @@
 package server;
 
 import dataaccess.DataAccess;
-import dataaccess.DatabaseManager;
 ///import dataaccess.MySqlDataAccess;
+import dataaccess.DataAccessProvider;
 import dataaccess.MySqlDataAccess;
-import exceptions.DataAccessException;
-import dataaccess.MemoryDataAccess;
 import server.handlers.*;
 import spark.*;
 
 public class Server {
-    public final MySqlDataAccess data;
-    MySqlDataAccess dataAccess;
+    public final DataAccess data;
 
     public Server() {
         MySqlDataAccess temp;
@@ -21,6 +18,8 @@ public class Server {
             throw new RuntimeException("Failed to create MySqlDataAccess", e);
         }
         this.data = temp;
+        DataAccessProvider.setDataAccess(temp);
+
     }
 
     public int run(int desiredPort) {
@@ -41,7 +40,7 @@ public class Server {
         // Register EndPoint
         Spark.post("/user", (req, res) -> {
             try {
-                return (new RegisterHandler()).handleRequest(req, res);
+                return (new RegisterHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -50,7 +49,7 @@ public class Server {
         // Login EndPoint
         Spark.post("/session", (req, res) -> {
             try {
-                return (new LoginHandler()).handleLogin(req, res);
+                return (new LoginHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -59,7 +58,7 @@ public class Server {
         // Logout EndPoint
         Spark.delete("/session", (req, res) -> {
             try {
-                return (new LogoutHandler()).handleLogout(req, res);
+                return (new LogoutHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -68,7 +67,7 @@ public class Server {
         // ListGames EndPoint
         Spark.get("/game", (req, res) -> {
             try {
-                return (new ListGamesHandler()).handleListGames(req, res);
+                return (new ListGamesHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -77,7 +76,7 @@ public class Server {
         // CreateGame EndPoint
         Spark.post("/game", (req, res) -> {
             try {
-                return (new CreateGameHandler()).handleCreateGame(req, res);
+                return (new CreateGameHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -86,7 +85,7 @@ public class Server {
         // JoinGame EndPoint
         Spark.put("/game", (req, res) -> {
             try {
-                return (new JoinGameHandler()).handleJoinGame(req, res);
+                return (new JoinGameHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -95,7 +94,7 @@ public class Server {
         // Clear EndPoint
         Spark.delete("/db", (req, res) -> {
             try {
-                return (new ClearHandler()).handleClear(req, res);
+                return (new ClearHandler()).handle(req, res);
             } catch (Exception e) {
                 return e.getMessage();
             }

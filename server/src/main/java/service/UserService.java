@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
-    private static final DataAccess DATA_ACCESS = DataAccessProvider.DATA_ACCESS;
+    private static final DataAccess DATA_ACCESS = DataAccessProvider.getDataAccess();
 
     public static void checkAuthToken(String authToken) throws DataAccessException {
         if (DATA_ACCESS.getUserByAuth(authToken)==null){
@@ -33,9 +33,13 @@ public class UserService {
         String password = registerRequest.password();
         String email = registerRequest.email();
 
-        ///  If username is already used, give error
-        if (DATA_ACCESS.getUser(username)!=null){
-            throw new DataAccessException("Username is taken");
+        try {
+            ///  If username is already used, give error
+            if (DATA_ACCESS.getUser(username) != null) {
+                throw new DataAccessException("Username is taken");
+            }
+        } catch(DataAccessException e){
+
         }
 
         ///  Otherwise
