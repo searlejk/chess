@@ -16,7 +16,7 @@ public interface DataAccess {
     Boolean isLoggedIn(String username) throws DataAccessException;
     Collection<GameData> listGames();
 
-    GameData addGame(Integer inputGameID,GameData gameData);
+    GameData addGame(Integer inputGameID,GameData gameData) throws exception.ResponseException;
 
     GameData getGame(int gameID) throws exception.ResponseException;
 
@@ -29,4 +29,6 @@ public interface DataAccess {
     Collection<UserData> listUserDatas() throws exception.ResponseException;
 
     Collection<AuthData> listAuthDatas();
+
+    boolean checkPassword(String username, String password) throws exception.ResponseException;
 }

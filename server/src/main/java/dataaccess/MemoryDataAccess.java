@@ -1,5 +1,6 @@
 package dataaccess;
 
+import exception.ResponseException;
 import exceptions.DataAccessException;
 import exceptions.InvalidAuthToken;
 import model.user.AuthData;
@@ -8,6 +9,7 @@ import model.user.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 
 public class MemoryDataAccess implements DataAccess {
@@ -21,6 +23,11 @@ public class MemoryDataAccess implements DataAccess {
 
     public Collection<AuthData> listAuthDatas() {
         return authData.values();
+    }
+
+    @Override
+    public boolean checkPassword(String username, String password) throws ResponseException {
+        return Objects.equals(users.get(username).password(), password);
     }
 
     public UserData addUser(UserData user) {
@@ -72,7 +79,7 @@ public class MemoryDataAccess implements DataAccess {
         } else {
             gameID = inputGameID;
         }
-        GameData newGameData = new GameData(gameID,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName());
+        GameData newGameData = new GameData(gameID,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
         //System.out.println("Added game " + gameID + ": " + newGameData.gameName());
         games.put(gameID,newGameData);
         //System.out.println(games.values());

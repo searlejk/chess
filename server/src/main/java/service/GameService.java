@@ -36,7 +36,7 @@ public class GameService {
 
         UserService.checkAuthToken(authToken);
 
-        GameData gameData = new GameData(0, null, null, gameName);
+        GameData gameData = new GameData(0, null, null, gameName, null);
         GameData newGameData = DATA_ACCESS.addGame(0, gameData);
 
         return new CreateGameResult(newGameData.gameID());
@@ -78,7 +78,7 @@ public class GameService {
             if (!Objects.equals(oldGame.whiteUsername(), null)){
                 throw new TeamTakenException("White Team Taken");
             }
-            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName());
+            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName(), null);
         }
 
         /// make new game if black
@@ -86,7 +86,7 @@ public class GameService {
             if (!Objects.equals(oldGame.blackUsername(), null)){
                 throw new TeamTakenException("Black Team Taken");
             }
-            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName());
+            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName(), null);
         }
 
         ///  delete old game

@@ -7,6 +7,7 @@ import exceptions.DataAccessException;
 import dataaccess.DataAccessProvider;
 import model.other.EmptyResult;
 import model.user.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -72,31 +73,29 @@ public class UserService {
 
         } else {
             ///  if incorrect password
-            if (!Objects.equals(DATA_ACCESS.getUser(username).password(), password)) {
+            if (!DATA_ACCESS.checkPassword(username,password)){
                 throw new IncorrectCredentialsException("Incorrect password");
-
-            } else {
+            }
             ///  if username & password correct:
 
-                ///  Add code here that checks if the user has already logged in
-                ///  -check authData by username and if it exists throw an error
-                try{
-                    bool = DATA_ACCESS.isLoggedIn(username);
-                    if (bool){
-                        throw new DataAccessException("Error: User is already logged in");
-                    }
-                } catch(Exception e){
-                    throw new DataAccessException("Error: is Logged in Error");
+            ///  Add code here that checks if the user has already logged in
+            ///  -check authData by username and if it exists throw an error
+            try{
+                bool = DATA_ACCESS.isLoggedIn(username);
+                if (bool){
+                    throw new DataAccessException("Error: User is already logged in");
                 }
+            } catch(Exception e){
+                throw new DataAccessException("Error: is Logged in Error");
+            }
 
 
-                AuthData authData = makeAuthData(username);
-                DATA_ACCESS.addAuthData(authData);
-                return new LoginResult(username,authData.authToken());
+            AuthData authData = makeAuthData(username);
+            DATA_ACCESS.addAuthData(authData);
+            return new LoginResult(username,authData.authToken());
             }
         }
 
-    }
 
     public static EmptyResult logout(LogoutRequest logoutRequest) throws DataAccessException {
         String authToken = logoutRequest.authToken();

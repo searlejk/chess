@@ -7,6 +7,7 @@ import exceptions.InvalidAuthToken;
 import model.game.GameData;
 import model.user.AuthData;
 import model.user.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import spark.Response;
 
 import java.util.ArrayList;
@@ -25,15 +26,18 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData addUser(UserData user) throws DataAccessException {
+    public UserData addUser(UserData userInput) throws DataAccessException {
         String sql = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-        int newId = executeUpdate(sql,
-                user.username(),
-                user.password(),
-                user.email());
 
-        System.out.println("\n[SQL] - User Added: "+ user.username());
-        return user;
+        UserData userEncrypted = storeUserPassword(userInput.username(),userInput.password(),userInput.email());
+
+        int newId = executeUpdate(sql,
+                userEncrypted.username(),
+                userEncrypted.password(),
+                userEncrypted.email());
+
+        System.out.println("\n[SQL] - User Added: "+ userEncrypted.username());
+        return userEncrypted;
     }
 
 
@@ -47,11 +51,7 @@ public class MySqlDataAccess implements DataAccess {
             try (ResultSet rs = ps.executeQuery()){
                 if (rs.next()){
                     System.out.print("\n[SQL] - getUser: "+ rs.getString("username"));
-                    return new UserData(
-                            rs.getString("username"),
-                            rs.getString("password"),
-                            rs.getString("email")
-                    );
+                    return readUserData(rs);
                 } else {
                     return null;
                 }
@@ -119,8 +119,10 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public GameData addGame(Integer inputGameID, GameData gameData) {
-        return null;
+    public GameData addGame(Integer inputGameID, GameData gameData) throws ResponseException{
+        String sql = "INSERT INTO gameData (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        executeUpdate(sql, gameData.gameID(), gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),gameData.game());
+        return gameData;
     }
 
     @Override
@@ -132,12 +134,7 @@ public class MySqlDataAccess implements DataAccess {
 
             try (ResultSet rs = ps.executeQuery()){
                 if (rs.next()){
-                    return new GameData(
-                            rs.getInt("gameID"),
-                            rs.getString("whiteUsername"),
-                            rs.getString("blackUsername"),
-                            rs.getString("gameName")
-                    );
+                    return readGameData(rs);
                 } else {
                     return null;
                 }
@@ -186,6 +183,12 @@ public class MySqlDataAccess implements DataAccess {
         return List.of();
     }
 
+    @Override
+    public boolean checkPassword(String username, String password) throws ResponseException {
+        UserData user = getUser(username);
+        return BCrypt.checkpw(password, user.password());
+    }
+
     public void deleteUserData(Integer id) throws ResponseException {
         executeUpdate("DELETE FROM userData WHERE id=?", id);
     }
@@ -195,8 +198,11 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private UserData readUserData(ResultSet rs) throws SQLException {
-        var json = rs.getString("json");
-        return new Gson().fromJson(json, UserData.class);
+        String username = rs.getString("username");
+        String password = rs.getString("password");
+        String email = rs.getString("email");
+
+        return new UserData(username,password,email);
     }
 
     private AuthData readAuthData(ResultSet rs) throws SQLException {
@@ -205,6 +211,20 @@ public class MySqlDataAccess implements DataAccess {
         return new AuthData(authToken, username);
     }
 
+    private GameData readGameData(ResultSet rs) throws SQLException {
+        int gameID = rs.getInt("gameID");
+        String whiteUsername = rs.getString("whiteUsername");
+        String blackUsername = rs.getString("blackUsername");
+        String gameName = rs.getString("gameName");
+        String game = rs.getString("ChessGame");
+        return new GameData(gameID, whiteUsername,blackUsername,gameName,game);
+    }
+
+    UserData storeUserPassword(String username, String clearTextPassword, String email) {
+        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+
+        return new UserData(username,hashedPassword,email);
+    }
 
     private int executeUpdate(String statement, Object... params) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -264,6 +284,7 @@ public class MySqlDataAccess implements DataAccess {
       `blackUsername` varchar(256) NOT NULL,
       `gameName` varchar(256) NOT NULL,
       `game` varchar(256) NOT NULL,
+      `json` TEXT DEFAULT NULL,
       PRIMARY KEY (`id`),
       INDEX(gameName),
       INDEX(whiteUsername),
