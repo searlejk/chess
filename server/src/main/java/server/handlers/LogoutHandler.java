@@ -12,7 +12,7 @@ import spark.Response;
 public class LogoutHandler {
     public String handle(Request req, Response res) {
         var serializer = new Gson();
-        System.out.println("Received Request Body: " + req.body());
+        System.out.println("\n*****[Logout]*****\n\n Request Body: \n" + req.body());
         String authToken = req.headers("Authorization");
         ErrorResult errorResult;
         EmptyResult emptyResult;

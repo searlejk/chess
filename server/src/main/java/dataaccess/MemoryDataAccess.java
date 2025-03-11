@@ -57,8 +57,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public String getAuthDataByUsername(String username) throws DataAccessException {
-        return authData.get(username).authToken();
+    public Boolean isLoggedIn(String username) throws DataAccessException {
+        return authData.get(username).authToken()!=null;
     }
 
     public Collection<GameData> listGames(){

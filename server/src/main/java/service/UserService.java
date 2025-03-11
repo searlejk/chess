@@ -61,6 +61,7 @@ public class UserService {
     public static LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         String username = loginRequest.username();
         String password = loginRequest.password();
+        Boolean bool;
 
 
 
@@ -80,9 +81,12 @@ public class UserService {
                 ///  Add code here that checks if the user has already logged in
                 ///  -check authData by username and if it exists throw an error
                 try{
-                    boolean bool = DATA_ACCESS.getAuthDataByUsername(username)!=null;
+                    bool = DATA_ACCESS.isLoggedIn(username);
+                    if (bool){
+                        throw new DataAccessException("Error: User is already logged in");
+                    }
                 } catch(Exception e){
-                    throw new DataAccessException("User Already Logged in");
+                    throw new DataAccessException("Error: is Logged in Error");
                 }
 
 

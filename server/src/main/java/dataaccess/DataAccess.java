@@ -1,12 +1,10 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
-import exceptions.InvalidAuthToken;
 import model.user.UserData;
 import model.user.AuthData;
 import model.game.GameData;
 
-import java.sql.SQLException;
 import java.util.Collection;
 
 public interface DataAccess {
@@ -15,7 +13,7 @@ public interface DataAccess {
     void addAuthData(AuthData authData) throws DataAccessException;
     UserData getUserByAuth(String authToken) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
-    String getAuthDataByUsername(String username) throws DataAccessException;
+    Boolean isLoggedIn(String username) throws DataAccessException;
     Collection<GameData> listGames();
 
     GameData addGame(Integer inputGameID,GameData gameData);

@@ -73,30 +73,26 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData getUserByAuth(String authToken) throws DataAccessException {
-        AuthData authData = null;
-        UserData user = null;
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username FROM authData WHERE authToken=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authToken);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        authData = readAuthData(rs);
-                    }
+    public UserData getUserByAuth(String authToken) throws ResponseException {
+        AuthData authData;
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement("SELECT authToken, username FROM authData WHERE authToken=?")) {
+            ps.setString(1, authToken);
+            try (var rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new ResponseException(400, "[SQL] - getUserByAuth: authToken not found");
                 }
+                authData = readAuthData(rs);
             }
-        } catch (Exception e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        } catch (SQLException e) {
+            throw new ResponseException(500, "Unable to read data: " + e.getMessage());
         }
-        try {
-            user = getUser(authData.username());
-        } catch (NullPointerException e){
-            throw new ResponseException(400, String.format("\n[SQL] - getUserByAuth failed to get username from authData"));
-        }
-        System.out.print("\n[SQL] - getUserByAuth: " + user.username());
+
+        UserData user = getUser(authData.username());
+        System.out.println("[SQL] - getUserByAuth: " + user.username());
         return user;
     }
+
 
     @Override
     public void deleteAuth(String authToken) throws ResponseException {
@@ -104,29 +100,17 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public String getAuthDataByUsername(String username) throws DataAccessException {
-        AuthData authData = null;
-        UserData user = null;
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username FROM authData WHERE username=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        authData = readAuthData(rs);
-                    }
-                }
+    public Boolean isLoggedIn(String username) throws DataAccessException {
+        String sql = "SELECT 1 FROM authData WHERE username=?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (var rs = ps.executeQuery()) {
+                return rs.next();
             }
-        } catch (Exception e) {
-            return null;
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to check auth data: " + e.getMessage());
         }
-        try {
-            user = getUser(authData.username());
-        } catch (NullPointerException e){
-            return "Good";
-        }
-        System.out.print("\n[SQL] - getUserByAuth: user found: " + user.username());
-        return null;
     }
 
     @Override
@@ -216,9 +200,11 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private AuthData readAuthData(ResultSet rs) throws SQLException {
-        var json = rs.getString("json");
-        return new Gson().fromJson(json, AuthData.class);
+        String authToken = rs.getString("authToken");
+        String username = rs.getString("username");
+        return new AuthData(authToken, username);
     }
+
 
     private int executeUpdate(String statement, Object... params) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -289,7 +275,6 @@ public class MySqlDataAccess implements DataAccess {
       `id` int NOT NULL AUTO_INCREMENT,
       `authToken` varchar(256) NOT NULL,
       `username` varchar(256) NOT NULL,
-      `json` TEXT DEFAULT NULL,
       PRIMARY KEY (`id`),
       INDEX(authToken),
       INDEX(username)
