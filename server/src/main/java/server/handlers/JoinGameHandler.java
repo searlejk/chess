@@ -42,6 +42,7 @@ public class JoinGameHandler {
 
 
         try{
+            ///  ********************************************
             getGameResult = GameService.joinGame(joinRequest);
             res.status(200);
         }

@@ -32,7 +32,7 @@ public class MySqlDataAccess implements DataAccess {
                 user.password(),
                 user.email());
 
-        System.out.println("[SQL] - User Added: "+ user.username());
+        System.out.println("\n[SQL] - User Added: "+ user.username());
         return user;
     }
 
@@ -46,6 +46,7 @@ public class MySqlDataAccess implements DataAccess {
 
             try (ResultSet rs = ps.executeQuery()){
                 if (rs.next()){
+                    System.out.print("\n[SQL] - getUser: "+ rs.getString("username"));
                     return new UserData(
                             rs.getString("username"),
                             rs.getString("password"),
@@ -63,17 +64,69 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void addAuthData(AuthData authData) throws ResponseException {
-
+        String sql = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
+        int newId = executeUpdate(sql,
+                authData.authToken(),
+                authData.username()
+        );
+        System.out.println("\n[SQL] - authData Added for user: " + authData.username());
     }
 
     @Override
     public UserData getUserByAuth(String authToken) throws DataAccessException {
-        return null;
+        AuthData authData = null;
+        UserData user = null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM authData WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        authData = readAuthData(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        try {
+            user = getUser(authData.username());
+        } catch (NullPointerException e){
+            throw new ResponseException(400, String.format("\n[SQL] - getUserByAuth failed to get username from authData"));
+        }
+        System.out.print("\n[SQL] - getUserByAuth: " + user.username());
+        return user;
     }
 
     @Override
     public void deleteAuth(String authToken) throws ResponseException {
+        executeUpdate("DELETE FROM authData WHERE authToken = ?", authToken);
+    }
 
+    @Override
+    public String getAuthDataByUsername(String username) throws DataAccessException {
+        AuthData authData = null;
+        UserData user = null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM authData WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        authData = readAuthData(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        try {
+            user = getUser(authData.username());
+        } catch (NullPointerException e){
+            return "Good";
+        }
+        System.out.print("\n[SQL] - getUserByAuth: user found: " + user.username());
+        return null;
     }
 
     @Override
@@ -87,8 +140,28 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public GameData getGame(int gameID) {
-        return null;
+    public GameData getGame(int gameID) throws ResponseException {
+        String sql = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gameData WHERE gameID=?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1,gameID);
+
+            try (ResultSet rs = ps.executeQuery()){
+                if (rs.next()){
+                    return new GameData(
+                            rs.getInt("gameID"),
+                            rs.getString("whiteUsername"),
+                            rs.getString("blackUsername"),
+                            rs.getString("gameName")
+                    );
+                } else {
+                    return null;
+                }
+            }
+
+        } catch(SQLException e){
+            throw new ResponseException(500, "Unable to query userData: " + e.getMessage());
+        }
     }
 
     @Override
@@ -105,23 +178,6 @@ public class MySqlDataAccess implements DataAccess {
     @Override
     public void clearGames() throws ResponseException {
         executeUpdate("TRUNCATE gameData");
-    }
-
-    public UserData getUser(int id) throws ResponseException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM userData WHERE id=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, id);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        ///return readPet(rs);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
-        }
-        return null;
     }
 
     public Collection<UserData> listUserDatas() throws ResponseException {
@@ -147,18 +203,21 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public void deleteUserData(Integer id) throws ResponseException {
-        var statement = "DELETE FROM userData WHERE id=?";
-        executeUpdate(statement, id);
+        executeUpdate("DELETE FROM userData WHERE id=?", id);
     }
 
     public void deleteAllUserDatas() throws ResponseException {
-        var statement = "TRUNCATE userData";
-        executeUpdate(statement);
+        executeUpdate("TRUNCATE userData");
     }
 
     private UserData readUserData(ResultSet rs) throws SQLException {
         var json = rs.getString("json");
         return new Gson().fromJson(json, UserData.class);
+    }
+
+    private AuthData readAuthData(ResultSet rs) throws SQLException {
+        var json = rs.getString("json");
+        return new Gson().fromJson(json, AuthData.class);
     }
 
     private int executeUpdate(String statement, Object... params) throws ResponseException {

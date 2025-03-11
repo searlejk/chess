@@ -1,5 +1,6 @@
 package dataaccess;
 
+import exceptions.DataAccessException;
 import exceptions.InvalidAuthToken;
 import model.user.AuthData;
 import model.game.GameData;
@@ -53,6 +54,11 @@ public class MemoryDataAccess implements DataAccess {
 
     public void deleteAuth(String authToken){
         authData.remove(authToken);
+    }
+
+    @Override
+    public String getAuthDataByUsername(String username) throws DataAccessException {
+        return authData.get(username).authToken();
     }
 
     public Collection<GameData> listGames(){

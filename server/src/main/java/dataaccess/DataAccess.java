@@ -15,12 +15,12 @@ public interface DataAccess {
     void addAuthData(AuthData authData) throws DataAccessException;
     UserData getUserByAuth(String authToken) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
-
+    String getAuthDataByUsername(String username) throws DataAccessException;
     Collection<GameData> listGames();
 
     GameData addGame(Integer inputGameID,GameData gameData);
 
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws exception.ResponseException;
 
     void remGame(int gameID);
 

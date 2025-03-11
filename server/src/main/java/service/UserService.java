@@ -43,7 +43,7 @@ public class UserService {
                 throw new DataAccessException("Username is taken");
             }
         } catch(DataAccessException e){
-
+            throw new DataAccessException("Username is taken");
         }
 
         ///  Otherwise
@@ -66,14 +66,26 @@ public class UserService {
 
         ///  if username is missing
         if (DATA_ACCESS.getUser(username)==null) {
-            /// Throw error
             throw new IncorrectCredentialsException("Username not in database");
+
+
         } else {
-            ///  if username in database
+            ///  if incorrect password
             if (!Objects.equals(DATA_ACCESS.getUser(username).password(), password)) {
                 throw new IncorrectCredentialsException("Incorrect password");
+
             } else {
             ///  if username & password correct:
+
+                ///  Add code here that checks if the user has already logged in
+                ///  -check authData by username and if it exists throw an error
+                try{
+                    boolean bool = DATA_ACCESS.getAuthDataByUsername(username)!=null;
+                } catch(Exception e){
+                    throw new DataAccessException("User Already Logged in");
+                }
+
+
                 AuthData authData = makeAuthData(username);
                 DATA_ACCESS.addAuthData(authData);
                 return new LoginResult(username,authData.authToken());
