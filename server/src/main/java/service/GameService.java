@@ -28,6 +28,11 @@ public class GameService {
         ///  check authToken
         UserService.checkAuthToken(authToken);
 
+        /// return {} if empty
+        if (DATA_ACCESS.listGames().isEmpty()){
+            return new ListGamesResult(null);
+        }
+
         return new ListGamesResult(DATA_ACCESS.listGames());
     }
 

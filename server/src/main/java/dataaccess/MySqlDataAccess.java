@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -117,11 +118,11 @@ public class MySqlDataAccess implements DataAccess {
     public Collection<GameData> listGames() throws ResponseException{
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM gameData";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gameData";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        result.add(readGameData(rs));
+                        result.add(listGameDataHelper(rs));
                     }
                 }
             }
@@ -247,6 +248,14 @@ public class MySqlDataAccess implements DataAccess {
         String authToken = rs.getString("authToken");
         String username = rs.getString("username");
         return new AuthData(authToken, username);
+    }
+
+    private GameData listGameDataHelper(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        String whiteUsername = Optional.ofNullable(rs.getString("whiteUsername")).orElse("");
+        String blackUsername = Optional.ofNullable(rs.getString("blackUsername")).orElse("");
+        String gameName = rs.getString("gameName");
+        return new GameData(id, whiteUsername, blackUsername, gameName, null);
     }
 
     private GameData readGameData(ResultSet rs) throws SQLException {
