@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import exceptions.DataAccessException;
 import model.game.ListGamesRequest;
 import model.game.ListGamesResult;
+import model.other.EmptyResult;
 import model.other.ErrorResult;
+import org.eclipse.jetty.util.HttpCookieStore;
 import spark.Request;
 import spark.Response;
 import service.GameService;
@@ -18,10 +20,14 @@ public class ListGamesHandler {
         ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
         ListGamesResult listGamesResult;
         ErrorResult errorResult;
+        EmptyResult emptyResult = new EmptyResult();
 
         try{
             listGamesResult = GameService.listGames(listGamesRequest);
             res.status(200);
+        }
+        catch(exception.ResponseException e){
+            return serializer.toJson(emptyResult);
         }
         catch(DataAccessException | NullPointerException e){
             res.status(401);

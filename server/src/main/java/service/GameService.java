@@ -1,5 +1,7 @@
 package service;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import exceptions.IncorrectCredentialsException;
 import exceptions.NoGameFoundException;
 import exceptions.TeamTakenException;
@@ -30,19 +32,22 @@ public class GameService {
     }
 
     public static CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
-
+        var serializer = new Gson();
         String gameName = createGameRequest.gameName();
         String authToken = createGameRequest.authToken();
 
         UserService.checkAuthToken(authToken);
 
-        GameData gameData = new GameData(0, null, null, gameName, null);
+        ChessGame game = new ChessGame();
+        String jsonChessGame = serializer.toJson(game);
+        GameData gameData = new GameData(0, null, null, gameName, jsonChessGame);
         GameData newGameData = DATA_ACCESS.addGame(0, gameData);
 
         return new CreateGameResult(newGameData.gameID());
     }
 
     public static EmptyResult joinGame(JoinRequest joinRequest) throws DataAccessException {
+        var serializer = new Gson();
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
         String teamColor = joinRequest.playerColor();
@@ -86,7 +91,9 @@ public class GameService {
             if (!Objects.equals(oldGame.blackUsername(), null)){
                 throw new TeamTakenException("Black Team Taken");
             }
-            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName(), null);
+            ChessGame game = new ChessGame();
+            String jsonGame = serializer.toJson(game);
+            newGame = new GameData(gameID, oldGame.whiteUsername(), username, oldGame.gameName(), jsonGame);
         }
 
         ///  delete old game

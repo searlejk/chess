@@ -114,16 +114,54 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public Collection<GameData> listGames() {
-        return List.of();
+    public Collection<GameData> listGames() throws ResponseException{
+        var result = new ArrayList<GameData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, json FROM gameData";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readGameData(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     }
 
     @Override
-    public GameData addGame(Integer inputGameID, GameData gameData) throws ResponseException{
-        String sql = "INSERT INTO gameData (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(sql, gameData.gameID(), gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),gameData.game());
-        return gameData;
+    public GameData addGame(Integer inputGameID, GameData gameData) throws ResponseException {
+        if (inputGameID == 0) {
+            String sql = "INSERT INTO gameData (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+            int generatedId = executeUpdate(sql,
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    gameData.game());
+            return new GameData(generatedId,
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    gameData.game());
+        } else {
+            String sql = "INSERT INTO gameData (id, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+            executeUpdate(sql,
+                    inputGameID,
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    gameData.game());
+            return new GameData(inputGameID,
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    gameData.game());
+        }
     }
+
+
 
     @Override
     public GameData getGame(int gameID) throws ResponseException {
@@ -279,11 +317,10 @@ public class MySqlDataAccess implements DataAccess {
             """
     CREATE TABLE IF NOT EXISTS gameData (
       `id` int NOT NULL AUTO_INCREMENT,
-      `gameID` int NOT NULL,
-      `whiteUsername` varchar(256) NOT NULL,
-      `blackUsername` varchar(256) NOT NULL,
+      `whiteUsername` varchar(256),
+      `blackUsername` varchar(256),
       `gameName` varchar(256) NOT NULL,
-      `game` varchar(256) NOT NULL,
+      `game` TEXT NOT NULL,
       `json` TEXT DEFAULT NULL,
       PRIMARY KEY (`id`),
       INDEX(gameName),
