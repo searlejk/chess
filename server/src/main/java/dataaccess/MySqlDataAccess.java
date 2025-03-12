@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import exceptions.DataAccessException;
@@ -54,6 +55,7 @@ public class MySqlDataAccess implements DataAccess {
                     System.out.print("\n[SQL] - getUser: "+ rs.getString("username"));
                     return readUserData(rs);
                 } else {
+                    System.out.println("\n[SQL] - getUser, No User Found");
                     return null;
                 }
             }
@@ -90,13 +92,14 @@ public class MySqlDataAccess implements DataAccess {
         }
 
         UserData user = getUser(authData.username());
-        System.out.println("[SQL] - getUserByAuth: " + user.username());
+        System.out.println("\n[SQL] - getUserByAuth: " + user.username());
         return user;
     }
 
 
     @Override
     public void deleteAuth(String authToken) throws ResponseException {
+        System.out.println("\n[SQL] - deleteAuth: " + authToken);
         executeUpdate("DELETE FROM authData WHERE authToken = ?", authToken);
     }
 
@@ -129,6 +132,7 @@ public class MySqlDataAccess implements DataAccess {
         } catch (Exception e) {
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
+        System.out.println("\n[SQL] - Listing Games");
         return result;
     }
 
@@ -141,6 +145,7 @@ public class MySqlDataAccess implements DataAccess {
                     gameData.blackUsername(),
                     gameData.gameName(),
                     gameData.game());
+            System.out.println("\n[SQL] - Game Added, gameID: " + generatedId);
             return new GameData(generatedId,
                     gameData.whiteUsername(),
                     gameData.blackUsername(),
@@ -154,6 +159,7 @@ public class MySqlDataAccess implements DataAccess {
                     gameData.blackUsername(),
                     gameData.gameName(),
                     gameData.game());
+            System.out.println("\n[SQL] - Game Added, gameID: " + inputGameID);
             return new GameData(inputGameID,
                     gameData.whiteUsername(),
                     gameData.blackUsername(),
@@ -166,7 +172,7 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public GameData getGame(int gameID) throws ResponseException {
-        String sql = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gameData WHERE gameID=?";
+        String sql = "SELECT id, whiteUsername, blackUsername, gameName, game FROM gameData WHERE id=?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setInt(1,gameID);
@@ -185,8 +191,13 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public void remGame(int gameID) {
-
+    public void remGame(int gameID) throws DataAccessException{
+        System.out.println("\n[SQL] - remGame: " + gameID);
+        try {
+            executeUpdate("DELETE FROM gameData WHERE id = ?", gameID);
+        }catch(ResponseException e){
+            throw new ResponseException(400,"[SQL] - remGame failed, gameID: " + gameID);
+        }
     }
 
     @Override
@@ -252,18 +263,25 @@ public class MySqlDataAccess implements DataAccess {
 
     private GameData listGameDataHelper(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
-        String whiteUsername = Optional.ofNullable(rs.getString("whiteUsername")).orElse("");
-        String blackUsername = Optional.ofNullable(rs.getString("blackUsername")).orElse("");
+        String whiteUsername = rs.getString("whiteUsername");
+        if (whiteUsername != null && whiteUsername.isEmpty()) {
+            whiteUsername = null;
+        }
+        String blackUsername = rs.getString("blackUsername");
+        if (blackUsername != null && blackUsername.isEmpty()) {
+            blackUsername = null;
+        }
+
         String gameName = rs.getString("gameName");
         return new GameData(id, whiteUsername, blackUsername, gameName, null);
     }
 
     private GameData readGameData(ResultSet rs) throws SQLException {
-        int gameID = rs.getInt("gameID");
+        int gameID = rs.getInt("id");
         String whiteUsername = rs.getString("whiteUsername");
         String blackUsername = rs.getString("blackUsername");
         String gameName = rs.getString("gameName");
-        String game = rs.getString("ChessGame");
+        String game = rs.getString("game");
         return new GameData(gameID, whiteUsername,blackUsername,gameName,game);
     }
 

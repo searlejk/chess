@@ -14,7 +14,7 @@ import service.GameService;
 public class ListGamesHandler {
     public String handle(Request req, Response res) {
         var serializer = new Gson();
-        System.out.println("Received Request Body: " + req.body());
+        System.out.println("\n*****[ListGames]*****\n\n Request Body: \n" + req.body());
         String authToken = req.headers("Authorization");
 
         ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);

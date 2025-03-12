@@ -14,7 +14,7 @@ import service.GameService;
 public class CreateGameHandler {
     public String handle(Request req, Response res) {
         var serializer = new Gson();
-        System.out.println("Received Request Body: " + req.body());
+        System.out.println("\n*****[CreateGame]*****\n\n Request Body: \n" + req.body());
 
         GameName gameName = serializer.fromJson(req.body(), GameName.class);
         String trueGameName = gameName.gameName();

@@ -12,6 +12,7 @@ import service.*;
 public class ClearHandler {
 
     public String handle(Request req, Response res) {
+        System.out.println("\n*****[Clear]*****\n\n Request Body: \n" + req.body());
         var serializer = new Gson();
         try {
             GameService.clearGames();

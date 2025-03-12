@@ -12,6 +12,7 @@ import model.game.*;
 import model.other.EmptyResult;
 import model.user.JoinRequest;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class GameService {
@@ -27,11 +28,6 @@ public class GameService {
 
         ///  check authToken
         UserService.checkAuthToken(authToken);
-
-        /// return {} if empty
-        if (DATA_ACCESS.listGames().isEmpty()){
-            return new ListGamesResult(null);
-        }
 
         return new ListGamesResult(DATA_ACCESS.listGames());
     }
@@ -55,10 +51,13 @@ public class GameService {
         var serializer = new Gson();
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
-        String teamColor = joinRequest.playerColor();
-
+        String teamColor = joinRequest.playerColor().toUpperCase();
         /// check authToken
         UserService.checkAuthToken(authToken);
+
+        if (!teamColor.equals("BLACK") && !teamColor.equals("WHITE")){
+            throw new IncorrectCredentialsException("Error: Incorrect Color selected");
+        }
 
         /*
             1) get username from authToken userdata
@@ -88,7 +87,7 @@ public class GameService {
             if (!Objects.equals(oldGame.whiteUsername(), null)){
                 throw new TeamTakenException("White Team Taken");
             }
-            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName(), null);
+            newGame = new GameData(gameID, username, oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
         }
 
         /// make new game if black

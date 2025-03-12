@@ -20,7 +20,7 @@ public interface DataAccess {
 
     GameData getGame(int gameID) throws exception.ResponseException;
 
-    void remGame(int gameID);
+    void remGame(int gameID) throws DataAccessException;
 
     void clearUsersAndAuth() throws exception.ResponseException;
 

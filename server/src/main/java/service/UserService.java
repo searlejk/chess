@@ -76,20 +76,8 @@ public class UserService {
             if (!DATA_ACCESS.checkPassword(username,password)){
                 throw new IncorrectCredentialsException("Incorrect password");
             }
+
             ///  if username & password correct:
-
-            ///  Add code here that checks if the user has already logged in
-            ///  -check authData by username and if it exists throw an error
-            try{
-                bool = DATA_ACCESS.isLoggedIn(username);
-                if (bool){
-                    throw new DataAccessException("Error: User is already logged in");
-                }
-            } catch(Exception e){
-                throw new DataAccessException("Error: is Logged in Error");
-            }
-
-
             AuthData authData = makeAuthData(username);
             DATA_ACCESS.addAuthData(authData);
             return new LoginResult(username,authData.authToken());
