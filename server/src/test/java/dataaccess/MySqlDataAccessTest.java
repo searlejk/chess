@@ -180,23 +180,27 @@ class MySqlDataAccessTest {
 
     @Test
     void getGameCorrectly() {
+        assertDoesNotThrow(() ->
+                server.data.addGame(1,gameData), "No Throw");
 
+        assertDoesNotThrow(() ->
+                server.data.getGame(1), "No Throw");
     }
 
     @Test
-    void getGameNullThrowsException() {
+    void getGameNoGameReturnNull() {
+        assertDoesNotThrow(() ->
+                server.data.addGame(1,gameData), "No Throw");
+        try{
+        assertNull(server.data.getGame(-9));
+        } catch(Exception e){
+            fail("Exception: "+ e.getMessage());
+        }
     }
+
 
     @Test
     void remGame() {
-    }
-
-    @Test
-    void listUserDatas() {
-    }
-
-    @Test
-    void listAuthDatas() {
     }
 
     @Test
