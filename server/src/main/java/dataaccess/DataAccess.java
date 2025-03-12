@@ -25,9 +25,5 @@ public interface DataAccess {
 
     void clearGames() throws DataAccessException;
 
-    Collection<UserData> listUserDatas() throws exception.ResponseException;
-
-    Collection<AuthData> listAuthDatas();
-
     boolean checkPassword(String username, String password) throws exception.ResponseException;
 }

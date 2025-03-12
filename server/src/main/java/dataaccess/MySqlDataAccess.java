@@ -203,28 +203,6 @@ public class MySqlDataAccess implements DataAccess {
         executeUpdate("TRUNCATE gameData");
     }
 
-    public Collection<UserData> listUserDatas() throws ResponseException {
-        var result = new ArrayList<UserData>();
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM userData";
-            try (var ps = conn.prepareStatement(statement)) {
-                try (var rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        ///result.add(readPet(rs));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
-        }
-        return result;
-    }
-
-    @Override
-    public Collection<AuthData> listAuthDatas() {
-        return List.of();
-    }
-
     @Override
     public boolean checkPassword(String username, String password) throws ResponseException {
         UserData user = getUser(username);

@@ -17,14 +17,6 @@ public class MemoryDataAccess implements DataAccess {
     final private HashMap<Integer, GameData> games = new HashMap<>();
     final private HashMap<String, AuthData> authData = new HashMap<>();
 
-    public Collection<UserData> listUserDatas() {
-        return users.values();
-    }
-
-    public Collection<AuthData> listAuthDatas() {
-        return authData.values();
-    }
-
     @Override
     public boolean checkPassword(String username, String password) throws ResponseException {
         return Objects.equals(users.get(username).password(), password);
