@@ -200,12 +200,28 @@ class MySqlDataAccessTest {
 
 
     @Test
-    void remGame() {
+    void remGameCorrectly() {
+        assertDoesNotThrow(() ->
+                server.data.addGame(1,gameData), "No Throw");
+
+        assertDoesNotThrow(() ->
+                server.data.remGame(1), "No Throw");
+    }
+
+    @Test
+    void remGameNullThrowException() {
+        assertDoesNotThrow(() ->
+                server.data.addGame(1,gameData), "No Throw");
+
+        assertThrows(exception.ResponseException.class, () ->
+                server.data.remGame(-9999), "No Throw");
     }
 
     @Test
     void checkPassword() {
     }
+
+
 
     @Test
     void clearUsersAndAuth() {

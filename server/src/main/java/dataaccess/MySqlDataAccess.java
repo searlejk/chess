@@ -184,6 +184,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void remGame(int gameID) throws DataAccessException{
+        if (gameID < 0){
+            throw new ResponseException(400, "Negative gameID provided for remGame");
+        }
         System.out.println("\n[SQL] - remGame: " + gameID);
         try {
             executeUpdate("DELETE FROM gameData WHERE id = ?", gameID);
