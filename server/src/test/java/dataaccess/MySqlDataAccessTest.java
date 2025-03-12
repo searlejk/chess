@@ -1,12 +1,15 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
+import model.user.AuthData;
 import model.user.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Server;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,7 +18,11 @@ class MySqlDataAccessTest {
     String password = "BookofMormon123";
     String email = "prophetseerandrevelator@gmail.com";
     UserData user = new UserData(username,password,email);
+    String authToken = UUID.randomUUID().toString();
+    AuthData authData = new AuthData(authToken,username);
+    AuthData nullAuthData = new AuthData(null,null);
     private Server server;
+
 
     @BeforeEach
     void setUp() {
@@ -93,7 +100,18 @@ class MySqlDataAccessTest {
     }
 
     @Test
-    void addAuthData() {
+    void addAuthDataCorrectly() {
+        assertDoesNotThrow( () ->
+                server.data.addAuthData(authData), "No Throw");
+    }
+
+    @Test
+    void addAuthDataNullThrowException() {
+        assertDoesNotThrow( () ->
+                server.data.addAuthData(authData), "No Throw");
+
+        assertThrows(exception.ResponseException.class, () ->
+                server.data.addAuthData(nullAuthData), "This Should Throw");
     }
 
     @Test
