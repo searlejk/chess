@@ -13,7 +13,6 @@ public interface DataAccess {
     void addAuthData(AuthData authData) throws DataAccessException;
     UserData getUserByAuth(String authToken) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
-    Boolean isLoggedIn(String username) throws DataAccessException;
     Collection<GameData> listGames() throws exception.ResponseException;
 
     GameData addGame(Integer inputGameID,GameData gameData) throws exception.ResponseException;

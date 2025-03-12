@@ -104,20 +104,6 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public Boolean isLoggedIn(String username) throws DataAccessException {
-        String sql = "SELECT 1 FROM authData WHERE username=?";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            try (var rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to check auth data: " + e.getMessage());
-        }
-    }
-
-    @Override
     public Collection<GameData> listGames() throws ResponseException{
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {

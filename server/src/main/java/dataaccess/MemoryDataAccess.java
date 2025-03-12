@@ -63,11 +63,6 @@ public class MemoryDataAccess implements DataAccess {
         authData.remove(authToken);
     }
 
-    @Override
-    public Boolean isLoggedIn(String username) throws DataAccessException {
-        return authData.get(username).authToken()!=null;
-    }
-
     public Collection<GameData> listGames(){
         return games.values();
     }
