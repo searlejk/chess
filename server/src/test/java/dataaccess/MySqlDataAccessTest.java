@@ -49,13 +49,13 @@ class MySqlDataAccessTest {
 
     @AfterEach
     void tearDown() {
+        server.stop();
         try{
             server.data.clearGames();
             server.data.clearUsersAndAuth();
         } catch(Exception e){
             System.out.print("MySqlDataAccessTest failed to clear in tearDown");
         }
-        server.stop();
     }
 
     @Test
