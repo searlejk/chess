@@ -7,6 +7,7 @@ import model.game.ListGamesResult;
 import model.other.EmptyResult;
 import model.other.ErrorResult;
 import org.eclipse.jetty.util.HttpCookieStore;
+import service.UserService;
 import spark.Request;
 import spark.Response;
 import service.GameService;
@@ -21,6 +22,14 @@ public class ListGamesHandler {
         ListGamesResult listGamesResult;
         ErrorResult errorResult;
         EmptyResult emptyResult = new EmptyResult();
+
+        try {
+            UserService.checkAuthToken(authToken);
+        } catch(DataAccessException | NullPointerException e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: Invalid AuthToken");
+            return serializer.toJson(errorResult);
+        }
 
         try{
             listGamesResult = GameService.listGames(listGamesRequest);
