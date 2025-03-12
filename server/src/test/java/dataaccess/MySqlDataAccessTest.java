@@ -1,6 +1,9 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import exceptions.DataAccessException;
+import model.game.GameData;
 import model.user.AuthData;
 import model.user.UserData;
 import org.eclipse.jetty.server.Authentication;
@@ -18,10 +21,18 @@ class MySqlDataAccessTest {
     String password = "BookofMormon123";
     String email = "prophetseerandrevelator@gmail.com";
     UserData user = new UserData(username,password,email);
+
+
     String authToken = UUID.randomUUID().toString();
     AuthData authData = new AuthData(authToken,username);
     AuthData nullAuthData = new AuthData(null,null);
+
+
+    GameData gameData = new GameData (
+            1,"","","gameName","chessGame");
+    GameData nullGameData = new GameData (1,null,null,null,"chessGame");
     private Server server;
+
 
 
     @BeforeEach
@@ -151,27 +162,32 @@ class MySqlDataAccessTest {
     }
 
     @Test
-    void listGames() {
+    void listGamesCorrectly() {
+        assertDoesNotThrow(() -> server.data.listGames());
     }
 
     @Test
-    void addGame() {
+    void addGameCorrectly() {
+        assertDoesNotThrow(() ->
+                server.data.addGame(1,gameData), "No Throw");
     }
 
     @Test
-    void getGame() {
+    void addGameNullGameNameThrowsException() {
+        assertThrows(exception.ResponseException.class, () ->
+                server.data.addGame(1,nullGameData), "This Should Throw");
+    }
+
+    @Test
+    void getGameCorrectly() {
+    }
+
+    @Test
+    void getGameNullThrowsException() {
     }
 
     @Test
     void remGame() {
-    }
-
-    @Test
-    void clearUsersAndAuth() {
-    }
-
-    @Test
-    void clearGames() {
     }
 
     @Test
@@ -185,4 +201,13 @@ class MySqlDataAccessTest {
     @Test
     void checkPassword() {
     }
+
+    @Test
+    void clearUsersAndAuth() {
+    }
+
+    @Test
+    void clearGames() {
+    }
+
 }
