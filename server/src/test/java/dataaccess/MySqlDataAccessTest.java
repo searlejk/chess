@@ -115,7 +115,24 @@ class MySqlDataAccessTest {
     }
 
     @Test
-    void getUserByAuth() {
+    void getUserByAuthCorrectly() {
+        assertDoesNotThrow( () -> server.data.addAuthData(authData), "No Throw");
+        assertDoesNotThrow(() -> server.data.addUser(
+                        new UserData(username, password, email)),
+                "No Throw");
+
+        assertDoesNotThrow(() -> server.data.getUserByAuth(authToken));
+    }
+
+    @Test
+    void getUserByAuthNullThrowException() {
+        assertDoesNotThrow( () -> server.data.addAuthData(authData), "No Throw");
+        assertDoesNotThrow(() -> server.data.addUser(
+                        new UserData(username, password, email)),
+                "No Throw");
+
+        assertThrows(exception.ResponseException.class, () ->
+                server.data.getUserByAuth(null), "This Should Throw");
     }
 
     @Test
