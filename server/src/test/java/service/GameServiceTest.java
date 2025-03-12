@@ -30,15 +30,6 @@ class GameServiceTest {
     @Test
     void clearGames() {
 
-//        try {
-//            data.addGame(0, new GameData(1, "white", "black", "coolgame"));
-//        } catch(exception.ResponseException e){
-//
-//        }
-        ///data.clearGames();
-
-        //assertTrue(data.listGames().isEmpty(), "Games should be empty after clear");
-
     }
 
     @Test

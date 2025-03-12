@@ -265,10 +265,10 @@ public class MySqlDataAccess implements DataAccess {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    if (param instanceof String p) { ps.setString(i + 1, p); }
+                    else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
                     ///else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    else if (param == null) { ps.setNull(i + 1, NULL); }
                 }
                 ps.executeUpdate();
 
@@ -283,19 +283,6 @@ public class MySqlDataAccess implements DataAccess {
             throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
-
-    // Example for making a table code:
-    /*
-    CREATE TABLE IF NOT EXISTS  gameData (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-            `json` TEXT DEFAULT NULL,
-            PRIMARY KEY (`id`),
-            INDEX(type),
-            INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-     */
 
     private final String[] createStatements = {
             """
