@@ -14,6 +14,7 @@ class MySqlDataAccessTest {
     String username = "JosephSmith";
     String password = "BookofMormon123";
     String email = "prophetseerandrevelator@gmail.com";
+    UserData user = new UserData(username,password,email);
     private Server server;
 
     @BeforeEach
@@ -45,22 +46,50 @@ class MySqlDataAccessTest {
         assertDoesNotThrow(() -> server.data.addUser(
                 new UserData(username, password, email)),
                 "No Throw");
+        try {
+            assertNotNull(server.data.getUser(username));
+        } catch(Exception e){
+            fail("Unexpected Exception: " + e.getMessage());
+        }
     }
 
     @Test
     void addUserRepeatUsernameThrowsException() {
 
-        assertDoesNotThrow(() -> server.data.addUser(
-                        new UserData(username, password, email)),
+        assertDoesNotThrow(() ->
+                        server.data.addUser(new UserData(username, password, email)),
                 "No Throw");
 
-        assertThrows(DataAccessException.class, () -> server.data.addUser(
-                        new UserData(username, password, email)),
+        assertThrows(DataAccessException.class, () ->
+                        server.data.addUser(new UserData(username, password, email)),
                 "This Should Throw Exception");
     }
 
     @Test
-    void getUser() {
+    void getUserCorrectly() {
+        ///  add user
+        assertDoesNotThrow(() ->
+                        server.data.addUser(new UserData(username, password, email)),
+                "No Throw");
+
+        ///  check if user is there
+        try {
+            assertEquals(server.data.getUser(username).username(),user.username());
+        } catch(Exception e){
+            fail("Unexpected Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    void getUserNotFoundThrowsException() {
+        ///  Does not add user
+
+        ///  check if user is there
+        try {
+            assertNull(server.data.getUser(username));
+        } catch (Exception e){
+            fail("Unexpected Exception: " + e.getMessage());
+        }
     }
 
     @Test

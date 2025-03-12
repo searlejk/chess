@@ -66,6 +66,8 @@ public class MySqlDataAccess implements DataAccess {
 
         } catch(SQLException e){
             throw new ResponseException(500, "Unable to query userData: " + e.getMessage());
+        } catch(NullPointerException e){
+            throw new ResponseException(400, "Error: No user found with username: " + username);
         }
     }
 
