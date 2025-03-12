@@ -136,7 +136,18 @@ class MySqlDataAccessTest {
     }
 
     @Test
-    void deleteAuth() {
+    void deleteAuthCorrectly() {
+        assertDoesNotThrow( () ->
+                server.data.addAuthData(authData), "No Throw");
+
+        assertDoesNotThrow( () ->
+                server.data.deleteAuth(authToken));
+    }
+
+    @Test
+    void deleteAuthNullThrowsException() {
+        assertThrows(exception.ResponseException.class, () ->
+                server.data.deleteAuth(null));
     }
 
     @Test

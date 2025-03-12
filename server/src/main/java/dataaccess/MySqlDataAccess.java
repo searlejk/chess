@@ -104,6 +104,9 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void deleteAuth(String authToken) throws ResponseException {
+        if (authToken==null){
+            throw new ResponseException(400, "Error: Null authToken");
+        }
         System.out.println("\n[SQL] - deleteAuth: " + authToken);
         executeUpdate("DELETE FROM authData WHERE authToken = ?", authToken);
     }
