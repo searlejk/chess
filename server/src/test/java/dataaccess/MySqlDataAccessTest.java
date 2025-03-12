@@ -198,7 +198,6 @@ class MySqlDataAccessTest {
         }
     }
 
-
     @Test
     void remGameCorrectly() {
         assertDoesNotThrow(() ->
@@ -218,17 +217,71 @@ class MySqlDataAccessTest {
     }
 
     @Test
-    void checkPassword() {
+    void checkPasswordCorrectPassword() {
+        assertDoesNotThrow(() -> server.data.addUser(
+                        new UserData(username, password, email)),
+                "No Throw");
+        try {
+            assertTrue(
+                    server.data.checkPassword(username, password));
+        }catch(Exception e){
+            fail("Exception: "+ e.getMessage());
+        }
     }
 
-
+    @Test
+    void checkPasswordWrongPassword() {
+        assertDoesNotThrow(() -> server.data.addUser(
+                        new UserData(username, password, email)),
+                "No Throw");
+        try {
+            assertFalse(
+                    server.data.checkPassword(username, "lizard"));
+        }catch(Exception e){
+            fail("Exception: "+ e.getMessage());
+        }
+    }
 
     @Test
     void clearUsersAndAuth() {
+        assertDoesNotThrow(() -> server.data.addUser(
+                        new UserData(username, password, email)),
+                "No Throw");
+
+        assertDoesNotThrow( () ->
+                server.data.addAuthData(authData), "No Throw");
+
+        assertDoesNotThrow(() -> server.data.clearUsersAndAuth());
+
+        assertThrows(DataAccessException.class, () ->
+                server.data.getUserByAuth(authToken));
     }
 
     @Test
     void clearGames() {
+        try {
+            assertTrue(server.data.listGames().isEmpty());
+        }catch(Exception e){
+            fail("Exception: "+ e.getMessage());
+        }
+
+        try {
+            server.data.addGame(1, gameData);
+            server.data.addGame(2, gameData);
+            server.data.addGame(3, gameData);
+            server.data.addGame(4, gameData);
+            server.data.clearGames();
+        } catch(Exception e){
+            fail("Exception: "+ e.getMessage());
+        }
+
+        try {
+            assertTrue(server.data.listGames().isEmpty());
+        }catch(Exception e){
+            fail("Exception: "+ e.getMessage());
+        }
+
+
     }
 
 }

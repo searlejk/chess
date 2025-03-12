@@ -196,6 +196,12 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
+    public boolean checkPassword(String username, String password) throws ResponseException {
+        UserData user = getUser(username);
+        return BCrypt.checkpw(password, user.password());
+    }
+
+    @Override
     public void clearUsersAndAuth() throws ResponseException{
         executeUpdate("TRUNCATE userData");
         executeUpdate("TRUNCATE authData");
@@ -206,11 +212,7 @@ public class MySqlDataAccess implements DataAccess {
         executeUpdate("TRUNCATE gameData");
     }
 
-    @Override
-    public boolean checkPassword(String username, String password) throws ResponseException {
-        UserData user = getUser(username);
-        return BCrypt.checkpw(password, user.password());
-    }
+
 
     ///  *********************  PRIVATE METHODS  *********************
 
