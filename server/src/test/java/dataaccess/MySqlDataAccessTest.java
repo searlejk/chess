@@ -44,7 +44,7 @@ class MySqlDataAccessTest {
         } catch(Exception e){
             System.out.print("MySqlDataAccessTest failed to clear in setUp");
         }
-        server.run(8080);
+        server.run(8081);
     }
 
     @AfterEach
