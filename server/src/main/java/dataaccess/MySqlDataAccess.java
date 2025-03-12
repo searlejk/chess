@@ -27,11 +27,17 @@ public class MySqlDataAccess implements DataAccess {
         configureDatabase();
     }
 
+    ///  *********************  PUBLIC METHODS  *********************
     @Override
     public UserData addUser(UserData userInput) throws DataAccessException {
+        if (getUser(userInput.username())!=null){
+            throw new DataAccessException("Error: Username taken");
+        }
         String sql = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
 
-        UserData userEncrypted = storeUserPassword(userInput.username(),userInput.password(),userInput.email());
+        UserData userEncrypted = storeUserPassword(userInput.username(),
+                                                   userInput.password(),
+                                                   userInput.email());
 
         int newId = executeUpdate(sql,
                 userEncrypted.username(),
@@ -41,8 +47,6 @@ public class MySqlDataAccess implements DataAccess {
         System.out.println("\n[SQL] - User Added: "+ userEncrypted.username());
         return userEncrypted;
     }
-
-
 
     public UserData getUser(String username) throws ResponseException {
         String sql = "SELECT username, password, email FROM userData WHERE username=?";
@@ -95,7 +99,6 @@ public class MySqlDataAccess implements DataAccess {
         System.out.println("\n[SQL] - getUserByAuth: " + user.username());
         return user;
     }
-
 
     @Override
     public void deleteAuth(String authToken) throws ResponseException {
@@ -153,8 +156,6 @@ public class MySqlDataAccess implements DataAccess {
                     gameData.game());
         }
     }
-
-
 
     @Override
     public GameData getGame(int gameID) throws ResponseException {
@@ -225,13 +226,7 @@ public class MySqlDataAccess implements DataAccess {
         return BCrypt.checkpw(password, user.password());
     }
 
-    public void deleteUserData(Integer id) throws ResponseException {
-        executeUpdate("DELETE FROM userData WHERE id=?", id);
-    }
-
-    public void deleteAllUserDatas() throws ResponseException {
-        executeUpdate("TRUNCATE userData");
-    }
+    ///  *********************  PRIVATE METHODS  *********************
 
     private UserData readUserData(ResultSet rs) throws SQLException {
         String username = rs.getString("username");
