@@ -4,7 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import exceptions.ResponseException;
+import exception.ResponseException;
 import model.game.*;
 import model.other.EmptyResult;
 import model.user.*;

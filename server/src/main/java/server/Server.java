@@ -4,6 +4,7 @@ import dataaccess.DataAccess;
 ///import dataaccess.MySqlDataAccess;
 import dataaccess.DataAccessProvider;
 import dataaccess.MySqlDataAccess;
+import exception.ResponseException;
 import server.handlers.*;
 import spark.*;
 
@@ -19,6 +20,7 @@ public class Server {
         }
         this.data = temp;
         DataAccessProvider.setDataAccess(temp);
+
 
     }
 

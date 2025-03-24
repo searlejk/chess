@@ -18,7 +18,7 @@ public class MemoryDataAccess implements DataAccess {
     final private HashMap<String, AuthData> authData = new HashMap<>();
 
     @Override
-    public boolean checkPassword(String username, String password) throws ResponseException {
+    public boolean checkPassword(String username, String password) {
         return Objects.equals(users.get(username).password(), password);
     }
 
