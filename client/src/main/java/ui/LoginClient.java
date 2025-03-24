@@ -1,6 +1,8 @@
 package ui;
 
 import exception.ResponseException;
+import model.game.CreateGameRequest;
+import model.game.CreateGameResult;
 import model.user.*;
 import server.ServerFacade;
 
@@ -26,7 +28,7 @@ public class LoginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "logout" -> logout(params);
-//                case "create" -> create(params);
+                case "create" -> create(params);
 //                case "join" -> join(params);
 //                case "observe" -> observe(params);
                 case "quit" -> "quit";
@@ -47,38 +49,28 @@ public class LoginClient {
             }
 
             state = State.LOGGEDOUT;
+            return "You Logged out";
         }
-        return "You Logged out";
+        throw new ResponseException(400, "only type 'logout' to logout");
     }
 
-    public String register(String... params) throws ResponseException {
-        if (params.length >= 1) {
-            visitorName = String.join("-", params);
-
-
-            ///  Register should not log the user in, but it should just add them to the database
-            RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
-            RegisterResult registerResult;
-            LoginRequest loginRequest = new LoginRequest(params[0],params[1]);
-            LoginResult loginResult;
-
+    public String create(String... params) throws ResponseException {
+        if (params.length == 1) {
+            CreateGameRequest createGameRequest = new CreateGameRequest(params[0],authToken);
+            CreateGameResult createGameResult;
             try {
-                registerResult = server.register(registerRequest);
-            } catch (Exception e){
-                return "Username is already taken, try a new username";
+                createGameResult = server.create(createGameRequest);
+            } catch(Exception e){
+                return "Create Game Failed";
             }
 
-            try {
-                loginResult = server.login(loginRequest);
-            } catch (Exception e) {
-                return "Invalid Credentials, try again";
-            }
-
-            state = State.LOGGEDIN;
-            return String.format("You signed in as %s.", registerResult.username());
+            return "New Game Created\n GameID: " + createGameResult.gameID();
         }
-        throw new ResponseException(400, "Expected: <username> <password> <email>");
+        throw new ResponseException(400, "Expected: <NAME>");
     }
+
+
+
 
     public String help() {
         return """

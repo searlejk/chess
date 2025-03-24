@@ -38,7 +38,7 @@ public class PreLoginClient {
     }
 
     public String logIn(String... params) throws ResponseException {
-        if (params.length >= 1 && params.length <= 2) {
+        if (params.length == 2) {
             visitorName = params[0];
 
             ///  verify the users credentials

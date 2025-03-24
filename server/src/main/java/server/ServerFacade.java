@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.game.CreateGameRequest;
+import model.game.CreateGameResult;
 import model.other.EmptyResult;
 import model.user.*;
 import spark.Response;
@@ -33,6 +35,11 @@ public class ServerFacade {
         return this.makeRequest("DELETE", path, logoutRequest, EmptyResult.class);
     }
 
+    public CreateGameResult create(CreateGameRequest createGameRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, createGameRequest, CreateGameResult.class);
+    }
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
@@ -58,6 +65,10 @@ public class ServerFacade {
             http.addRequestProperty("Content-Type", "application/json");
 
             if (request instanceof LogoutRequest(String authToken)) {
+                http.addRequestProperty("Authorization", authToken);
+            }
+
+            if (request instanceof CreateGameRequest(String gameName, String authToken)) {
                 http.addRequestProperty("Authorization", authToken);
             }
 
