@@ -4,7 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import exception.ResponseException;
+import exceptions.ResponseException;
 import model.game.*;
 import model.other.EmptyResult;
 import model.user.*;
@@ -134,8 +134,8 @@ public class LoginClient {
         System.out.print(ERASE_SCREEN);
         ChessBoard board = game.getBoard();
 
-        for (int row = 1; row < 8; row++){
-            for (int col = 1; col < 8; col++){
+        for (int row = 8; row >= 1; row--){
+            for (int col = 1; col <= 8; col++){
                 if ((row + col) % 2 == 0) {
                     System.out.print(SET_BG_COLOR_LIGHT_GREY);
                 } else{
@@ -152,6 +152,7 @@ public class LoginClient {
                 System.out.print(RESET_TEXT_COLOR);
                 System.out.print(RESET_BG_COLOR);
             }
+            System.out.print("\n");
         }
     }
 
@@ -168,6 +169,8 @@ public class LoginClient {
                 return teamColor.equals("WHITE") ? WHITE_QUEEN : BLACK_QUEEN;
             case ROOK:
                 return teamColor.equals("WHITE") ? WHITE_ROOK : BLACK_ROOK;
+            case BISHOP:
+                return teamColor.equals("WHITE") ? WHITE_BISHOP : BLACK_BISHOP;
             default:
                 return EMPTY;
         }
