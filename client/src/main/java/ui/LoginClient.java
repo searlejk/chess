@@ -119,12 +119,13 @@ public class LoginClient {
 
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
             try {
-                server.join(joinRequest);
+                EmptyResult emptyResult = server.join(joinRequest);
             } catch(Exception e){
                 return "Join Game Failed";
             }
-
-            return "Joined Game Successfully";
+            ChessGame game = new ChessGame();
+            DrawChessWhite(game);
+            return "Success";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
@@ -133,8 +134,8 @@ public class LoginClient {
         System.out.print(ERASE_SCREEN);
         ChessBoard board = game.getBoard();
 
-        for (int row = 0; row < 8; row++){
-            for (int col = 0; col < 8; col++){
+        for (int row = 1; row < 8; row++){
+            for (int col = 1; col < 8; col++){
                 if ((row + col) % 2 == 0) {
                     System.out.print(SET_BG_COLOR_LIGHT_GREY);
                 } else{
