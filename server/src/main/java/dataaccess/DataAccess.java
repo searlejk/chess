@@ -13,17 +13,17 @@ public interface DataAccess {
     void addAuthData(AuthData authData) throws DataAccessException;
     UserData getUserByAuth(String authToken) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
-    Collection<GameData> listGames() throws exception.ResponseException;
+    Collection<GameData> listGames() throws exception.ServerResponseException;
 
-    GameData addGame(Integer inputGameID,GameData gameData) throws exception.ResponseException;
+    GameData addGame(Integer inputGameID,GameData gameData) throws exception.ServerResponseException;
 
-    GameData getGame(int gameID) throws exception.ResponseException;
+    GameData getGame(int gameID) throws exception.ServerResponseException;
 
     void remGame(int gameID) throws DataAccessException;
 
-    void clearUsersAndAuth() throws exception.ResponseException;
+    void clearUsersAndAuth() throws exception.ServerResponseException;
 
     void clearGames() throws DataAccessException;
 
-    boolean checkPassword(String username, String password) throws exception.ResponseException;
+    boolean checkPassword(String username, String password) throws exception.ServerResponseException;
 }

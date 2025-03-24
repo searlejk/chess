@@ -124,7 +124,7 @@ class UserServiceTest {
         String authToken = "12345";
 
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
-        assertThrows(exception.ResponseException.class, () -> UserService.logout(logoutRequest),
+        assertThrows(exception.ServerResponseException.class, () -> UserService.logout(logoutRequest),
                 "Yes Throw");
     }
 }

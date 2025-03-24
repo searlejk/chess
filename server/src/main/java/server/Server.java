@@ -4,7 +4,6 @@ import dataaccess.DataAccess;
 ///import dataaccess.MySqlDataAccess;
 import dataaccess.DataAccessProvider;
 import dataaccess.MySqlDataAccess;
-import exception.ResponseException;
 import server.handlers.*;
 import spark.*;
 
@@ -27,7 +26,7 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.exception(exception.ResponseException.class, (e, req, res) -> {
+        Spark.exception(exception.ServerResponseException.class, (e, req, res) -> {
             res.status(e.statusCode);
             res.body(e.getMessage());
         });

@@ -6,7 +6,6 @@ import model.game.ListGamesRequest;
 import model.game.ListGamesResult;
 import model.other.EmptyResult;
 import model.other.ErrorResult;
-import org.eclipse.jetty.util.HttpCookieStore;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -35,7 +34,7 @@ public class ListGamesHandler {
             listGamesResult = GameService.listGames(listGamesRequest);
             res.status(200);
         }
-        catch(exception.ResponseException e){
+        catch(exception.ServerResponseException e){
             return serializer.toJson(emptyResult);
         }
         catch(DataAccessException | NullPointerException e){

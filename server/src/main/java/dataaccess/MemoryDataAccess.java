@@ -1,7 +1,5 @@
 package dataaccess;
 
-import exception.ResponseException;
-import exceptions.DataAccessException;
 import exceptions.InvalidAuthToken;
 import model.user.AuthData;
 import model.game.GameData;

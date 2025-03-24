@@ -1,21 +1,14 @@
 package dataaccess;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
-import exception.ResponseException;
 import exceptions.DataAccessException;
-import exceptions.InvalidAuthToken;
 import model.game.GameData;
 import model.user.AuthData;
 import model.user.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import spark.Response;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.sql.*;
-import java.util.List;
-import java.util.Optional;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -23,7 +16,7 @@ import static java.sql.Types.NULL;
 
 public class MySqlDataAccess implements DataAccess {
 
-    public MySqlDataAccess() throws ResponseException {
+    public MySqlDataAccess() throws exception.ServerResponseException {
         configureDatabase();
     }
 
@@ -48,7 +41,7 @@ public class MySqlDataAccess implements DataAccess {
         return userEncrypted;
     }
 
-    public UserData getUser(String username) throws ResponseException {
+    public UserData getUser(String username) throws exception.ServerResponseException {
         String sql = "SELECT username, password, email FROM userData WHERE username=?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)){
@@ -65,14 +58,14 @@ public class MySqlDataAccess implements DataAccess {
             }
 
         } catch(SQLException e){
-            throw new ResponseException(500, "Unable to query userData: " + e.getMessage());
+            throw new exception.ServerResponseException(500, "Unable to query userData: " + e.getMessage());
         } catch(NullPointerException e){
-            throw new ResponseException(400, "Error: No user found with username: " + username);
+            throw new exception.ServerResponseException(400, "Error: No user found with username: " + username);
         }
     }
 
     @Override
-    public void addAuthData(AuthData authData) throws ResponseException {
+    public void addAuthData(AuthData authData) throws exception.ServerResponseException {
         String sql = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
         int newId = executeUpdate(sql,
                 authData.authToken(),
@@ -82,19 +75,19 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData getUserByAuth(String authToken) throws ResponseException {
+    public UserData getUserByAuth(String authToken) throws exception.ServerResponseException {
         AuthData authData;
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement("SELECT authToken, username FROM authData WHERE authToken=?")) {
             ps.setString(1, authToken);
             try (var rs = ps.executeQuery()) {
                 if (!rs.next()) {
-                    throw new ResponseException(400, "[SQL] - getUserByAuth: authToken not found");
+                    throw new exception.ServerResponseException(400, "[SQL] - getUserByAuth: authToken not found");
                 }
                 authData = readAuthData(rs);
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, "Unable to read data: " + e.getMessage());
+            throw new exception.ServerResponseException(500, "Unable to read data: " + e.getMessage());
         }
 
         UserData user = getUser(authData.username());
@@ -103,16 +96,16 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public void deleteAuth(String authToken) throws ResponseException {
+    public void deleteAuth(String authToken) throws exception.ServerResponseException {
         if (authToken==null){
-            throw new ResponseException(400, "Error: Null authToken");
+            throw new exception.ServerResponseException(400, "Error: Null authToken");
         }
         System.out.println("\n[SQL] - deleteAuth: " + authToken);
         executeUpdate("DELETE FROM authData WHERE authToken = ?", authToken);
     }
 
     @Override
-    public Collection<GameData> listGames() throws ResponseException{
+    public Collection<GameData> listGames() throws exception.ServerResponseException {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gameData";
@@ -124,14 +117,14 @@ public class MySqlDataAccess implements DataAccess {
                 }
             }
         } catch (Exception e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+            throw new exception.ServerResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
         System.out.println("\n[SQL] - Listing Games");
         return result;
     }
 
     @Override
-    public GameData addGame(Integer inputGameID, GameData gameData) throws ResponseException {
+    public GameData addGame(Integer inputGameID, GameData gameData) throws exception.ServerResponseException {
         if (inputGameID == 0) {
             String sql = "INSERT INTO gameData (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
             int generatedId = executeUpdate(sql,
@@ -163,7 +156,7 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     @Override
-    public GameData getGame(int gameID) throws ResponseException {
+    public GameData getGame(int gameID) throws exception.ServerResponseException {
         String sql = "SELECT id, whiteUsername, blackUsername, gameName, game FROM gameData WHERE id=?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)){
@@ -178,37 +171,37 @@ public class MySqlDataAccess implements DataAccess {
             }
 
         } catch(SQLException e){
-            throw new ResponseException(500, "Unable to query userData: " + e.getMessage());
+            throw new exception.ServerResponseException(500, "Unable to query userData: " + e.getMessage());
         }
     }
 
     @Override
     public void remGame(int gameID) throws DataAccessException{
         if (gameID < 0){
-            throw new ResponseException(400, "Negative gameID provided for remGame");
+            throw new exception.ServerResponseException(400, "Negative gameID provided for remGame");
         }
         System.out.println("\n[SQL] - remGame: " + gameID);
         try {
             executeUpdate("DELETE FROM gameData WHERE id = ?", gameID);
-        }catch(ResponseException e){
-            throw new ResponseException(400,"[SQL] - remGame failed, gameID: " + gameID);
+        }catch(exception.ServerResponseException e){
+            throw new exception.ServerResponseException(400,"[SQL] - remGame failed, gameID: " + gameID);
         }
     }
 
     @Override
-    public boolean checkPassword(String username, String password) throws ResponseException {
+    public boolean checkPassword(String username, String password) throws exception.ServerResponseException {
         UserData user = getUser(username);
         return BCrypt.checkpw(password, user.password());
     }
 
     @Override
-    public void clearUsersAndAuth() throws ResponseException{
+    public void clearUsersAndAuth() throws exception.ServerResponseException {
         executeUpdate("TRUNCATE userData");
         executeUpdate("TRUNCATE authData");
     }
 
     @Override
-    public void clearGames() throws ResponseException {
+    public void clearGames() throws exception.ServerResponseException {
         executeUpdate("TRUNCATE gameData");
     }
 
@@ -260,7 +253,7 @@ public class MySqlDataAccess implements DataAccess {
         return new UserData(username,hashedPassword,email);
     }
 
-    private int executeUpdate(String statement, Object... params) throws ResponseException {
+    private int executeUpdate(String statement, Object... params) throws exception.ServerResponseException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
@@ -280,7 +273,7 @@ public class MySqlDataAccess implements DataAccess {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new exception.ServerResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -325,7 +318,7 @@ public class MySqlDataAccess implements DataAccess {
 
 
 
-    private void configureDatabase() throws ResponseException {
+    private void configureDatabase() throws exception.ServerResponseException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
@@ -334,7 +327,7 @@ public class MySqlDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new exception.ServerResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }

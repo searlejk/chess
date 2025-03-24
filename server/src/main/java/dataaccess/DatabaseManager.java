@@ -1,7 +1,5 @@
 package dataaccess;
 
-import exception.ResponseException;
-
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -41,7 +39,7 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws ResponseException {
+    static void createDatabase() throws exception.ServerResponseException {
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
@@ -49,7 +47,7 @@ public class DatabaseManager {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, e.getMessage());
+            throw new exception.ServerResponseException(500, e.getMessage());
         }
     }
 
@@ -65,13 +63,13 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws ResponseException {
+    static Connection getConnection() throws exception.ServerResponseException {
         try {
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             conn.setCatalog(DATABASE_NAME);
             return conn;
         } catch (SQLException e) {
-            throw new ResponseException(500, e.getMessage());
+            throw new exception.ServerResponseException(500, e.getMessage());
         }
     }
 }

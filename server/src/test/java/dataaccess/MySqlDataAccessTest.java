@@ -1,12 +1,9 @@
 package dataaccess;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
 import exceptions.DataAccessException;
 import model.game.GameData;
 import model.user.AuthData;
 import model.user.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,7 +118,7 @@ class MySqlDataAccessTest {
         assertDoesNotThrow( () ->
                 server.data.addAuthData(authData), "No Throw");
 
-        assertThrows(exception.ResponseException.class, () ->
+        assertThrows(exception.ServerResponseException.class, () ->
                 server.data.addAuthData(nullAuthData), "This Should Throw");
     }
 
@@ -142,7 +139,7 @@ class MySqlDataAccessTest {
                         new UserData(username, password, email)),
                 "No Throw");
 
-        assertThrows(exception.ResponseException.class, () ->
+        assertThrows(exception.ServerResponseException.class, () ->
                 server.data.getUserByAuth(null), "This Should Throw");
     }
 
@@ -157,7 +154,7 @@ class MySqlDataAccessTest {
 
     @Test
     void deleteAuthNullThrowsException() {
-        assertThrows(exception.ResponseException.class, () ->
+        assertThrows(exception.ServerResponseException.class, () ->
                 server.data.deleteAuth(null));
     }
 
@@ -174,7 +171,7 @@ class MySqlDataAccessTest {
 
     @Test
     void addGameNullGameNameThrowsException() {
-        assertThrows(exception.ResponseException.class, () ->
+        assertThrows(exception.ServerResponseException.class, () ->
                 server.data.addGame(1,nullGameData), "This Should Throw");
     }
 
@@ -212,7 +209,7 @@ class MySqlDataAccessTest {
         assertDoesNotThrow(() ->
                 server.data.addGame(1,gameData), "No Throw");
 
-        assertThrows(exception.ResponseException.class, () ->
+        assertThrows(exception.ServerResponseException.class, () ->
                 server.data.remGame(-9999), "No Throw");
     }
 
