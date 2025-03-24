@@ -1,6 +1,6 @@
 package ui;
 
-import exception.ResponseException;
+import ui.exceptions.ResponseException;
 import model.user.LoginRequest;
 import model.user.LoginResult;
 import model.user.RegisterRequest;

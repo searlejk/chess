@@ -1,7 +1,6 @@
-package exception;
+package ui.exceptions;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessProvider;
 import exceptions.DataAccessException;
 
 import java.io.InputStream;
