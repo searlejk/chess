@@ -1,12 +1,14 @@
 package ui;
 
 import exception.ResponseException;
-import model.game.CreateGameRequest;
-import model.game.CreateGameResult;
+import model.game.*;
 import model.user.*;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class LoginClient {
     private String visitorName = null;
@@ -29,6 +31,7 @@ public class LoginClient {
             return switch (cmd) {
                 case "logout" -> logout(params);
                 case "create" -> create(params);
+                case "list" -> listGames(params);
 //                case "join" -> join(params);
 //                case "observe" -> observe(params);
                 case "quit" -> "quit";
@@ -69,7 +72,35 @@ public class LoginClient {
         throw new ResponseException(400, "Expected: <NAME>");
     }
 
+    public String listGames(String... params) throws ResponseException {
+        if (params.length == 0) {
+            ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+            ListGamesResult listGamesResult;
+            try {
+                listGamesResult = server.listGames(listGamesRequest);
+            } catch(Exception e){
+                return "List Games Failed";
+            }
+            StringBuilder response = new StringBuilder("List of Games:\n");
+            int i = 1;
+            Collection<GameData> gamesShuffled = listGamesResult.games();
+            Collections.shuffle((List<?>) gamesShuffled);
 
+            for (GameData game : gamesShuffled){
+                response.append(i+". ");
+                response.append(game.gameName());
+                response.append("\n\tWhite: ");
+                response.append(game.whiteUsername());
+                response.append("\n\tBlack: ");
+                response.append(game.blackUsername());
+                response.append("\n\n");
+                i+=1;
+            }
+
+            return response.toString();
+        }
+        throw new ResponseException(400, "only type 'list' for list");
+    }
 
 
     public String help() {

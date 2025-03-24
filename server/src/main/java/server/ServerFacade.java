@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import model.game.CreateGameRequest;
 import model.game.CreateGameResult;
+import model.game.ListGamesRequest;
+import model.game.ListGamesResult;
 import model.other.EmptyResult;
 import model.user.*;
 import spark.Response;
@@ -40,6 +42,11 @@ public class ServerFacade {
         return this.makeRequest("POST", path, createGameRequest, CreateGameResult.class);
     }
 
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("GET", path, listGamesRequest, ListGamesResult.class);
+    }
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
@@ -70,6 +77,11 @@ public class ServerFacade {
 
             if (request instanceof CreateGameRequest(String gameName, String authToken)) {
                 http.addRequestProperty("Authorization", authToken);
+            }
+
+            if (request instanceof ListGamesRequest(String authToken)) {
+                http.addRequestProperty("Authorization", authToken);
+                return;
             }
 
             String reqData = new Gson().toJson(request);
