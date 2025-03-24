@@ -1,11 +1,10 @@
 package ui;
 
 import ui.exceptions.ResponseException;
-import model.user.LoginRequest;
-import model.user.LoginResult;
-import model.user.RegisterRequest;
-import model.user.RegisterResult;
-import server.ServerFacade;
+import ui.model.user.LoginRequest;
+import ui.model.user.LoginResult;
+import ui.model.user.RegisterRequest;
+import ui.model.user.*;
 
 import java.util.Arrays;
 

@@ -1,7 +1,6 @@
 package ui.exceptions;
 
 import com.google.gson.Gson;
-import exceptions.DataAccessException;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

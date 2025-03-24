@@ -1,8 +1,5 @@
 package ui;
 
-//import client.websocket.NotificationHandler;
-//import webSocketMessages.Notification;
-
 import java.util.Scanner;
 
 public class LoginRepl {

@@ -6,8 +6,8 @@ import ui.model.game.CreateGameRequest;
 import ui.model.game.CreateGameResult;
 import ui.model.game.ListGamesRequest;
 import ui.model.game.ListGamesResult;
-import ui.model.other.EmptyResult;
-import model.user.*;
+import ui.model.other.*;
+import ui.model.user.*;
 
 
 import java.io.*;

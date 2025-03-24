@@ -5,10 +5,9 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import ui.exceptions.ResponseException;
-import model.game.*;
-import model.other.EmptyResult;
-import model.user.*;
-import server.ServerFacade;
+import ui.model.game.*;
+import ui.model.other.EmptyResult;
+import ui.model.user.*;
 
 import java.util.*;
 
