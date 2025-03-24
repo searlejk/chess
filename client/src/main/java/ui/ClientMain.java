@@ -1,5 +1,4 @@
 package ui;
-import ui.PregameRepl;
 
 public class ClientMain {
     public static void main(String[] args) {
@@ -8,7 +7,7 @@ public class ClientMain {
             serverUrl = args[0];
         }
 
-        new PregameRepl(serverUrl).run();
+        new PreLoginRepl(serverUrl).run();
     }
 
 }

@@ -9,13 +9,14 @@ import server.ServerFacade;
 
 import java.util.Arrays;
 
-public class PregameClient {
+public class PreLoginClient {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.LOGGEDOUT;
+    public State state = State.LOGGEDOUT;
+    public String authToken = null;
 
-    public PregameClient(String serverUrl) {
+    public PreLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
     }
@@ -50,6 +51,7 @@ public class PregameClient {
             }
 
             ///  Change state once the user's credentials are verified
+            this.authToken = loginResult.authToken();
             state = State.LOGGEDIN;
             return String.format("You signed in as %s.", loginResult.username());
         }
@@ -64,34 +66,38 @@ public class PregameClient {
             ///  Register should not log the user in, but it should just add them to the database
             RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult registerResult;
+            LoginRequest loginRequest = new LoginRequest(params[0],params[1]);
+            LoginResult loginResult;
+
             try {
                 registerResult = server.register(registerRequest);
             } catch (Exception e){
                 return "Username is already taken, try a new username";
             }
 
-            return String.format("New Account Registered for: %s.", registerResult.username());
+            try {
+                loginResult = server.login(loginRequest);
+            } catch (Exception e) {
+                return "Invalid Credentials, try again";
+            }
+
+            this.authToken = loginResult.authToken();
+            state = State.LOGGEDIN;
+            return String.format("You signed in as %s.", registerResult.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
     public String help() {
-        if (state == State.LOGGEDOUT) {
-            return """
-                    \n
-                    - help --> lists commands
-                    - quit --> quits application
-                    - login <username> <password> --> to play chess
-                    - register <username> <password> <email> --> to create an account
-                    """;
+        return """
+                \n
+                \thelp - with possible commands
+                \tquit - the program
+                \tlogin <username> <password> - to play chess
+                \tregister <username> <password> <email> - to create an account
+                """;
         }
 
-
-        return """
-                - signOut
-                - quit
-                """;
-    }
 
     private void assertSignedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {

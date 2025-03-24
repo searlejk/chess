@@ -4,20 +4,17 @@ package ui;
 //import webSocketMessages.Notification;
 
 import java.util.Scanner;
-import ui.EscapeSequences;
-import ui.PregameClient;
 
-import static java.awt.Color.*;
+public class LoginRepl {
+    private final LoginClient client;
+    private final String serverUrl;
 
-public class PregameRepl {
-    private final PregameClient client;
-
-    public PregameRepl(String serverUrl) {
-        client = new PregameClient(serverUrl);
+    public LoginRepl(String serverUrl, String authToken) {
+        this.serverUrl = serverUrl;
+        client = new LoginClient(serverUrl, authToken);
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to the 240 Chess. Type help to get started.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -29,6 +26,12 @@ public class PregameRepl {
             try {
                 result = client.eval(line);
                 System.out.print(result);
+
+                if (client.state==State.LOGGEDOUT){
+                    new PreLoginRepl(this.serverUrl).run();
+                    break;
+                }
+
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);

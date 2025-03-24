@@ -2,10 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.user.LoginRequest;
-import model.user.LoginResult;
-import model.user.RegisterRequest;
-import model.user.RegisterResult;
+import model.other.EmptyResult;
+import model.user.*;
 import spark.Response;
 
 
@@ -28,6 +26,11 @@ public class ServerFacade {
     public LoginResult login(LoginRequest loginRequest) throws ResponseException {
         var path = "/session";
         return this.makeRequest("POST", path, loginRequest, LoginResult.class);
+    }
+
+    public EmptyResult logout(LogoutRequest logoutRequest) throws ResponseException {
+        var path = "/session";
+        return this.makeRequest("DELETE", path, logoutRequest, EmptyResult.class);
     }
 
 
@@ -53,6 +56,11 @@ public class ServerFacade {
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
+
+            if (request instanceof LogoutRequest(String authToken)) {
+                http.addRequestProperty("Authorization", authToken);
+            }
+
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
