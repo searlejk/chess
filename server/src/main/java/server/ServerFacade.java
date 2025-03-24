@@ -47,6 +47,11 @@ public class ServerFacade {
         return this.makeRequest("GET", path, listGamesRequest, ListGamesResult.class);
     }
 
+    public EmptyResult join(JoinRequest joinRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("PUT", path, joinRequest, EmptyResult.class);
+    }
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
@@ -82,6 +87,10 @@ public class ServerFacade {
             if (request instanceof ListGamesRequest(String authToken)) {
                 http.addRequestProperty("Authorization", authToken);
                 return;
+            }
+
+            if (request instanceof JoinRequest(String playerColor, int gameID, String authToken)) {
+                http.addRequestProperty("Authorization", authToken);
             }
 
             String reqData = new Gson().toJson(request);

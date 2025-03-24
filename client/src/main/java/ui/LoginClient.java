@@ -5,10 +5,7 @@ import model.game.*;
 import model.user.*;
 import server.ServerFacade;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class LoginClient {
     private String visitorName = null;
@@ -16,6 +13,7 @@ public class LoginClient {
     private final String serverUrl;
     public State state = State.LOGGEDIN;
     private final String authToken;
+    private List<Integer> orderedGameID;
 
     public LoginClient(String serverUrl, String authToken) {
         server = new ServerFacade(serverUrl);
@@ -32,7 +30,7 @@ public class LoginClient {
                 case "logout" -> logout(params);
                 case "create" -> create(params);
                 case "list" -> listGames(params);
-//                case "join" -> join(params);
+                case "join" -> join(params);
 //                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
@@ -85,8 +83,10 @@ public class LoginClient {
             int i = 1;
             Collection<GameData> gamesShuffled = listGamesResult.games();
             Collections.shuffle((List<?>) gamesShuffled);
+            List<Integer> orderedGameID = new ArrayList<>();
 
             for (GameData game : gamesShuffled){
+                orderedGameID.add(game.gameID());
                 response.append(i+". ");
                 response.append(game.gameName());
                 response.append("\n\tWhite: ");
@@ -97,9 +97,29 @@ public class LoginClient {
                 i+=1;
             }
 
+            this.orderedGameID = orderedGameID;
+
             return response.toString();
         }
         throw new ResponseException(400, "only type 'list' for list");
+    }
+
+    public String join(String... params) throws ResponseException {
+        if (params.length == 2) {
+            int index = Integer.parseInt(params[0]) - 1;
+            String playerColor = params[1];
+            int gameID = this.orderedGameID.get(index);
+
+            JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
+            try {
+                server.join(joinRequest);
+            } catch(Exception e){
+                return "Join Game Failed";
+            }
+
+            return "Joined Game Successfully";
+        }
+        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
 
 

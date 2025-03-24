@@ -6,6 +6,7 @@ import model.game.GetGameBody;
 import model.other.EmptyResult;
 import model.other.ErrorResult;
 import model.user.JoinRequest;
+import service.UserService;
 import spark.Request;
 import spark.Response;
 import service.GameService;
@@ -17,6 +18,11 @@ public class JoinGameHandler {
         System.out.println("\n*****[JoinGame]*****\n\n Request Body: \n" + req.body());
         String authToken = req.headers("Authorization");
         ErrorResult errorResult;
+
+        // added to check before *******************
+        UserService.checkAuthToken(authToken);
+        System.out.println("authToken Good");
+
 
         GetGameBody tempBody;
         String inputColor;
@@ -40,6 +46,7 @@ public class JoinGameHandler {
         JoinRequest joinRequest = new JoinRequest(inputColor,gameID,authToken);
         EmptyResult getGameResult;
 
+        System.out.println("Entering joinGame Try Block");
 
         try{
             ///  ********************************************
@@ -59,11 +66,13 @@ public class JoinGameHandler {
         catch(NoGameFoundException e){
             res.status(401);
             errorResult = new ErrorResult("Error: no game found");
+            System.out.println("No Game Found Exception");
             return serializer.toJson(errorResult);
         }
         catch(InvalidAuthToken e){
             res.status(401);
             errorResult = new ErrorResult("Error: Invalid Auth Token");
+            System.out.println("Invalid Auth Token");
             return serializer.toJson(errorResult);
         }
         catch(NullPointerException e){
@@ -74,7 +83,9 @@ public class JoinGameHandler {
         catch(DataAccessException e){
             res.status(401);
             errorResult = new ErrorResult("Error: Data Access Exception");
+            System.out.println("DataAccessException");
             return serializer.toJson(errorResult);
+
         }
 
 

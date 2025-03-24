@@ -52,12 +52,18 @@ public class GameService {
         int gameID = joinRequest.gameID();
         String authToken = joinRequest.authToken();
         String teamColor = joinRequest.playerColor().toUpperCase();
+        System.out.println("Data taken from joinRequest");
+
         /// check authToken
-        UserService.checkAuthToken(authToken);
+        // REMOVED *******************
+        //UserService.checkAuthToken(authToken);
+        System.out.println("CheckauthToken Passed");
 
         if (!teamColor.equals("BLACK") && !teamColor.equals("WHITE")){
             throw new IncorrectCredentialsException("Error: Incorrect Color selected");
         }
+
+        System.out.println("Good Color");
 
         /*
             1) get username from authToken userdata
@@ -71,15 +77,25 @@ public class GameService {
         if (DATA_ACCESS.getGame(gameID)==null){
             throw new IncorrectCredentialsException("Missing gameID");
         }
+
+        System.out.println("Good GameID");
+
         if (DATA_ACCESS.listGames()==null) {
             throw new NoGameFoundException("Error: No game for gameID: " + gameID);
         }
+
+        System.out.println("Game Found");
+
         /// get username
         String username = DATA_ACCESS.getUserByAuth(authToken).username();
+
+        System.out.println("Found User by Auth");
 
         /// save old game locally
         /// delete old game from db
         GameData oldGame = DATA_ACCESS.getGame(gameID);
+
+        System.out.println("Found Game");
 
         GameData newGame = null;
         /// make new game if white
