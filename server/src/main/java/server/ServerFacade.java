@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.user.LoginRequest;
+import model.user.LoginResult;
 import model.user.RegisterRequest;
 import model.user.RegisterResult;
 import spark.Response;
@@ -23,9 +25,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, registerRequest , RegisterResult.class);
     }
 
-    public void login(int id) throws ResponseException {
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
         var path = "/session";
-        this.makeRequest("POST", path, null, null);
+        return this.makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
 

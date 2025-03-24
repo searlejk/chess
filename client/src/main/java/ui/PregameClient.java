@@ -1,6 +1,8 @@
 package ui;
 
 import exception.ResponseException;
+import model.user.LoginRequest;
+import model.user.LoginResult;
 import model.user.RegisterRequest;
 import model.user.RegisterResult;
 import server.ServerFacade;
@@ -39,11 +41,17 @@ public class PregameClient {
             visitorName = params[0];
 
             ///  verify the users credentials
-            ///  once I finish register
+            LoginRequest loginRequest = new LoginRequest(params[0],params[1]);
+            LoginResult loginResult;
+            try {
+                loginResult = server.login(loginRequest);
+            } catch (Exception e) {
+                return "Invalid Credentials, try again";
+            }
 
             ///  Change state once the user's credentials are verified
-            //state = State.LOGGEDIN;
-            return String.format("You signed in as %s.", visitorName);
+            state = State.LOGGEDIN;
+            return String.format("You signed in as %s.", loginResult.username());
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
@@ -62,7 +70,7 @@ public class PregameClient {
                 return "Username is already taken, try a new username";
             }
 
-            return String.format("You signed in as %s.", registerResult.username());
+            return String.format("New Account Registered for: %s.", registerResult.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
@@ -80,10 +88,6 @@ public class PregameClient {
 
 
         return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
                 - signOut
                 - quit
                 """;
