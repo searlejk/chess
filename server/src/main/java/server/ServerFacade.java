@@ -18,9 +18,9 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public RegisterResult register(RegisterResult registerResult) throws ResponseException {
+    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, RegisterRequest.class , RegisterResult.class);
+        return this.makeRequest("POST", path, registerRequest , RegisterResult.class);
     }
 
     public void login(int id) throws ResponseException {

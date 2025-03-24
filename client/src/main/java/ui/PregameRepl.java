@@ -28,7 +28,7 @@ public class PregameRepl {
 
             try {
                 result = client.eval(line);
-                System.out.print(BLUE + result);
+                System.out.print(result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);

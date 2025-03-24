@@ -1,6 +1,8 @@
 package ui;
 
 import exception.ResponseException;
+import model.user.RegisterRequest;
+import model.user.RegisterResult;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -35,7 +37,12 @@ public class PregameClient {
     public String logIn(String... params) throws ResponseException {
         if (params.length >= 1 && params.length <= 2) {
             visitorName = params[0];
-            state = State.LOGGEDIN;
+
+            ///  verify the users credentials
+            ///  once I finish register
+
+            ///  Change state once the user's credentials are verified
+            //state = State.LOGGEDIN;
             return String.format("You signed in as %s.", visitorName);
         }
         throw new ResponseException(400, "Expected: <username> <password>");
@@ -44,7 +51,18 @@ public class PregameClient {
     public String register(String... params) throws ResponseException {
         if (params.length >= 1) {
             visitorName = String.join("-", params);
-            return String.format("You signed in as %s.", visitorName);
+
+
+            ///  Register should not log the user in, but it should just add them to the database
+            RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
+            RegisterResult registerResult;
+            try {
+                registerResult = server.register(registerRequest);
+            } catch (Exception e){
+                return "Username is already taken, try a new username";
+            }
+
+            return String.format("You signed in as %s.", registerResult.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
@@ -53,12 +71,14 @@ public class PregameClient {
         if (state == State.LOGGEDOUT) {
             return """
                     \n
-                    - help
-                    - quit
-                    - login <username> <password> - to play chess
-                    - register <username> <password> <email> - to create an account
+                    - help --> lists commands
+                    - quit --> quits application
+                    - login <username> <password> --> to play chess
+                    - register <username> <password> <email> --> to create an account
                     """;
         }
+
+
         return """
                 - list
                 - adopt <pet id>
