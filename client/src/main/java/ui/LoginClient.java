@@ -123,8 +123,14 @@ public class LoginClient {
                 return "Join Game Failed";
             }
             ChessGame game = new ChessGame();
-            drawChessWhite(game);
-            return "Success";
+            if (params[1].equalsIgnoreCase("WHITE")){
+                drawChessWhite(game);
+            }
+            if (params[1].equalsIgnoreCase("BLACK")){
+                drawChessBlack(game);
+            }
+
+            return "";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
@@ -132,26 +138,106 @@ public class LoginClient {
     public void drawChessWhite(ChessGame game){
         System.out.print(ERASE_SCREEN);
         ChessBoard board = game.getBoard();
+        String unicodePiece;
+
+        setTopKey("    a  b  c  d  e  f  g  h    ");
+        int key = 8;
 
         for (int row = 8; row >= 1; row--){
+            ///  left number key
+            setKeyColors(" "+key+" ");
             for (int col = 1; col <= 8; col++){
-                if ((row + col) % 2 == 0) {
-                    System.out.print(SET_BG_COLOR_LIGHT_GREY);
-                } else{
-                    System.out.print(SET_BG_COLOR_DARK_GREEN);
-                }
-
                 ChessPosition pos = new ChessPosition(row,col);
-                String unicodePiece;
+
+                boardBackgroundColor(row,col,board,pos);
+
                 if (board.getPiece(pos)!=null){
-                    unicodePiece = getUnicodePiece(board.getPiece(pos));
+                    ChessPiece piece = board.getPiece(pos);
+                    ChessGame.TeamColor color = piece.getTeamColor();
+                    unicodePiece = getUnicodePiece(piece);
+
+                    if(color == ChessGame.TeamColor.WHITE){
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
+                    } else{
+                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
+                    }
                     System.out.print(unicodePiece);
                 }
-
-                System.out.print(RESET_TEXT_COLOR);
-                System.out.print(RESET_BG_COLOR);
             }
-            System.out.print("\n");
+            setKeyColors(" "+key+" ");
+            key--;
+            newLine();
+        }
+        setKeyColors("    a  b  c  d  e  f  g  h    ");
+    }
+
+    public void drawChessBlack(ChessGame game){
+        System.out.print(ERASE_SCREEN);
+        ChessBoard board = game.getBoard();
+        String unicodePiece;
+
+        setTopKey("    h  g  f  e  d  c  b  a    ");
+        int key = 1;
+
+        for (int row = 1; row <= 8; row++){
+            ///  left number key
+            setKeyColors(" "+key+" ");
+            for (int col = 1; col <= 8; col++){
+                ChessPosition pos = new ChessPosition(row,col);
+
+                boardBackgroundColor(row,col,board,pos);
+
+                if (board.getPiece(pos)!=null) {
+                    ChessPiece piece = board.getPiece(pos);
+                    ChessGame.TeamColor color = piece.getTeamColor();
+                    unicodePiece = getUnicodePiece(piece);
+
+                    if(color == ChessGame.TeamColor.WHITE){
+                        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
+                    } else{
+                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
+                    }
+                    System.out.print(unicodePiece);
+                }
+            }
+            setKeyColors(" "+key+" ");
+            key++;
+            newLine();
+        }
+        setKeyColors("    h  g  f  e  d  c  b  a    ");
+    }
+
+    private void resetTextAndBackground(){
+        System.out.print(EscapeSequences.RESET_BG_COLOR);
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+    }
+
+    private void setKeyColors(String output){
+        System.out.print(EscapeSequences.SET_TEXT_BOLD);
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
+        System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+        System.out.print(output);
+        resetTextAndBackground();
+    }
+
+    private void setTopKey(String output){
+        setKeyColors(output);
+        newLine();
+    }
+
+    private void newLine(){
+        System.out.print("\n");
+    }
+
+    private void boardBackgroundColor(int row, int col,ChessBoard board, ChessPosition pos){
+        if ((row + col) % 2 == 0) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+        } else{
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+        }
+
+        if (board.getPiece(pos)==null){
+            System.out.print("   ");
         }
     }
 
