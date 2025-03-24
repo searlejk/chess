@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import exception.ResponseException;
+import exceptions.ResponseException;
 import model.game.CreateGameRequest;
 import model.game.CreateGameResult;
 import model.game.ListGamesRequest;
