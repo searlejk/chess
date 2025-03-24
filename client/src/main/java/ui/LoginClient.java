@@ -1,11 +1,18 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.game.*;
+import model.other.EmptyResult;
 import model.user.*;
 import server.ServerFacade;
 
 import java.util.*;
+
+import static ui.EscapeSequences.*;
 
 public class LoginClient {
     private String visitorName = null;
@@ -87,7 +94,7 @@ public class LoginClient {
 
             for (GameData game : gamesShuffled){
                 orderedGameID.add(game.gameID());
-                response.append(i+". ");
+                response.append(i).append(". ");
                 response.append(game.gameName());
                 response.append("\n\tWhite: ");
                 response.append(game.whiteUsername());
@@ -122,6 +129,48 @@ public class LoginClient {
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
 
+    public void DrawChessWhite(ChessGame game){
+        System.out.print(ERASE_SCREEN);
+        ChessBoard board = game.getBoard();
+
+        for (int row = 0; row < 8; row++){
+            for (int col = 0; col < 8; col++){
+                if ((row + col) % 2 == 0) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY);
+                } else{
+                    System.out.print(SET_BG_COLOR_DARK_GREEN);
+                }
+
+                ChessPosition pos = new ChessPosition(row,col);
+                String unicodePiece;
+                if (board.getPiece(pos)!=null){
+                    unicodePiece = GetUnicodePiece(board.getPiece(pos));
+                    System.out.print(unicodePiece);
+                }
+
+                System.out.print(RESET_TEXT_COLOR);
+                System.out.print(RESET_BG_COLOR);
+            }
+        }
+    }
+
+    private static String GetUnicodePiece(ChessPiece piece){
+        String teamColor = piece.getTeamColor().toString();
+        switch (piece.getPieceType()){
+            case PAWN:
+                return teamColor.equals("WHITE") ? WHITE_PAWN : BLACK_PAWN;
+            case KING:
+                return teamColor.equals("WHITE") ? WHITE_KING : BLACK_KING;
+            case KNIGHT:
+                return teamColor.equals("WHITE") ? WHITE_KNIGHT : BLACK_KNIGHT;
+            case QUEEN:
+                return teamColor.equals("WHITE") ? WHITE_QUEEN : BLACK_QUEEN;
+            case ROOK:
+                return teamColor.equals("WHITE") ? WHITE_ROOK : BLACK_ROOK;
+            default:
+                return EMPTY;
+        }
+    }
 
     public String help() {
         return """

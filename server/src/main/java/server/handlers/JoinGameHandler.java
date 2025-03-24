@@ -20,7 +20,13 @@ public class JoinGameHandler {
         ErrorResult errorResult;
 
         // added to check before *******************
-        UserService.checkAuthToken(authToken);
+        try {
+            UserService.checkAuthToken(authToken);
+        } catch(Exception e){
+            res.status(401);
+            errorResult = new ErrorResult("Error: Bad AuthToken");
+            return serializer.toJson(errorResult);
+        }
         System.out.println("authToken Good");
 
 
