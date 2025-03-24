@@ -13,6 +13,12 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        try {
+            server.data.clearGames();
+            server.data.clearUsersAndAuth();
+        } catch (Exception e){
+            System.out.println("@BeforeAll in ServerFacadeTests failed clearing data");
+        }
     }
 
     @AfterAll
@@ -22,8 +28,28 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    void register() {
+
+    }
+
+    @Test
+    void login() {
+    }
+
+    @Test
+    void logout() {
+    }
+
+    @Test
+    void create() {
+    }
+
+    @Test
+    void listGames() {
+    }
+
+    @Test
+    void join() {
     }
 
 }
