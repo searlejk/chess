@@ -123,13 +123,13 @@ public class LoginClient {
                 return "Join Game Failed";
             }
             ChessGame game = new ChessGame();
-            DrawChessWhite(game);
+            drawChessWhite(game);
             return "Success";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
 
-    public void DrawChessWhite(ChessGame game){
+    public void drawChessWhite(ChessGame game){
         System.out.print(ERASE_SCREEN);
         ChessBoard board = game.getBoard();
 
@@ -144,7 +144,7 @@ public class LoginClient {
                 ChessPosition pos = new ChessPosition(row,col);
                 String unicodePiece;
                 if (board.getPiece(pos)!=null){
-                    unicodePiece = GetUnicodePiece(board.getPiece(pos));
+                    unicodePiece = getUnicodePiece(board.getPiece(pos));
                     System.out.print(unicodePiece);
                 }
 
@@ -155,7 +155,7 @@ public class LoginClient {
         }
     }
 
-    private static String GetUnicodePiece(ChessPiece piece){
+    private static String getUnicodePiece(ChessPiece piece){
         String teamColor = piece.getTeamColor().toString();
         switch (piece.getPieceType()){
             case PAWN:

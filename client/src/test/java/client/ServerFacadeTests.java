@@ -1,15 +1,11 @@
 package client;
 
-import exceptions.DataAccessException;
-import model.game.CreateGameRequest;
-import model.game.CreateGameResult;
-import model.game.ListGamesRequest;
-import model.user.*;
+import ui.model.game.*;
+import ui.model.user.*;
 import org.junit.jupiter.api.*;
 import server.Server;
-import server.ServerFacade;
-import service.UserService;
-import exceptions.*;
+import ui.ServerFacade;
+import ui.exceptions.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServerFacadeTests {
 
     private static Server server;
-    private static ServerFacade facade;
+    private static ui.ServerFacade facade;
     private static RegisterRequest r = new RegisterRequest("username","password","email");
     private static LoginRequest l = new LoginRequest("username", "password");
 
@@ -53,7 +49,7 @@ public class ServerFacadeTests {
     @Test
     void registerNullUsername() {
         RegisterRequest rNull = new RegisterRequest(null,"password","email");
-        assertThrows(exception.ResponseException.class, () -> facade.register(rNull));
+        assertThrows(ResponseException.class, () -> facade.register(rNull));
 
         assertDoesNotThrow(() -> server.data.getUser("username"));
     }
