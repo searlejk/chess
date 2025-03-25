@@ -8,6 +8,8 @@ import ui.model.user.*;
 
 import java.util.Arrays;
 
+import static ui.EscapeSequences.*;
+
 public class PreLoginClient {
     private String visitorName = null;
     private final ServerFacade server;
@@ -25,6 +27,7 @@ public class PreLoginClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            System.out.print(SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
                 case "login" -> logIn(params);
                 case "register" -> register(params);
@@ -58,7 +61,7 @@ public class PreLoginClient {
     }
 
     public String register(String... params) throws ResponseException {
-        if (params.length >= 1) {
+        if (params.length == 3) {
             visitorName = String.join("-", params);
 
 
@@ -88,12 +91,16 @@ public class PreLoginClient {
     }
 
     public String help() {
-        return """
-                \n
-                \thelp - with possible commands
-                \tquit - the program
-                \tlogin <username> <password> - to play chess
-                \tregister <username> <password> <email> - to create an account
+        return "\n\thelp - with possible commands\n\t" +
+                SET_TEXT_COLOR_YELLOW +
+                "quit" + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE +
+                " - the program\n" +
+                SET_TEXT_COLOR_GREEN +
+                "\tlogin " + SET_TEXT_COLOR_WHITE +
+                "<username> <password> - to play chess\n" +
+                SET_TEXT_COLOR_BLUE +
+                "\tregister " + SET_TEXT_COLOR_WHITE + """
+                <username> <password> <email> - to create an account
                 """;
         }
 }

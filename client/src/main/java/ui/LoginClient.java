@@ -32,12 +32,13 @@ public class LoginClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
                 case "logout" -> logout(params);
                 case "create" -> create(params);
                 case "list" -> listGames(params);
                 case "join" -> join(params);
-//                case "observe" -> observe(params);
+                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -71,7 +72,7 @@ public class LoginClient {
                 return "Create Game Failed";
             }
 
-            return "New Game Created\n GameID: " + createGameResult.gameID();
+            return "New Game Created\n Name: " + params[0];
         }
         throw new ResponseException(400, "Expected: <NAME>");
     }
@@ -112,15 +113,30 @@ public class LoginClient {
 
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
+            try {
+                int num = Integer.parseInt(params[0]);
+            } catch(NumberFormatException e){
+                throw new ResponseException(400, "Expected: " + SET_TEXT_COLOR_YELLOW  + "<ID>" + SET_TEXT_COLOR_WHITE +" [WHITE|BLACK]");
+            }
+
+            if (orderedGameID == null){
+                throw new ResponseException(400, "Must call " + SET_TEXT_COLOR_YELLOW  + " list " + SET_TEXT_COLOR_WHITE + "before calling join");
+            }
+
+            String color = params[1].toUpperCase();
+
+            if (!Objects.equals(color, "WHITE") & !Objects.equals(color, "BLACK")){
+                throw new ResponseException(400, "Expected: <ID> " + SET_TEXT_COLOR_YELLOW  + "[WHITE|BLACK]" + SET_TEXT_COLOR_WHITE);
+            }
+
             int index = Integer.parseInt(params[0]) - 1;
-            String playerColor = params[1];
             int gameID = this.orderedGameID.get(index);
 
-            JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
+            JoinRequest joinRequest = new JoinRequest(color, gameID, authToken);
             try {
                 EmptyResult emptyResult = server.join(joinRequest);
             } catch(Exception e){
-                return "Join Game Failed";
+                return SET_TEXT_COLOR_YELLOW + color + ": Already Taken" + SET_TEXT_COLOR_WHITE;
             }
             ChessGame game = new ChessGame();
             if (params[1].equalsIgnoreCase("WHITE")){
@@ -133,6 +149,30 @@ public class LoginClient {
             return "";
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
+    }
+
+    public String observe(String... params) throws ResponseException {
+        try {
+            int num = Integer.parseInt(params[0]);
+        } catch(NumberFormatException e){
+            throw new ResponseException(400, "Expected: " + SET_TEXT_COLOR_YELLOW  + "<ID> " + SET_TEXT_COLOR_WHITE);
+        }
+
+        if (orderedGameID == null){
+            throw new ResponseException(400, "Must call " + SET_TEXT_COLOR_YELLOW  + " list " + SET_TEXT_COLOR_WHITE + "before calling observe");
+        }
+
+        if (params.length == 1) {
+            int index = Integer.parseInt(params[0]) - 1;
+            int gameID = this.orderedGameID.get(index);
+
+            ChessGame game = new ChessGame();
+
+            drawChessWhite(game);
+
+            return "";
+        }
+        throw new ResponseException(400, "Expected: <ID> ");
     }
 
     public void drawChessWhite(ChessGame game){
@@ -268,9 +308,9 @@ public class LoginClient {
                 \tlist - games
                 \tjoin <ID> [WHITE|BLACK] - a game
                 \tobserve <ID> - a game
-                \tlogout - when you are done
-                \tquit - playing chess
-                \thelp - with possible commands
-                """;
+                \tlogout - when you are done""" + "\n\t" +
+                SET_TEXT_COLOR_YELLOW + "quit" + SET_TEXT_COLOR_WHITE +
+                " - playing chess\n" +
+                "\thelp - with possible commands\n";
     }
 }

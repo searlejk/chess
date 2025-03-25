@@ -2,6 +2,9 @@ package ui;
 
 import java.util.Scanner;
 
+import static ui.EscapeSequences.RESET_TEXT_ITALIC;
+import static ui.EscapeSequences.SET_TEXT_ITALIC;
+
 public class LoginRepl {
     private final LoginClient client;
     private final String serverUrl;
@@ -38,7 +41,9 @@ public class LoginRepl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + EscapeSequences.RESET_TEXT_COLOR + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_GREEN + "[" +
+                EscapeSequences.SET_TEXT_COLOR_WHITE + "LOGGED_IN" + EscapeSequences.SET_TEXT_COLOR_GREEN + "]" +
+                EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
     }
 
 }
