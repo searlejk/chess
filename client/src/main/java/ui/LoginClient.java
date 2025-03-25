@@ -130,9 +130,16 @@ public class LoginClient {
             }
 
             int index = Integer.parseInt(params[0]) - 1;
-            int gameID = this.orderedGameID.get(index);
+            int gameID;
+            try {
+                gameID = this.orderedGameID.get(index);
+            } catch(IndexOutOfBoundsException e){
+                index+=1;
+                throw new ResponseException(400, "No game found with ID: " + SET_TEXT_COLOR_YELLOW  + index + SET_TEXT_COLOR_WHITE);
+            }
 
             JoinRequest joinRequest = new JoinRequest(color, gameID, authToken);
+
             try {
                 EmptyResult emptyResult = server.join(joinRequest);
             } catch(Exception e){
