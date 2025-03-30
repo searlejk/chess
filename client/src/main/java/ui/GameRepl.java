@@ -5,18 +5,18 @@ import java.util.Scanner;
 import static ui.EscapeSequences.RESET_TEXT_ITALIC;
 import static ui.EscapeSequences.SET_TEXT_ITALIC;
 
-public class PreLoginRepl {
-    private final PreLoginClient client;
+public class GameRepl {
+    private final GameClient client;
     private final String serverUrl;
+    private final String authToken;
 
-    public PreLoginRepl(String serverUrl) {
+    public GameRepl(String serverUrl, String authToken) {
         this.serverUrl = serverUrl;
-        client = new PreLoginClient(serverUrl);
+        client = new GameClient(serverUrl, authToken);
+        this.authToken = authToken;
     }
 
     public void run() {
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-        System.out.println("\nWelcome to the 240 Chess. Type help to get started.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -30,10 +30,9 @@ public class PreLoginRepl {
                 System.out.print(result);
 
                 if (client.state==State.LOGGEDIN){
-                    new LoginRepl(this.serverUrl, client.authToken).run();
+                    new LoginRepl(this.serverUrl, authToken).run();
                     break;
                 }
-
 
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -44,9 +43,9 @@ public class PreLoginRepl {
     }
 
     private void printPrompt() {
-        System.out.print("\n"+ SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_RED + "[" +
-    EscapeSequences.SET_TEXT_COLOR_WHITE + "LOGGED_OUT" + EscapeSequences.SET_TEXT_COLOR_RED + "]" +
-    EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC );
+        System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
+                EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
+                EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
     }
 
 }

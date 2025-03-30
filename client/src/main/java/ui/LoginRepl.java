@@ -8,10 +8,12 @@ import static ui.EscapeSequences.SET_TEXT_ITALIC;
 public class LoginRepl {
     private final LoginClient client;
     private final String serverUrl;
+    private final String authToken;
 
     public LoginRepl(String serverUrl, String authToken) {
         this.serverUrl = serverUrl;
         client = new LoginClient(serverUrl, authToken);
+        this.authToken = authToken;
     }
 
     public void run() {
@@ -29,6 +31,11 @@ public class LoginRepl {
 
                 if (client.state==State.LOGGEDOUT){
                     new PreLoginRepl(this.serverUrl).run();
+                    break;
+                }
+
+                if (client.state==State.INGAME){
+                    new GameRepl(this.serverUrl, authToken).run();
                     break;
                 }
 

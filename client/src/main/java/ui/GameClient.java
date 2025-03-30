@@ -13,15 +13,15 @@ import java.util.*;
 
 import static ui.EscapeSequences.*;
 
-public class LoginClient {
+public class GameClient {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
-    public State state = State.LOGGEDIN;
+    public State state = State.INGAME;
     private final String authToken;
     private List<Integer> orderedGameID;
 
-    public LoginClient(String serverUrl, String authToken) {
+    public GameClient(String serverUrl, String authToken) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
@@ -34,11 +34,11 @@ public class LoginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
-                case "logout" -> logout(params);
-                case "create" -> create(params);
-                case "list" -> listGames(params);
-                case "join" -> join(params);
-                case "observe" -> observe(params);
+//                case "logout" -> logout(params);
+//                case "create" -> create(params);
+//                case "list" -> listGames(params);
+                case "leave" -> leave(params);
+                case "legal moves" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -112,54 +112,9 @@ public class LoginClient {
         throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "only type 'list' for list" + SET_TEXT_COLOR_WHITE);
     }
 
-    public String join(String... params) throws ResponseException {
-        if (params.length == 2) {
-            try {
-                int num = Integer.parseInt(params[0]);
-            } catch(NumberFormatException e){
-                throw new ResponseException(400, "Expected: " + SET_TEXT_COLOR_YELLOW  + "<ID>" + SET_TEXT_COLOR_WHITE +" [WHITE|BLACK]");
-            }
-
-            if (orderedGameID == null){
-                throw new ResponseException(400, "Must call " + SET_TEXT_COLOR_YELLOW  + " list " + SET_TEXT_COLOR_WHITE + "before calling join");
-            }
-
-            String color = params[1].toUpperCase();
-
-            if (!Objects.equals(color, "WHITE") & !Objects.equals(color, "BLACK")){
-                throw new ResponseException(400, "Expected: <ID> " + SET_TEXT_COLOR_YELLOW  +
-                                                    "[WHITE|BLACK]" + SET_TEXT_COLOR_WHITE);
-            }
-
-            int index = Integer.parseInt(params[0]) - 1;
-            int gameID;
-            try {
-                gameID = this.orderedGameID.get(index);
-            } catch(IndexOutOfBoundsException e){
-                index+=1;
-                throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "No game found with ID: " + index + SET_TEXT_COLOR_WHITE);
-            }
-
-            JoinRequest joinRequest = new JoinRequest(color, gameID, authToken);
-
-            try {
-                EmptyResult emptyResult = server.join(joinRequest);
-            } catch(Exception e){
-                return SET_TEXT_COLOR_YELLOW + color + ": Already Taken" + SET_TEXT_COLOR_WHITE;
-            }
-            ChessGame game = new ChessGame();
-            if (params[1].equalsIgnoreCase("WHITE")){
-                drawChessWhite(game);
-            }
-            if (params[1].equalsIgnoreCase("BLACK")){
-                drawChessBlack(game);
-            }
-
-            state = State.INGAME;
-
-            return "";
-        }
-        throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <ID> [WHITE|BLACK]" + SET_TEXT_COLOR_WHITE);
+    public String leave(String... params) throws ResponseException {
+        state = State.LOGGEDIN;
+        return "";
     }
 
     public String observe(String... params) throws ResponseException {
@@ -315,13 +270,11 @@ public class LoginClient {
     public String help() {
         return  SET_TEXT_COLOR_WHITE + """
                 \n
-                \tcreate <NAME> - a game
-                \tlist - games
-                \tjoin <ID> [WHITE|BLACK] - a game
-                \tobserve <ID> - a game
-                \tlogout - when you are done""" + "\n\t" +
-                SET_TEXT_COLOR_YELLOW + "quit" + SET_TEXT_COLOR_WHITE +
-                " - playing chess\n" +
+                \tredraw - redraw the chess board
+                \tleave - leaves chess game
+                \tmove <MOVE> - makes a move in the chess game
+                \tresign - allows the user to resign chess game
+                \tlegal moves <PIECE> - highlights legal moves for a piece""" + "\n\t" +
                 "\thelp - with possible commands\n";
     }
 }

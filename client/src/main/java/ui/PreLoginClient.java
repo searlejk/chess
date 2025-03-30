@@ -49,13 +49,13 @@ public class PreLoginClient {
             try {
                 loginResult = server.login(loginRequest);
             } catch (Exception e) {
-                return "Invalid Credentials, try again";
+                return SET_TEXT_COLOR_YELLOW + "Invalid Credentials, try again" + SET_TEXT_COLOR_WHITE;
             }
 
             ///  Change state once the user's credentials are verified
             this.authToken = loginResult.authToken();
             state = State.LOGGEDIN;
-            return String.format("You signed in as %s.", loginResult.username());
+            return SET_TEXT_COLOR_BLUE + "You signed in as " + loginResult.username() + "." + SET_TEXT_COLOR_WHITE;
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
@@ -80,7 +80,7 @@ public class PreLoginClient {
             try {
                 loginResult = server.login(loginRequest);
             } catch (Exception e) {
-                return "Invalid Credentials, try again";
+                return SET_TEXT_COLOR_YELLOW + "Invalid Credentials, try again" + SET_TEXT_COLOR_WHITE;
             }
 
             this.authToken = loginResult.authToken();
@@ -91,7 +91,8 @@ public class PreLoginClient {
     }
 
     public String help() {
-        return "\n\thelp - with possible commands\n\t" +
+        return   SET_TEXT_COLOR_WHITE +
+                "\n\thelp - with possible commands\n\t" +
                 SET_TEXT_COLOR_YELLOW +
                 "quit" + RESET_BG_COLOR + SET_TEXT_COLOR_WHITE +
                 " - the program\n" +
