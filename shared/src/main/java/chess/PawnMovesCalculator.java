@@ -49,8 +49,7 @@ public class PawnMovesCalculator {
                 board,
                 myPos,
                 color);
-
-        System.out.println("movesCopy: " + movesCopy);
+        
 
         Collection<ChessMove> legalMoves = new ArrayList<>(movesCopy);
 

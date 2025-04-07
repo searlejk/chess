@@ -109,7 +109,16 @@ public class DrawChessHelper {
         String stringNum = input.substring(1);
         int row = Integer.parseInt(stringNum);
         String letter = String.valueOf(tempChar);
-        int col = alphabetKey(letter);
+        int col = 0;
+        if (side==1){
+            //White
+            col = whiteAlphabet(letter);
+        }
+        if (side==2){
+            //Black
+            col = blackAlphabet(letter);
+        }
+
         
         ChessPosition myPos = new ChessPosition(row,col);
         Collection<ChessPosition> legalMoves = new ArrayList<>();
@@ -128,11 +137,11 @@ public class DrawChessHelper {
             drawChessWhite(game,legalMoves,myPos);
         }
         if (side==2){
-            drawChessWhite(game,legalMoves,myPos);
+            drawChessBlack(game,legalMoves,myPos);
         }
     }
     
-    public int alphabetKey(String letter){
+    public int whiteAlphabet(String letter){
         if (Objects.equals(letter, "a")){
             return 1;
         }
@@ -155,6 +164,34 @@ public class DrawChessHelper {
             return 7;
         }
         if (Objects.equals(letter, "h")){
+            return 8;
+        }
+        return 0;
+    }
+
+    public int blackAlphabet(String letter){
+        if (Objects.equals(letter, "h")){
+            return 1;
+        }
+        if (Objects.equals(letter, "g")){
+            return 2;
+        }
+        if (Objects.equals(letter, "f")){
+            return 3;
+        }
+        if (Objects.equals(letter, "e")){
+            return 4;
+        }
+        if (Objects.equals(letter, "d")){
+            return 5;
+        }
+        if (Objects.equals(letter, "c")){
+            return 6;
+        }
+        if (Objects.equals(letter, "b")){
+            return 7;
+        }
+        if (Objects.equals(letter, "a")){
             return 8;
         }
         return 0;

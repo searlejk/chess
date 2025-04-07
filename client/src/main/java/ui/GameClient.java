@@ -53,12 +53,10 @@ public class GameClient {
     public String legalMoves(String... params) throws ResponseException {
         if (params.length ==1) {
             String input = params[0];
-            System.out.print("input: " + input+"\n");
             ChessGame game = new ChessGame();
             DrawChessHelper draw = new DrawChessHelper(game);
-            System.out.print("side: "+ side+"\n");
             draw.legalMoves(input, side);
-            return "Board Drawn?";
+            return "";
         }
         else{
             throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <SQUARE>" + SET_TEXT_COLOR_WHITE);
