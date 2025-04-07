@@ -4,6 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import org.glassfish.grizzly.http.server.Response;
 import ui.exceptions.ResponseException;
 import ui.model.game.*;
 import ui.model.other.EmptyResult;
@@ -17,14 +18,16 @@ public class GameClient {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
-    public State state = State.INGAME;
+    public State state;
     private final String authToken;
     private List<Integer> orderedGameID;
+    private int side;
 
-    public GameClient(String serverUrl, String authToken) {
+    public GameClient(String serverUrl, String authToken, int side) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
+        this.side = side; // 1 is white 2 is black
     }
 
     public String eval(String input) {
@@ -36,9 +39,9 @@ public class GameClient {
             return switch (cmd) {
 //                case "logout" -> logout(params);
 //                case "create" -> create(params);
-//                case "list" -> listGames(params);
+                case "redraw" -> redraw(params);
                 case "leave" -> leave(params);
-                case "legal moves" -> observe(params);
+                case "legalmoves" -> legalMoves(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -47,225 +50,35 @@ public class GameClient {
         }
     }
 
-
-    public String logout(String... params) throws ResponseException {
-        if (params.length == 0) {
-            LogoutRequest logoutRequest = new LogoutRequest(authToken);
-            try {
-                server.logout(logoutRequest);
-            } catch(Exception e){
-                return "Logout Failed";
-            }
-
-            state = State.LOGGEDOUT;
-            return "";
+    public String legalMoves(String... params) throws ResponseException {
+        if (params.length ==1) {
+            String input = params[0];
+            System.out.print("input: " + input+"\n");
+            ChessGame game = new ChessGame();
+            DrawChessHelper draw = new DrawChessHelper(game);
+            System.out.print("side: "+ side+"\n");
+            draw.legalMoves(input, side);
+            return "Board Drawn?";
         }
-        throw new ResponseException(400, "only type 'logout' to logout");
+        else{
+            throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <SQUARE>" + SET_TEXT_COLOR_WHITE);
+        }
     }
 
-    public String create(String... params) throws ResponseException {
-        if (params.length == 1) {
-            CreateGameRequest createGameRequest = new CreateGameRequest(params[0],authToken);
-            CreateGameResult createGameResult;
-            try {
-                createGameResult = server.create(createGameRequest);
-            } catch(Exception e){
-                return SET_TEXT_COLOR_YELLOW + "Create Game Failed" + SET_TEXT_COLOR_WHITE;
-            }
+    public String redraw(String... params){
+        // get game from server
+        // draw game with draw chess helper
 
-            return SET_TEXT_COLOR_BLUE + "New Game Created\n" + SET_TEXT_COLOR_WHITE + "Name: " + params[0];
-        }
-        throw new ResponseException(400, "Expected: " + SET_TEXT_COLOR_YELLOW + "<NAME>" + SET_TEXT_COLOR_WHITE);
-    }
-
-    public String listGames(String... params) throws ResponseException {
-        if (params.length == 0) {
-            ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
-            ListGamesResult listGamesResult;
-            try {
-                listGamesResult = server.listGames(listGamesRequest);
-            } catch(Exception e){
-                return SET_TEXT_COLOR_YELLOW + "List Games Failed" + SET_TEXT_COLOR_WHITE;
-            }
-            StringBuilder response = new StringBuilder(SET_TEXT_COLOR_BLUE + "List of Games:\n" + SET_TEXT_COLOR_WHITE);
-            int i = 1;
-            Collection<GameData> gamesShuffled = listGamesResult.games();
-            Collections.shuffle((List<?>) gamesShuffled);
-            List<Integer> orderedGameID = new ArrayList<>();
-
-            for (GameData game : gamesShuffled){
-                orderedGameID.add(game.gameID());
-                response.append(i).append(". ");
-                response.append(game.gameName());
-                response.append("\n\tWhite: ");
-                response.append(game.whiteUsername());
-                response.append("\n\tBlack: ");
-                response.append(game.blackUsername());
-                response.append("\n\n");
-                i+=1;
-            }
-
-            this.orderedGameID = orderedGameID;
-
-            return response.toString();
-        }
-        throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "only type 'list' for list" + SET_TEXT_COLOR_WHITE);
+        return "";
     }
 
     public String leave(String... params) throws ResponseException {
         state = State.LOGGEDIN;
-        return "";
+        return SET_TEXT_COLOR_BLUE + "you left the game\n" + SET_TEXT_COLOR_WHITE;
     }
 
-    public String observe(String... params) throws ResponseException {
-        try {
-            int num = Integer.parseInt(params[0]);
-        } catch(NumberFormatException e){
-            throw new ResponseException(400, "Expected: " + SET_TEXT_COLOR_YELLOW  + "<ID> " + SET_TEXT_COLOR_WHITE);
-        }
 
-        if (orderedGameID == null){
-            throw new ResponseException(400, "Must call " + SET_TEXT_COLOR_YELLOW  + " list " + SET_TEXT_COLOR_WHITE + "before calling observe");
-        }
 
-        if (params.length == 1) {
-            int index = Integer.parseInt(params[0]) - 1;
-            int gameID = this.orderedGameID.get(index);
-
-            ChessGame game = new ChessGame();
-
-            drawChessWhite(game);
-
-            return SET_TEXT_COLOR_BLUE + "Observing game" + SET_TEXT_COLOR_WHITE;
-        }
-        throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <ID> " + SET_TEXT_COLOR_WHITE);
-    }
-
-    public void drawChessWhite(ChessGame game){
-        System.out.print(ERASE_SCREEN);
-        ChessBoard board = game.getBoard();
-        String unicodePiece;
-
-        setTopKey("    a  b  c  d  e  f  g  h    ");
-        int key = 8;
-
-        for (int row = 8; row >= 1; row--){
-            ///  left number key
-            setKeyColors(" "+key+" ");
-            for (int col = 1; col <= 8; col++){
-                ChessPosition pos = new ChessPosition(row,col);
-
-                boardBackgroundColor(row,col,board,pos);
-
-                if (board.getPiece(pos)!=null){
-                    ChessPiece piece = board.getPiece(pos);
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    unicodePiece = getUnicodePiece(piece);
-
-                    if(color == ChessGame.TeamColor.WHITE){
-                        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    } else{
-                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
-                    }
-                    System.out.print(unicodePiece);
-                }
-            }
-            setKeyColors(" "+key+" ");
-            key--;
-            newLine();
-        }
-        setKeyColors("    a  b  c  d  e  f  g  h    ");
-    }
-
-    public void drawChessBlack(ChessGame game){
-        System.out.print(ERASE_SCREEN);
-        ChessBoard board = game.getBoard();
-        String unicodePiece;
-
-        setTopKey("    h  g  f  e  d  c  b  a    ");
-        int key = 1;
-
-        for (int row = 1; row <= 8; row++){
-            ///  left number key
-            setKeyColors(" "+key+" ");
-            for (int col = 1; col <= 8; col++){
-                ChessPosition pos = new ChessPosition(row,col);
-
-                boardBackgroundColor(row,col,board,pos);
-
-                if (board.getPiece(pos)!=null) {
-                    ChessPiece piece = board.getPiece(pos);
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    unicodePiece = getUnicodePiece(piece);
-
-                    if(color == ChessGame.TeamColor.WHITE){
-                        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    } else{
-                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
-                    }
-                    System.out.print(unicodePiece);
-                }
-            }
-            setKeyColors(" "+key+" ");
-            key++;
-            newLine();
-        }
-        setKeyColors("    h  g  f  e  d  c  b  a    ");
-    }
-
-    private void resetTextAndBackground(){
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-    }
-
-    private void setKeyColors(String output){
-        System.out.print(EscapeSequences.SET_TEXT_BOLD);
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-        System.out.print(output);
-        resetTextAndBackground();
-    }
-
-    private void setTopKey(String output){
-        setKeyColors(output);
-        newLine();
-    }
-
-    private void newLine(){
-        System.out.print("\n");
-    }
-
-    private void boardBackgroundColor(int row, int col,ChessBoard board, ChessPosition pos){
-        if ((row + col) % 2 == 0) {
-            System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-        } else{
-            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        }
-
-        if (board.getPiece(pos)==null){
-            System.out.print("   ");
-        }
-    }
-
-    private static String getUnicodePiece(ChessPiece piece){
-        String teamColor = piece.getTeamColor().toString();
-        switch (piece.getPieceType()){
-            case PAWN:
-                return teamColor.equals("WHITE") ? WHITE_PAWN : BLACK_PAWN;
-            case KING:
-                return teamColor.equals("WHITE") ? WHITE_KING : BLACK_KING;
-            case KNIGHT:
-                return teamColor.equals("WHITE") ? WHITE_KNIGHT : BLACK_KNIGHT;
-            case QUEEN:
-                return teamColor.equals("WHITE") ? WHITE_QUEEN : BLACK_QUEEN;
-            case ROOK:
-                return teamColor.equals("WHITE") ? WHITE_ROOK : BLACK_ROOK;
-            case BISHOP:
-                return teamColor.equals("WHITE") ? WHITE_BISHOP : BLACK_BISHOP;
-            default:
-                return EMPTY;
-        }
-    }
 
     public String help() {
         return  SET_TEXT_COLOR_WHITE + """
@@ -274,7 +87,7 @@ public class GameClient {
                 \tleave - leaves chess game
                 \tmove <MOVE> - makes a move in the chess game
                 \tresign - allows the user to resign chess game
-                \tlegal moves <PIECE> - highlights legal moves for a piece""" + "\n\t" +
+                \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2""" + "\n\t" +
                 "\thelp - with possible commands\n";
     }
 }

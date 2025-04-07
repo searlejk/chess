@@ -34,8 +34,13 @@ public class LoginRepl {
                     break;
                 }
 
-                if (client.state==State.INGAME){
-                    new GameRepl(this.serverUrl, authToken).run();
+                if (client.state==State.INGAME1){
+                    new GameRepl(this.serverUrl, authToken, 1).run();
+                    break;
+                }
+
+                if (client.state==State.INGAME2){
+                    new GameRepl(this.serverUrl, authToken, 2).run();
                     break;
                 }
 

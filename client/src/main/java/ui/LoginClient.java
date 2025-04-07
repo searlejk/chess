@@ -20,11 +20,13 @@ public class LoginClient {
     public State state = State.LOGGEDIN;
     private final String authToken;
     private List<Integer> orderedGameID;
+    private int color;
 
     public LoginClient(String serverUrl, String authToken) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
+        this.color = 1;
     }
 
     public String eval(String input) {
@@ -148,14 +150,18 @@ public class LoginClient {
                 return SET_TEXT_COLOR_YELLOW + color + ": Already Taken" + SET_TEXT_COLOR_WHITE;
             }
             ChessGame game = new ChessGame();
+
+            DrawChessHelper draw = new DrawChessHelper(game);
+
             if (params[1].equalsIgnoreCase("WHITE")){
-                drawChessWhite(game);
+                state = State.INGAME1;
+                draw.drawChessWhite(game, null, null);
             }
             if (params[1].equalsIgnoreCase("BLACK")){
-                drawChessBlack(game);
+                state = State.INGAME2;
+                draw.drawChessBlack(game,null,null);
             }
 
-            state = State.INGAME;
 
             return "";
         }
@@ -179,138 +185,16 @@ public class LoginClient {
 
             ChessGame game = new ChessGame();
 
-            drawChessWhite(game);
+            DrawChessHelper draw = new DrawChessHelper(game);
+            this.color = 1;
+            draw.drawChessWhite(game, null, null);
 
-            return SET_TEXT_COLOR_BLUE + "Observing game" + SET_TEXT_COLOR_WHITE;
+            return "";
+            //return SET_TEXT_COLOR_BLUE + "Observing game" + SET_TEXT_COLOR_WHITE;
         }
         throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <ID> " + SET_TEXT_COLOR_WHITE);
     }
 
-    public void drawChessWhite(ChessGame game){
-        System.out.print(ERASE_SCREEN);
-        ChessBoard board = game.getBoard();
-        String unicodePiece;
-
-        setTopKey("    a  b  c  d  e  f  g  h    ");
-        int key = 8;
-
-        for (int row = 8; row >= 1; row--){
-            ///  left number key
-            setKeyColors(" "+key+" ");
-            for (int col = 1; col <= 8; col++){
-                ChessPosition pos = new ChessPosition(row,col);
-
-                boardBackgroundColor(row,col,board,pos);
-
-                if (board.getPiece(pos)!=null){
-                    ChessPiece piece = board.getPiece(pos);
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    unicodePiece = getUnicodePiece(piece);
-
-                    if(color == ChessGame.TeamColor.WHITE){
-                        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    } else{
-                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
-                    }
-                    System.out.print(unicodePiece);
-                }
-            }
-            setKeyColors(" "+key+" ");
-            key--;
-            newLine();
-        }
-        setKeyColors("    a  b  c  d  e  f  g  h    ");
-    }
-
-    public void drawChessBlack(ChessGame game){
-        System.out.print(ERASE_SCREEN);
-        ChessBoard board = game.getBoard();
-        String unicodePiece;
-
-        setTopKey("    h  g  f  e  d  c  b  a    ");
-        int key = 1;
-
-        for (int row = 1; row <= 8; row++){
-            ///  left number key
-            setKeyColors(" "+key+" ");
-            for (int col = 1; col <= 8; col++){
-                ChessPosition pos = new ChessPosition(row,col);
-
-                boardBackgroundColor(row,col,board,pos);
-
-                if (board.getPiece(pos)!=null) {
-                    ChessPiece piece = board.getPiece(pos);
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    unicodePiece = getUnicodePiece(piece);
-
-                    if(color == ChessGame.TeamColor.WHITE){
-                        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    } else{
-                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
-                    }
-                    System.out.print(unicodePiece);
-                }
-            }
-            setKeyColors(" "+key+" ");
-            key++;
-            newLine();
-        }
-        setKeyColors("    h  g  f  e  d  c  b  a    ");
-    }
-
-    private void resetTextAndBackground(){
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-    }
-
-    private void setKeyColors(String output){
-        System.out.print(EscapeSequences.SET_TEXT_BOLD);
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
-        System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-        System.out.print(output);
-        resetTextAndBackground();
-    }
-
-    private void setTopKey(String output){
-        setKeyColors(output);
-        newLine();
-    }
-
-    private void newLine(){
-        System.out.print("\n");
-    }
-
-    private void boardBackgroundColor(int row, int col,ChessBoard board, ChessPosition pos){
-        if ((row + col) % 2 == 0) {
-            System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-        } else{
-            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        }
-
-        if (board.getPiece(pos)==null){
-            System.out.print("   ");
-        }
-    }
-
-    private static String getUnicodePiece(ChessPiece piece){
-        String teamColor = piece.getTeamColor().toString();
-        switch (piece.getPieceType()){
-            case PAWN:
-                return teamColor.equals("WHITE") ? WHITE_PAWN : BLACK_PAWN;
-            case KING:
-                return teamColor.equals("WHITE") ? WHITE_KING : BLACK_KING;
-            case KNIGHT:
-                return teamColor.equals("WHITE") ? WHITE_KNIGHT : BLACK_KNIGHT;
-            case QUEEN:
-                return teamColor.equals("WHITE") ? WHITE_QUEEN : BLACK_QUEEN;
-            case ROOK:
-                return teamColor.equals("WHITE") ? WHITE_ROOK : BLACK_ROOK;
-            case BISHOP:
-                return teamColor.equals("WHITE") ? WHITE_BISHOP : BLACK_BISHOP;
-            default:
-                return EMPTY;
-        }
-    }
 
     public String help() {
         return  SET_TEXT_COLOR_WHITE + """

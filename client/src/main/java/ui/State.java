@@ -3,5 +3,6 @@ package ui;
 public enum State {
     LOGGEDOUT,
     LOGGEDIN,
-    INGAME
+    INGAME1,
+    INGAME2
 }
