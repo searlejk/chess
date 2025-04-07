@@ -4,6 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import ui.exceptions.ResponseException;
 import ui.model.game.*;
 import ui.model.other.EmptyResult;
@@ -118,6 +119,7 @@ public class LoginClient {
     }
 
     public String join(String... params) throws ResponseException {
+        var serializer = new Gson();
         if (params.length == 2) {
             try {
                 int num = Integer.parseInt(params[0]);
@@ -156,7 +158,8 @@ public class LoginClient {
             this.gameID = gameID;
             String stringGameID = String.valueOf(this.gameID);
             GetGameRequest getGameRequest = new GetGameRequest(stringGameID,authToken);
-            ChessGame game = server.getGame(getGameRequest);
+            GameData gameData = server.getGame(getGameRequest);
+            ChessGame game = serializer.fromJson(gameData.game(),ChessGame.class);
             DrawChessHelper draw = new DrawChessHelper(game);
 
             if (params[1].equalsIgnoreCase("WHITE")){

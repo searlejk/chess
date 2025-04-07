@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import exceptions.DataAccessException;
+import model.game.GameData;
 import model.other.EmptyResult;
 import model.other.ErrorResult;
 import spark.Request;
@@ -18,13 +19,13 @@ public class GetGameHandler {
         String stringGameID = req.headers("gameid");
         int gameID = Integer.parseInt(stringGameID);
         System.out.print(gameID);
+        GameData gameData;
 
         try {
-            ChessGame game = GameService.getGame(gameID);
+            gameData = GameService.getGame(gameID);
             res.status(200);
             res.type("application/json");
-            System.out.print(serializer.toJson(game));
-            return serializer.toJson(game);
+            return serializer.toJson(gameData);
         } catch(DataAccessException e){
             res.status(400);
             return new Gson().toJson(new ErrorResult("Error: GetGameHandler Failed"));

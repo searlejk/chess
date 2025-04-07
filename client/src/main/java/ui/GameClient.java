@@ -73,10 +73,13 @@ public class GameClient {
     public String redraw(String... params){
         // get game from server
         // draw game with draw chess helper
+        var serializer = new Gson();
         System.out.print(ERASE_SCREEN);
         GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
+        GameData gameData;
         try{
-            ChessGame game = server.getGame(getGameRequest);
+            gameData = server.getGame(getGameRequest);
+            ChessGame game = serializer.fromJson(gameData.game(),ChessGame.class);
             DrawChessHelper draw = new DrawChessHelper(game);
             if (side==1) {
                 draw.drawChessWhite(game, null, null);
@@ -98,17 +101,18 @@ public class GameClient {
         System.out.print(ERASE_SCREEN);
         System.out.flush();
 
-        ChessGame game;
+        GameData gameData;
+        var serializer = new Gson();
         GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
         System.out.print(ERASE_SCREEN);
         try {
             JoinRequest gameRequest = new JoinRequest("WHITE",gameID, authToken);
-            game = server.getGame(getGameRequest);
+            gameData = server.getGame(getGameRequest);
         } catch(Exception e){
             return "Game could not be found";
         }
 
-        var serializer = new Gson();
+        ChessGame game = serializer.fromJson(gameData.game(),ChessGame.class);
         ChessPosition startPos = parseMoveInput(params[0]);
         ChessPosition endPos = parseMoveInput(params[1]);
         ChessMove move = new ChessMove(startPos,endPos,null);

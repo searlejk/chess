@@ -49,9 +49,9 @@ public class ServerFacade {
         return this.makeRequest("PUT", path, joinRequest, EmptyResult.class);
     }
 
-    public ChessGame getGame(GetGameRequest getGameRequest) throws ResponseException {
+    public GameData getGame(GetGameRequest getGameRequest) throws ResponseException {
         var path = "/chessgame";
-        return this.makeRequest("GET", path, getGameRequest, ChessGame.class);
+        return this.makeRequest("GET", path, getGameRequest, GameData.class);
     }
 
     public String updateGame(UpdateGameRequest updateGameRequest) throws ResponseException {

@@ -124,10 +124,8 @@ public class GameService {
         return new EmptyResult();
     }
 
-    public static ChessGame getGame(int gameID) throws DataAccessException{
-        var serializer = new Gson();
-        GameData gameData = DATA_ACCESS.getGame(gameID);
-        return serializer.fromJson(gameData.game(),ChessGame.class);
+    public static GameData getGame(int gameID) throws DataAccessException{
+        return DATA_ACCESS.getGame(gameID);
     }
 
     public static EmptyResult updateGame(int gameID, String newStringGame) throws DataAccessException{
