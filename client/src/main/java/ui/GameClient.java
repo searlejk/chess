@@ -22,12 +22,14 @@ public class GameClient {
     private final String authToken;
     private List<Integer> orderedGameID;
     private int side;
+    private Boolean resigned = false;
 
     public GameClient(String serverUrl, String authToken, int side) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
         this.side = side; // 1 is white 2 is black
+        this.resigned = false;
     }
 
     public String eval(String input) {
@@ -39,6 +41,7 @@ public class GameClient {
             return switch (cmd) {
 //                case "logout" -> logout(params);
 //                case "create" -> create(params);
+                case "resign" -> resign(params);
                 case "redraw" -> redraw(params);
                 case "leave" -> leave(params);
                 case "legalmoves" -> legalMoves(params);
@@ -67,6 +70,26 @@ public class GameClient {
         // get game from server
         // draw game with draw chess helper
 
+        return "";
+    }
+
+    public String resign(String... params){
+        // get game from server
+        // draw game with draw chess helper
+        if (resigned){
+            return"You have already resigned\n";
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Are you sure you would like to resign? Y/N\n");
+        String answer = scanner.nextLine().trim().toLowerCase();
+
+        if (answer.equals("y") | answer.equals("yes")){
+            resigned = true;
+            System.out.print("You Have Resigned");
+        } else{
+            System.out.print("Resignation cancelled");
+        }
         return "";
     }
 
