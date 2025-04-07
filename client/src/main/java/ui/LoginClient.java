@@ -7,6 +7,7 @@ import chess.ChessPosition;
 import ui.exceptions.ResponseException;
 import ui.model.game.*;
 import ui.model.other.EmptyResult;
+import ui.model.other.GetGameRequest;
 import ui.model.user.*;
 
 import java.util.*;
@@ -153,8 +154,9 @@ public class LoginClient {
             }
 
             this.gameID = gameID;
-
-            ChessGame game = new ChessGame();
+            String stringGameID = String.valueOf(this.gameID);
+            GetGameRequest getGameRequest = new GetGameRequest(stringGameID,authToken);
+            ChessGame game = server.getGame(getGameRequest);
             DrawChessHelper draw = new DrawChessHelper(game);
 
             if (params[1].equalsIgnoreCase("WHITE")){

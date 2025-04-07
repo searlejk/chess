@@ -51,10 +51,13 @@ public class ServerFacade {
 
     public ChessGame getGame(GetGameRequest getGameRequest) throws ResponseException {
         var path = "/chessgame";
-        // I'm reusing joinRequest for gameID and authToken passing for getGame
         return this.makeRequest("GET", path, getGameRequest, ChessGame.class);
     }
 
+    public String updateGame(UpdateGameRequest updateGameRequest) throws ResponseException {
+        var path = "/chessgame";
+        return this.makeRequest("PUT", path, updateGameRequest, null);
+    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
@@ -97,9 +100,16 @@ public class ServerFacade {
             }
 
             if (request instanceof GetGameRequest(String gameID, String authToken)){
+                http.addRequestProperty("Authorization", authToken);
                 http.addRequestProperty("gameid", gameID);
                 return;
             }
+
+            if (request instanceof UpdateGameRequest(String gameID, String authToken)){
+                http.addRequestProperty("Authorization", authToken);
+                http.addRequestProperty("gameid", gameID);
+            }
+
 
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {

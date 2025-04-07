@@ -13,7 +13,7 @@ import service.*;
 public class GetGameHandler {
 
     public String handle(Request req, Response res) {
-        System.out.println("\n*****[Clear]*****\n\n Request Body: \n" + req.body());
+        System.out.println("\n*****[GetGameHandler]*****\n\n Request Body: \n" + req.body());
         var serializer = new Gson();
         String stringGameID = req.headers("gameid");
         int gameID = Integer.parseInt(stringGameID);

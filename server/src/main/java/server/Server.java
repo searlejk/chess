@@ -109,6 +109,14 @@ public class Server {
             }
         });
 
+        Spark.put("/chessgame", (req, res) -> {
+            try{
+                return (new UpdateGameHandler()).handle(req,res);
+            } catch(Exception e){
+                return e.getMessage();
+            }
+        });
+
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();

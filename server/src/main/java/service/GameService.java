@@ -129,4 +129,12 @@ public class GameService {
         GameData gameData = DATA_ACCESS.getGame(gameID);
         return serializer.fromJson(gameData.game(),ChessGame.class);
     }
+
+    public static EmptyResult updateGame(int gameID, String newStringGame) throws DataAccessException{
+        GameData old = DATA_ACCESS.getGame(gameID);
+        DATA_ACCESS.remGame(gameID);
+        GameData newGameData = new GameData(old.gameID(),old.whiteUsername(),old.blackUsername(),old.gameName(),newStringGame);
+        DATA_ACCESS.addGame(gameID,newGameData);
+        return new EmptyResult();
+    }
 }

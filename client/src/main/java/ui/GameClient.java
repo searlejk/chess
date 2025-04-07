@@ -8,6 +8,7 @@ import ui.model.game.*;
 import ui.model.other.EmptyResult;
 import ui.model.other.GetGameRequest;
 import ui.model.other.GetGameResult;
+import ui.model.other.UpdateGameRequest;
 import ui.model.user.*;
 
 import java.util.*;
@@ -92,20 +93,18 @@ public class GameClient {
             return "Game could not be found";
         }
 
-        //String stringGame = gameResult.stringChessGame();
-
         var serializer = new Gson();
-        //ChessGame chessGame = serializer.fromJson(stringGame,ChessGame.class);
         System.out.print("\n ChessGame:\n");
         System.out.print(game);
         ChessPosition startPos = parseMoveInput(params[0]);
         ChessPosition endPos = parseMoveInput(params[1]);
         ChessMove move = new ChessMove(startPos,endPos,null);
-        ChessBoard board = game.getBoard();
         try {
             game.makeMove(move);
         } catch(InvalidMoveException e){
             return "Invalid Move, try again";
+        } catch(NullPointerException e){
+            return "Chess Game is missing";
         }
 
         DrawChessHelper draw = new DrawChessHelper(game);
@@ -116,6 +115,13 @@ public class GameClient {
             draw.drawChessBlack(game,null,null);
         }
 
+        try{
+            String jsonGame = serializer.toJson(game);
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(gameID.toString(),jsonGame);
+            server.updateGame(updateGameRequest);
+        } catch(Exception e){
+            return "Failed to upload game to server";
+        }
         return "";
     }
 
