@@ -21,12 +21,14 @@ public class LoginClient {
     private final String authToken;
     private List<Integer> orderedGameID;
     private int color;
+    public int gameID;
 
     public LoginClient(String serverUrl, String authToken) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
         this.color = 1;
+        this.gameID = 0;
     }
 
     public String eval(String input) {
@@ -149,8 +151,10 @@ public class LoginClient {
             } catch(Exception e){
                 return SET_TEXT_COLOR_YELLOW + color + ": Already Taken" + SET_TEXT_COLOR_WHITE;
             }
-            ChessGame game = new ChessGame();
 
+            this.gameID = gameID;
+
+            ChessGame game = new ChessGame();
             DrawChessHelper draw = new DrawChessHelper(game);
 
             if (params[1].equalsIgnoreCase("WHITE")){

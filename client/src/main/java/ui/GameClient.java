@@ -1,13 +1,13 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
+import com.google.gson.Gson;
 import org.glassfish.grizzly.http.server.Response;
 import ui.exceptions.ResponseException;
 import ui.model.game.*;
 import ui.model.other.EmptyResult;
+import ui.model.other.GetGameRequest;
+import ui.model.other.GetGameResult;
 import ui.model.user.*;
 
 import java.util.*;
@@ -23,13 +23,15 @@ public class GameClient {
     private List<Integer> orderedGameID;
     private int side;
     private Boolean resigned = false;
+    private Integer gameID;
 
-    public GameClient(String serverUrl, String authToken, int side) {
+    public GameClient(String serverUrl, String authToken, int side, int gameID) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
         this.side = side; // 1 is white 2 is black
         this.resigned = false;
+        this.gameID = gameID;
     }
 
     public String eval(String input) {
@@ -40,7 +42,7 @@ public class GameClient {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
 //                case "logout" -> logout(params);
-//                case "create" -> create(params);
+                case "move" -> move(params);
                 case "resign" -> resign(params);
                 case "redraw" -> redraw(params);
                 case "leave" -> leave(params);
@@ -56,9 +58,10 @@ public class GameClient {
     public String legalMoves(String... params) throws ResponseException {
         if (params.length ==1) {
             String input = params[0];
+            ChessPosition pos = parseMoveInput(input);
             ChessGame game = new ChessGame();
             DrawChessHelper draw = new DrawChessHelper(game);
-            draw.legalMoves(input, side);
+            draw.legalMoves(pos, side);
             return "";
         }
         else{
@@ -69,6 +72,49 @@ public class GameClient {
     public String redraw(String... params){
         // get game from server
         // draw game with draw chess helper
+        System.out.print(ERASE_SCREEN);
+
+        return "";
+    }
+
+    public String move(String... params){
+        // get game from server
+        // update game with move
+        // print board
+        // update serve with new game
+        ChessGame game;
+        GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
+        System.out.print(ERASE_SCREEN);
+        try {
+            JoinRequest gameRequest = new JoinRequest("WHITE",gameID, authToken);
+            game = server.getGame(getGameRequest);
+        } catch(Exception e){
+            return "Game could not be found";
+        }
+
+        //String stringGame = gameResult.stringChessGame();
+
+        var serializer = new Gson();
+        //ChessGame chessGame = serializer.fromJson(stringGame,ChessGame.class);
+        System.out.print("\n ChessGame:\n");
+        System.out.print(game);
+        ChessPosition startPos = parseMoveInput(params[0]);
+        ChessPosition endPos = parseMoveInput(params[1]);
+        ChessMove move = new ChessMove(startPos,endPos,null);
+        ChessBoard board = game.getBoard();
+        try {
+            game.makeMove(move);
+        } catch(InvalidMoveException e){
+            return "Invalid Move, try again";
+        }
+
+        DrawChessHelper draw = new DrawChessHelper(game);
+        if (side==1) {
+            draw.drawChessWhite(game, null, null);
+        }
+        if (side==2) {
+            draw.drawChessBlack(game,null,null);
+        }
 
         return "";
     }
@@ -98,8 +144,78 @@ public class GameClient {
         return SET_TEXT_COLOR_BLUE + "you left the game\n" + SET_TEXT_COLOR_WHITE;
     }
 
+    public ChessPosition parseMoveInput(String input){
+        char tempChar = input.charAt(0);
+        String stringNum = input.substring(1);
+        int row = Integer.parseInt(stringNum);
+        String letter = String.valueOf(tempChar);
+        int col = 1;
+        if (side==1){
+            //White
+            col = whiteAlphabet(letter);
+        }
+        if (side==2){
+            //Black
+            col = blackAlphabet(letter);
+        }
+        return new ChessPosition(row,col);
+    }
 
+    public int whiteAlphabet(String letter){
+        if (Objects.equals(letter, "a")){
+            return 1;
+        }
+        if (Objects.equals(letter, "b")){
+            return 2;
+        }
+        if (Objects.equals(letter, "c")){
+            return 3;
+        }
+        if (Objects.equals(letter, "d")){
+            return 4;
+        }
+        if (Objects.equals(letter, "e")){
+            return 5;
+        }
+        if (Objects.equals(letter, "f")){
+            return 6;
+        }
+        if (Objects.equals(letter, "g")){
+            return 7;
+        }
+        if (Objects.equals(letter, "h")){
+            return 8;
+        }
+        return 0;
+    }
 
+    public int blackAlphabet(String letter){
+        if (Objects.equals(letter, "h")){
+            return 1;
+        }
+        if (Objects.equals(letter, "g")){
+            return 2;
+        }
+        if (Objects.equals(letter, "f")){
+            return 3;
+        }
+        if (Objects.equals(letter, "e")){
+            return 4;
+        }
+        if (Objects.equals(letter, "d")){
+            return 5;
+        }
+        if (Objects.equals(letter, "c")){
+            return 6;
+        }
+        if (Objects.equals(letter, "b")){
+            return 7;
+        }
+        if (Objects.equals(letter, "a")){
+            return 8;
+        }
+        return 0;
+    }
 
     public String help() {
         return  SET_TEXT_COLOR_WHITE + """

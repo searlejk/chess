@@ -10,9 +10,9 @@ public class GameRepl {
     private final String serverUrl;
     private final String authToken;
 
-    public GameRepl(String serverUrl, String authToken, int side) {
+    public GameRepl(String serverUrl, String authToken, int side, int gameID) {
         this.serverUrl = serverUrl;
-        client = new GameClient(serverUrl, authToken, side);
+        client = new GameClient(serverUrl, authToken, side, gameID);
         this.authToken = authToken;
     }
 

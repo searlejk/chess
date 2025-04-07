@@ -104,22 +104,10 @@ public class DrawChessHelper {
         setKeyColors("    h  g  f  e  d  c  b  a    ");
     }
 
-    public void legalMoves(String input, int side){
-        char tempChar = input.charAt(0);
-        String stringNum = input.substring(1);
-        int row = Integer.parseInt(stringNum);
-        String letter = String.valueOf(tempChar);
-        int col = 0;
-        if (side==1){
-            //White
-            col = whiteAlphabet(letter);
-        }
-        if (side==2){
-            //Black
-            col = blackAlphabet(letter);
-        }
+    public void legalMoves(ChessPosition pos, int side){
+        int row = pos.getRow();
+        int col = pos.getColumn();
 
-        
         ChessPosition myPos = new ChessPosition(row,col);
         Collection<ChessPosition> legalMoves = new ArrayList<>();
 
@@ -141,61 +129,7 @@ public class DrawChessHelper {
         }
     }
     
-    public int whiteAlphabet(String letter){
-        if (Objects.equals(letter, "a")){
-            return 1;
-        }
-        if (Objects.equals(letter, "b")){
-            return 2;
-        }
-        if (Objects.equals(letter, "c")){
-            return 3;
-        }
-        if (Objects.equals(letter, "d")){
-            return 4;
-        }
-        if (Objects.equals(letter, "e")){
-            return 5;
-        }
-        if (Objects.equals(letter, "f")){
-            return 6;
-        }
-        if (Objects.equals(letter, "g")){
-            return 7;
-        }
-        if (Objects.equals(letter, "h")){
-            return 8;
-        }
-        return 0;
-    }
 
-    public int blackAlphabet(String letter){
-        if (Objects.equals(letter, "h")){
-            return 1;
-        }
-        if (Objects.equals(letter, "g")){
-            return 2;
-        }
-        if (Objects.equals(letter, "f")){
-            return 3;
-        }
-        if (Objects.equals(letter, "e")){
-            return 4;
-        }
-        if (Objects.equals(letter, "d")){
-            return 5;
-        }
-        if (Objects.equals(letter, "c")){
-            return 6;
-        }
-        if (Objects.equals(letter, "b")){
-            return 7;
-        }
-        if (Objects.equals(letter, "a")){
-            return 8;
-        }
-        return 0;
-    }
 
     private void resetTextAndBackground(){
         System.out.print(RESET_BG_COLOR);

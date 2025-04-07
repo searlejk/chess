@@ -1,11 +1,9 @@
 package ui;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import ui.exceptions.ResponseException;
-import ui.model.game.CreateGameRequest;
-import ui.model.game.CreateGameResult;
-import ui.model.game.ListGamesRequest;
-import ui.model.game.ListGamesResult;
+import ui.model.game.*;
 import ui.model.other.*;
 import ui.model.user.*;
 
@@ -51,6 +49,12 @@ public class ServerFacade {
         return this.makeRequest("PUT", path, joinRequest, EmptyResult.class);
     }
 
+    public ChessGame getGame(GetGameRequest getGameRequest) throws ResponseException {
+        var path = "/chessgame";
+        // I'm reusing joinRequest for gameID and authToken passing for getGame
+        return this.makeRequest("GET", path, getGameRequest, ChessGame.class);
+    }
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
@@ -90,6 +94,11 @@ public class ServerFacade {
 
             if (request instanceof JoinRequest(String playerColor, int gameID, String authToken)) {
                 http.addRequestProperty("Authorization", authToken);
+            }
+
+            if (request instanceof GetGameRequest(String gameID, String authToken)){
+                http.addRequestProperty("gameid", gameID);
+                return;
             }
 
             String reqData = new Gson().toJson(request);

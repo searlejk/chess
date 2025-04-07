@@ -1,5 +1,6 @@
 package server.handlers;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import exceptions.DataAccessException;
@@ -9,21 +10,25 @@ import spark.Request;
 import spark.Response;
 import service.*;
 
-public class ClearHandler {
+public class GetGameHandler {
 
     public String handle(Request req, Response res) {
         System.out.println("\n*****[Clear]*****\n\n Request Body: \n" + req.body());
         var serializer = new Gson();
+        String stringGameID = req.headers("gameid");
+        int gameID = Integer.parseInt(stringGameID);
+        System.out.print(gameID);
+
         try {
-            GameService.clearGames();
-            UserService.clearUsersAndAuth();
+            ChessGame game = GameService.getGame(gameID);
             res.status(200);
             res.type("application/json");
-            EmptyResult emptyResult = new EmptyResult();
-            return serializer.toJson(emptyResult);
+            System.out.print(serializer.toJson(game));
+            return serializer.toJson(game);
         } catch(DataAccessException e){
             res.status(400);
-            return new Gson().toJson(new ErrorResult("Error: Clear Failed"));
+            return new Gson().toJson(new ErrorResult("Error: GetGameHandler Failed"));
         }
+
     }
 }
