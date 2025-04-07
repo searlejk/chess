@@ -8,7 +8,6 @@ import ui.model.game.*;
 import ui.model.other.EmptyResult;
 import ui.model.other.GetGameRequest;
 import ui.model.other.GetGameResult;
-import ui.model.other.UpdateGameRequest;
 import ui.model.user.*;
 
 import java.util.*;
@@ -124,6 +123,8 @@ public class GameClient {
             return "Chess Game is missing";
         }
 
+        String stringGame = serializer.toJson(game);
+        GameData updatedGameData = new GameData(gameData.gameID(),gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),stringGame);
         DrawChessHelper draw = new DrawChessHelper(game);
         if (side==1) {
             draw.drawChessWhite(game, null, null);
@@ -134,8 +135,7 @@ public class GameClient {
 
         try{
             String jsonGame = serializer.toJson(game);
-            UpdateGameRequest updateGameRequest = new UpdateGameRequest(gameID.toString(),jsonGame);
-            server.updateGame(updateGameRequest);
+            server.updateGame(updatedGameData);
         } catch(Exception e){
             return "Failed to upload game to server";
         }

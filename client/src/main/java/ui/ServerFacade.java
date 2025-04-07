@@ -54,9 +54,9 @@ public class ServerFacade {
         return this.makeRequest("GET", path, getGameRequest, GameData.class);
     }
 
-    public String updateGame(UpdateGameRequest updateGameRequest) throws ResponseException {
+    public String updateGame(GameData gameData) throws ResponseException {
         var path = "/chessgame";
-        return this.makeRequest("PUT", path, updateGameRequest, null);
+        return this.makeRequest("PUT", path, gameData, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
@@ -105,9 +105,12 @@ public class ServerFacade {
                 return;
             }
 
-            if (request instanceof UpdateGameRequest(String gameID, String authToken)){
-                http.addRequestProperty("Authorization", authToken);
-                http.addRequestProperty("gameid", gameID);
+            if (request instanceof GameData(int gameID,
+                                            String whiteUsername,
+                                            String blackUsername,
+                                            String gameName,
+                                            String game)){
+                http.addRequestProperty("gameid", String.valueOf(gameID));
             }
 
 
