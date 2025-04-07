@@ -234,12 +234,10 @@ public class ChessGame {
                 if (piece.getPieceType()!=KING) { continue; }
 
                 kingPos = pos;
-                System.out.println("Found KING at: " + pos);
                 break outer;
             }
         }
 
-        System.out.println("king location: " + kingPos);
 
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {

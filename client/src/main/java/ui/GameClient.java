@@ -74,7 +74,19 @@ public class GameClient {
         // get game from server
         // draw game with draw chess helper
         System.out.print(ERASE_SCREEN);
-
+        GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
+        try{
+            ChessGame game = server.getGame(getGameRequest);
+            DrawChessHelper draw = new DrawChessHelper(game);
+            if (side==1) {
+                draw.drawChessWhite(game, null, null);
+            }
+            if (side==2) {
+                draw.drawChessBlack(game,null,null);
+            }
+        } catch(Exception e){
+            return "Redraw Failed\n";
+        }
         return "";
     }
 
@@ -83,6 +95,9 @@ public class GameClient {
         // update game with move
         // print board
         // update serve with new game
+        System.out.print(ERASE_SCREEN);
+        System.out.flush();
+
         ChessGame game;
         GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
         System.out.print(ERASE_SCREEN);
@@ -94,8 +109,6 @@ public class GameClient {
         }
 
         var serializer = new Gson();
-        System.out.print("\n ChessGame:\n");
-        System.out.print(game);
         ChessPosition startPos = parseMoveInput(params[0]);
         ChessPosition endPos = parseMoveInput(params[1]);
         ChessMove move = new ChessMove(startPos,endPos,null);
@@ -230,7 +243,7 @@ public class GameClient {
                 \tleave - leaves chess game
                 \tmove <MOVE> - makes a move in the chess game
                 \tresign - allows the user to resign chess game
-                \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2""" + "\n\t" +
+                \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2""" +
                 "\thelp - with possible commands\n";
     }
 }
