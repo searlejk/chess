@@ -39,7 +39,6 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             System.out.print(SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
-//                case "logout" -> logout(params);
                 case "move" -> move(params);
                 case "resign" -> resign(params);
                 case "redraw" -> redraw(params);
@@ -68,8 +67,6 @@ public class GameClient {
     }
 
     public String redraw(String... params) throws ResponseException{
-        // get game from server
-        // draw game with draw chess helper
         System.out.print(ERASE_SCREEN);
 
         try{
@@ -123,14 +120,7 @@ public class GameClient {
                     gameData.gameName(),
                     stringGame);
 
-            DrawChessHelper draw = new DrawChessHelper(game);
-            if (side == 1) {
-                draw.drawChessWhite(game, null, null);
-            }
-            if (side == 2) {
-                draw.drawChessBlack(game, null, null);
-            }
-
+            redraw();
             try {
                 server.updateGame(newGameData);
             } catch (Exception e) {
@@ -143,9 +133,6 @@ public class GameClient {
     }
 
     public String resign(String... params){
-        // get game from server
-        // draw game with draw chess helper
-
         if (observing) {
             return "You are observing, try leave instead";
         } else if (gameOver) {
@@ -158,7 +145,6 @@ public class GameClient {
 
         if (answer.equals("y") | answer.equals("yes")){
             gameOver = true;
-
             System.out.print("You Have Resigned");
         } else{
             System.out.print("Resignation cancelled");
@@ -173,7 +159,7 @@ public class GameClient {
             return leftGameMessage;
         }
 
-        GameData old = server.getGame(new GetGameRequest(String.valueOf(gameID),authToken));
+        GameData old = getGameData();
         GameData newGameData = null;
         if (side==1){
             newGameData = new GameData(gameID,null,old.blackUsername(),old.gameName(),old.game());
@@ -193,77 +179,43 @@ public class GameClient {
         int row = Integer.parseInt(stringNum);
         String letter = String.valueOf(tempChar);
         List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
-        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8);
+
         if (!letters.contains(letter)){
             throw new ResponseException(400, "letter for coordinate was invalid: " + letter);
         }
-        if (!nums.contains(row)){
+        if (row>8 | row<1){
             throw new ResponseException(400, "number for coordinate was invalid: " + row);
         }
         int col = 1;
         if (side==1){
-            //White
-            col = whiteAlphabet(letter);
+            col = whiteKey(letter);
         }
         if (side==2){
-            //Black
-            col = blackAlphabet(letter);
+            col = blackKey(letter);
         }
         return new ChessPosition(row,col);
     }
 
-    public int whiteAlphabet(String letter){
-        if (Objects.equals(letter, "a")){
-            return 1;
-        }
-        if (Objects.equals(letter, "b")){
-            return 2;
-        }
-        if (Objects.equals(letter, "c")){
-            return 3;
-        }
-        if (Objects.equals(letter, "d")){
-            return 4;
-        }
-        if (Objects.equals(letter, "e")){
-            return 5;
-        }
-        if (Objects.equals(letter, "f")){
-            return 6;
-        }
-        if (Objects.equals(letter, "g")){
-            return 7;
-        }
-        if (Objects.equals(letter, "h")){
-            return 8;
+    public int whiteKey(String letter){
+        List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
+        int i = 1;
+        for (String thing : letters){
+            if (thing.equals(letter)){
+                return i;
+            }
+            i++;
         }
         return 0;
     }
 
-    public int blackAlphabet(String letter){
-        if (Objects.equals(letter, "h")){
-            return 1;
-        }
-        if (Objects.equals(letter, "g")){
-            return 2;
-        }
-        if (Objects.equals(letter, "f")){
-            return 3;
-        }
-        if (Objects.equals(letter, "e")){
-            return 4;
-        }
-        if (Objects.equals(letter, "d")){
-            return 5;
-        }
-        if (Objects.equals(letter, "c")){
-            return 6;
-        }
-        if (Objects.equals(letter, "b")){
-            return 7;
-        }
-        if (Objects.equals(letter, "a")){
-            return 8;
+    public int blackKey(String letter){
+        List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
+        int i = 8;
+        for (String thing : letters){
+            if (thing.equals(letter)){
+                return i;
+            }
+            i--;
         }
         return 0;
     }
