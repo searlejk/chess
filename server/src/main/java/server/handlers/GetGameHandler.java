@@ -1,11 +1,8 @@
 package server.handlers;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.DataAccess;
 import exceptions.DataAccessException;
 import model.game.GameData;
-import model.other.EmptyResult;
 import model.other.ErrorResult;
 import spark.Request;
 import spark.Response;

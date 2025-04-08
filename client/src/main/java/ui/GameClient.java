@@ -39,7 +39,7 @@ public class GameClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
+            System.out.print(SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
 //                case "logout" -> logout(params);
                 case "move" -> move(params);
@@ -163,6 +163,16 @@ public class GameClient {
     }
 
     public String leave(String... params) throws ResponseException {
+        GameData old = server.getGame(new GetGameRequest(String.valueOf(gameID),authToken));
+        GameData newGameData = null;
+        if (side==1){
+            newGameData = new GameData(gameID,null,old.blackUsername(),old.gameName(),old.game());
+        }
+        if (side==2){
+            newGameData = new GameData(gameID,old.whiteUsername(),null,old.gameName(),old.game());
+        }
+
+        server.updateGame(newGameData);
         state = State.LOGGEDIN;
         return SET_TEXT_COLOR_BLUE + "you left the game\n" + SET_TEXT_COLOR_WHITE;
     }

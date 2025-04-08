@@ -128,11 +128,10 @@ public class GameService {
         return DATA_ACCESS.getGame(gameID);
     }
 
-    public static EmptyResult updateGame(int gameID, String newStringGame) throws DataAccessException{
-        GameData old = DATA_ACCESS.getGame(gameID);
-        DATA_ACCESS.remGame(gameID);
+    public static EmptyResult updateGame(GameData old, String newStringGame) throws DataAccessException{
+        DATA_ACCESS.remGame(old.gameID());
         GameData newGameData = new GameData(old.gameID(),old.whiteUsername(),old.blackUsername(),old.gameName(),newStringGame);
-        DATA_ACCESS.addGame(gameID,newGameData);
+        DATA_ACCESS.addGame(old.gameID(),newGameData);
         return new EmptyResult();
     }
 }

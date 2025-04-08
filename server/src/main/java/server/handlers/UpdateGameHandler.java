@@ -19,14 +19,13 @@ public class UpdateGameHandler {
         System.out.println("\n*****[UpdateGameHandler]*****\n\n Request Body: \n" + req.body());
         var serializer = new Gson();
         GameData gameData = serializer.fromJson(req.body(), GameData.class);
-        int gameID = gameData.gameID();
+        System.out.println(gameData + "\n");
         String newStringGame = gameData.game();
         LogoutRequest updateGameResult = new LogoutRequest("Yay it worked");
 
 
-
         try {
-            GameService.updateGame(gameID,newStringGame);
+            GameService.updateGame(gameData,newStringGame);
             res.status(200);
             return serializer.toJson(updateGameResult);
         } catch(DataAccessException e){
