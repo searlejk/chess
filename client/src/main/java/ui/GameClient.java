@@ -21,6 +21,7 @@ public class GameClient {
     private Boolean gameOver = false;
     private Integer gameID;
     public Boolean observing;
+    private final List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
 
     public GameClient(String serverUrl, String authToken, int side, int gameID) {
         server = new ServerFacade(serverUrl);
@@ -39,7 +40,6 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             System.out.print(SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
-//                case "logout" -> logout(params);
                 case "move" -> move(params);
                 case "resign" -> resign(params);
                 case "redraw" -> redraw(params);
@@ -56,7 +56,6 @@ public class GameClient {
     public String legalMoves(String... params) throws ResponseException {
         if (params.length == 1) {
             String input = params[0];
-            GameData gameData = getGameData();
             ChessPosition pos = parsePositionInput(input);
             DrawChessHelper draw = new DrawChessHelper(getGame());
             draw.legalMoves(pos, side);
@@ -68,8 +67,6 @@ public class GameClient {
     }
 
     public String redraw(String... params) throws ResponseException{
-        // get game from server
-        // draw game with draw chess helper
         System.out.print(ERASE_SCREEN);
 
         try{
@@ -180,7 +177,6 @@ public class GameClient {
         String stringNum = input.substring(1);
         int row = Integer.parseInt(stringNum);
         String letter = String.valueOf(tempChar);
-        List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
 
         if (!letters.contains(letter)){
             throw new ResponseException(400, "letter for coordinate was invalid: " + letter);
@@ -199,7 +195,6 @@ public class GameClient {
     }
 
     public int whiteKey(String letter){
-        List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
         int i = 1;
         for (String thing : letters){
             if (thing.equals(letter)){
@@ -211,7 +206,6 @@ public class GameClient {
     }
 
     public int blackKey(String letter){
-        List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
         int i = 8;
         for (String thing : letters){
             if (thing.equals(letter)){
@@ -243,7 +237,7 @@ public class GameClient {
             side=1;
             observing=true;
         }
-        return  SET_TEXT_COLOR_WHITE + """
+        return SET_TEXT_COLOR_WHITE + """
                 \n
                 \tredraw - redraw the chess board
                 \tleave - leaves chess game
