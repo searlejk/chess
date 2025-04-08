@@ -2,13 +2,9 @@ package ui;
 
 import chess.*;
 import com.google.gson.Gson;
-import org.glassfish.grizzly.http.server.Response;
 import ui.exceptions.ResponseException;
 import ui.model.game.*;
-import ui.model.other.EmptyResult;
 import ui.model.other.GetGameRequest;
-import ui.model.other.GetGameResult;
-import ui.model.user.*;
 
 import java.util.*;
 
@@ -22,16 +18,18 @@ public class GameClient {
     private final String authToken;
     private List<Integer> orderedGameID;
     private int side;
-    private Boolean resigned = false;
+    private Boolean gameOver = false;
     private Integer gameID;
+    public Boolean observing;
 
     public GameClient(String serverUrl, String authToken, int side, int gameID) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
-        this.side = side; // 1 is white 2 is black
-        this.resigned = false;
+        this.side = side; // 1 is white 2 is black, 3 is observing
+        this.gameOver = false;
         this.gameID = gameID;
+        this.observing = false;
     }
 
     public String eval(String input) {
@@ -56,29 +54,26 @@ public class GameClient {
     }
 
     public String legalMoves(String... params) throws ResponseException {
-        if (params.length ==1) {
+        if (params.length == 1) {
             String input = params[0];
-            ChessPosition pos = parseMoveInput(input);
-            ChessGame game = new ChessGame();
-            DrawChessHelper draw = new DrawChessHelper(game);
+            GameData gameData = getGameData();
+            ChessPosition pos = parsePositionInput(input);
+            DrawChessHelper draw = new DrawChessHelper(getGame());
             draw.legalMoves(pos, side);
             return "";
         }
         else{
-            throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <SQUARE>" + SET_TEXT_COLOR_WHITE);
+            throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <COORDINATE>" + SET_TEXT_COLOR_WHITE);
         }
     }
 
-    public String redraw(String... params){
+    public String redraw(String... params) throws ResponseException{
         // get game from server
         // draw game with draw chess helper
-        var serializer = new Gson();
         System.out.print(ERASE_SCREEN);
-        GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
-        GameData gameData;
+
         try{
-            gameData = server.getGame(getGameRequest);
-            ChessGame game = serializer.fromJson(gameData.game(),ChessGame.class);
+            ChessGame game = getGame();
             DrawChessHelper draw = new DrawChessHelper(game);
             if (side==1) {
                 draw.drawChessWhite(game, null, null);
@@ -87,66 +82,74 @@ public class GameClient {
                 draw.drawChessBlack(game,null,null);
             }
         } catch(Exception e){
-            return "Redraw Failed\n";
+            throw new ResponseException(400, "Redraw failed");
         }
         return "";
     }
 
-    public String move(String... params){
-        // get game from server
-        // update game with move
-        // print board
-        // update serve with new game
-        System.out.print(ERASE_SCREEN);
-        System.out.flush();
-
-        GameData gameData;
-        var serializer = new Gson();
-        GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
-        System.out.print(ERASE_SCREEN);
-        try {
-            JoinRequest gameRequest = new JoinRequest("WHITE",gameID, authToken);
-            gameData = server.getGame(getGameRequest);
-        } catch(Exception e){
-            return "Game could not be found";
+    public String move(String... params) throws ResponseException{
+        if (observing) {
+            return "You are observing, no moving permitted";
+        }else if (gameOver) {
+            return "The game is over, no moving permitted";
         }
 
-        ChessGame game = serializer.fromJson(gameData.game(),ChessGame.class);
-        ChessPosition startPos = parseMoveInput(params[0]);
-        ChessPosition endPos = parseMoveInput(params[1]);
-        ChessMove move = new ChessMove(startPos,endPos,null);
-        try {
-            game.makeMove(move);
-        } catch(InvalidMoveException e){
-            return "Invalid Move, try again";
-        } catch(NullPointerException e){
-            return "Chess Game is missing";
-        }
+        if (params.length == 2) {
+            System.out.print(ERASE_SCREEN);
+            System.out.flush();
 
-        String stringGame = serializer.toJson(game);
-        GameData updatedGameData = new GameData(gameData.gameID(),gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),stringGame);
-        DrawChessHelper draw = new DrawChessHelper(game);
-        if (side==1) {
-            draw.drawChessWhite(game, null, null);
-        }
-        if (side==2) {
-            draw.drawChessBlack(game,null,null);
-        }
+            var serializer = new Gson();
+            GameData gameData = getGameData();
 
-        try{
-            String jsonGame = serializer.toJson(game);
-            server.updateGame(updatedGameData);
-        } catch(Exception e){
-            return "Failed to upload game to server";
+            ChessGame game = getGame();
+            ChessPosition startPos = parsePositionInput(params[0]);
+            ChessPosition endPos = parsePositionInput(params[1]);
+            ChessMove move = new ChessMove(startPos, endPos, null);
+
+            try {
+                game.makeMove(move);
+            } catch (InvalidMoveException e) {
+                return "Invalid Move, try again";
+            } catch (NullPointerException e) {
+                return "Chess Game is missing";
+            }
+
+            String stringGame = serializer.toJson(game);
+
+            GameData newGameData = new GameData(
+                    gameData.gameID(),
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    stringGame);
+
+            DrawChessHelper draw = new DrawChessHelper(game);
+            if (side == 1) {
+                draw.drawChessWhite(game, null, null);
+            }
+            if (side == 2) {
+                draw.drawChessBlack(game, null, null);
+            }
+
+            try {
+                server.updateGame(newGameData);
+            } catch (Exception e) {
+                return "Failed to upload game to server";
+            }
+            return "";
+        } else{
+            throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <COORDINATE> <COORDINATE> " + SET_TEXT_COLOR_WHITE);
         }
-        return "";
     }
 
     public String resign(String... params){
         // get game from server
         // draw game with draw chess helper
-        if (resigned){
-            return"You have already resigned\n";
+
+        if (observing) {
+            return "You are observing, try leave instead";
+        } else if (gameOver) {
+            return"The game has already been finished\n";
         }
 
         Scanner scanner = new Scanner(System.in);
@@ -154,7 +157,8 @@ public class GameClient {
         String answer = scanner.nextLine().trim().toLowerCase();
 
         if (answer.equals("y") | answer.equals("yes")){
-            resigned = true;
+            gameOver = true;
+
             System.out.print("You Have Resigned");
         } else{
             System.out.print("Resignation cancelled");
@@ -163,6 +167,12 @@ public class GameClient {
     }
 
     public String leave(String... params) throws ResponseException {
+        String leftGameMessage = SET_TEXT_COLOR_BLUE + "you left the game\n" + SET_TEXT_COLOR_WHITE;
+        if (observing){
+            state = State.LOGGEDIN;
+            return leftGameMessage;
+        }
+
         GameData old = server.getGame(new GetGameRequest(String.valueOf(gameID),authToken));
         GameData newGameData = null;
         if (side==1){
@@ -174,14 +184,22 @@ public class GameClient {
 
         server.updateGame(newGameData);
         state = State.LOGGEDIN;
-        return SET_TEXT_COLOR_BLUE + "you left the game\n" + SET_TEXT_COLOR_WHITE;
+        return leftGameMessage;
     }
 
-    public ChessPosition parseMoveInput(String input){
+    public ChessPosition parsePositionInput(String input) throws ResponseException{
         char tempChar = input.charAt(0);
         String stringNum = input.substring(1);
         int row = Integer.parseInt(stringNum);
         String letter = String.valueOf(tempChar);
+        List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
+        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8);
+        if (!letters.contains(letter)){
+            throw new ResponseException(400, "letter for coordinate was invalid: " + letter);
+        }
+        if (!nums.contains(row)){
+            throw new ResponseException(400, "number for coordinate was invalid: " + row);
+        }
         int col = 1;
         if (side==1){
             //White
@@ -250,12 +268,32 @@ public class GameClient {
         return 0;
     }
 
+    public GameData getGameData(){
+        GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
+        try{
+            return server.getGame(getGameRequest);
+        } catch(Exception e){
+            return null;
+        }
+    }
+
+    public ChessGame getGame(){
+        var serializer = new Gson();
+        GameData gameData = getGameData();
+        String stringGame = gameData.game();
+        return serializer.fromJson(stringGame,ChessGame.class);
+    }
+
     public String help() {
+        if (side==3){
+            side=1;
+            observing=true;
+        }
         return  SET_TEXT_COLOR_WHITE + """
                 \n
                 \tredraw - redraw the chess board
                 \tleave - leaves chess game
-                \tmove <MOVE> - makes a move in the chess game
+                \tmove <POS> <POS> - makes a move in the chess game
                 \tresign - allows the user to resign chess game
                 \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2""" +
                 "\thelp - with possible commands\n";

@@ -190,13 +190,15 @@ public class LoginClient {
 
         if (params.length == 1) {
             int index = Integer.parseInt(params[0]) - 1;
-            int gameID = this.orderedGameID.get(index);
+            gameID = this.orderedGameID.get(index);
 
             ChessGame game = new ChessGame();
 
             DrawChessHelper draw = new DrawChessHelper(game);
             this.color = 1;
             draw.drawChessWhite(game, null, null);
+
+            state = State.OBSERVING;
 
             return "";
             //return SET_TEXT_COLOR_BLUE + "Observing game" + SET_TEXT_COLOR_WHITE;

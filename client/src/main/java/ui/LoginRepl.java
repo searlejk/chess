@@ -44,6 +44,11 @@ public class LoginRepl {
                     break;
                 }
 
+                if (client.state==State.OBSERVING){
+                    new GameRepl(this.serverUrl, authToken, 3, client.gameID).run();
+                    break;
+                }
+
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -56,6 +61,7 @@ public class LoginRepl {
         System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_GREEN + "[" +
                 EscapeSequences.SET_TEXT_COLOR_WHITE + "LOGGED_IN" + EscapeSequences.SET_TEXT_COLOR_GREEN + "]" +
                 EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+
     }
 
 }

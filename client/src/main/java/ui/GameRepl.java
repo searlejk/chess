@@ -43,9 +43,14 @@ public class GameRepl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
-                EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
-                EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+        if (client.observing) {
+            System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "[" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + "OBSERVING" + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "]" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+        } else {
+            System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+        }
     }
-
 }
