@@ -39,6 +39,7 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             System.out.print(SET_TEXT_COLOR_WHITE);
             return switch (cmd) {
+//                case "logout" -> logout(params);
                 case "move" -> move(params);
                 case "resign" -> resign(params);
                 case "redraw" -> redraw(params);
@@ -67,6 +68,8 @@ public class GameClient {
     }
 
     public String redraw(String... params) throws ResponseException{
+        // get game from server
+        // draw game with draw chess helper
         System.out.print(ERASE_SCREEN);
 
         try{
@@ -119,13 +122,12 @@ public class GameClient {
                     gameData.blackUsername(),
                     gameData.gameName(),
                     stringGame);
-
-            redraw();
             try {
                 server.updateGame(newGameData);
             } catch (Exception e) {
                 return "Failed to upload game to server";
             }
+            redraw();
             return "";
         } else{
             throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <COORDINATE> <COORDINATE> " + SET_TEXT_COLOR_WHITE);
