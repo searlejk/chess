@@ -6,9 +6,11 @@ import dataaccess.DataAccessProvider;
 import dataaccess.MySqlDataAccess;
 import server.handlers.*;
 import spark.*;
+import websocket.WebSocketHandler;
 
 public class Server {
     public final DataAccess data;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         MySqlDataAccess temp;
@@ -19,7 +21,7 @@ public class Server {
         }
         this.data = temp;
         DataAccessProvider.setDataAccess(temp);
-
+        webSocketHandler = new WebSocketHandler();
 
     }
 
@@ -35,7 +37,9 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
 
-        /// actually going to handle my exceptions here as I should now
+        /// my new webSocket code
+        Spark.webSocket("/ws", webSocketHandler);
+
 
 
         // Register EndPoint

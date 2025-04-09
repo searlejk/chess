@@ -1,5 +1,7 @@
 package ui;
 
+import websocket.WebSocketFacade;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.RESET_TEXT_ITALIC;
@@ -9,11 +11,13 @@ public class GameRepl {
     private final GameClient client;
     private final String serverUrl;
     private final String authToken;
+    private WebSocketFacade ws;
 
-    public GameRepl(String serverUrl, String authToken, int side, int gameID) {
+    public GameRepl(String serverUrl, String authToken, int side, int gameID, WebSocketFacade ws) {
         this.serverUrl = serverUrl;
         client = new GameClient(serverUrl, authToken, side, gameID);
         this.authToken = authToken;
+        this.ws = ws;
     }
 
     public void run() {

@@ -5,6 +5,9 @@ import com.google.gson.Gson;
 import ui.exceptions.ResponseException;
 import ui.model.game.*;
 import ui.model.other.GetGameRequest;
+import websocket.ServerMessageHandler;
+import websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
@@ -22,6 +25,7 @@ public class GameClient {
     private Integer gameID;
     public Boolean observing;
     private final List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
+    private WebSocketFacade ws = null;
 
     public GameClient(String serverUrl, String authToken, int side, int gameID) {
         server = new ServerFacade(serverUrl);
@@ -99,6 +103,13 @@ public class GameClient {
             GameData gameData = getGameData();
 
             ChessGame game = getGame();
+
+            if (side==1 && game.getTeamTurn()!=ChessGame.TeamColor.WHITE){
+                throw new ResponseException(400, "It is not your turn");
+            }else if (side==2 && game.getTeamTurn()==ChessGame.TeamColor.WHITE){
+                throw new ResponseException(400, "It is not your turn");
+            }
+
             ChessPosition startPos = parsePositionInput(params[0]);
             ChessPosition endPos = parsePositionInput(params[1]);
             ChessMove move = new ChessMove(startPos, endPos, null);
@@ -237,13 +248,14 @@ public class GameClient {
             side=1;
             observing=true;
         }
+
         return SET_TEXT_COLOR_WHITE + """
                 \n
                 \tredraw - redraw the chess board
                 \tleave - leaves chess game
                 \tmove <POS> <POS> - makes a move in the chess game
                 \tresign - allows the user to resign chess game
-                \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2""" +
+                \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2\n""" +
                 "\thelp - with possible commands\n";
     }
 }

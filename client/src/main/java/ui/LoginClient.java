@@ -10,6 +10,9 @@ import ui.model.game.*;
 import ui.model.other.EmptyResult;
 import ui.model.other.GetGameRequest;
 import ui.model.user.*;
+import websocket.ServerMessageHandler;
+import websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
@@ -24,6 +27,8 @@ public class LoginClient {
     private List<Integer> orderedGameID;
     private int color;
     public int gameID;
+    public WebSocketFacade ws;
+
 
     public LoginClient(String serverUrl, String authToken) {
         server = new ServerFacade(serverUrl);
@@ -162,14 +167,51 @@ public class LoginClient {
             ChessGame game = serializer.fromJson(gameData.game(),ChessGame.class);
             DrawChessHelper draw = new DrawChessHelper(game);
 
+            ServerMessageHandler playerHandler = new ServerMessageHandler() {
+                @Override
+                public void notify(ServerMessage message) {
+                    System.out.println("\n" + message.getMessage() + "\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
+                            EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
+                            EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+                }
+            };
+
+
+            String teamColor = null;
             if (params[1].equalsIgnoreCase("WHITE")){
+                teamColor = "WHITE";
+            }
+            if (params[1].equalsIgnoreCase("BLACK")){
+                teamColor = "BLACK";
+            }
+
+
+
+            try {
+                WebSocketFacade ws = new WebSocketFacade(serverUrl, playerHandler);
+                assert teamColor != null;
+                if (teamColor.equals("WHITE")){
+                    ws.joinGame(authToken,gameID,"joe","WHITE");
+                }
+                if (teamColor.equals("BLACK")){
+                    ws.joinGame(authToken,gameID,"Mike","BLACK");
+                }
+                this.ws = ws;
+
+            } catch(ResponseException e){
+                return "Websocket Connection Failed";
+            }
+
+            if (Objects.equals(teamColor, "WHITE")){
                 state = State.INGAME1;
                 draw.drawChessWhite(game, null, null);
             }
-            if (params[1].equalsIgnoreCase("BLACK")){
+            if (Objects.equals(teamColor, "BLACK")){
                 state = State.INGAME2;
                 draw.drawChessBlack(game,null,null);
             }
+
+
 
 
             return "";
