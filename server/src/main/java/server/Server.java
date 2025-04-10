@@ -36,11 +36,8 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-
         /// my new webSocket code
         Spark.webSocket("/ws", webSocketHandler);
-
-
 
         // Register EndPoint
         Spark.post("/user", (req, res) -> {
@@ -121,10 +118,8 @@ public class Server {
             }
         });
 
-
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
-
         Spark.awaitInitialization();
         return Spark.port();
     }

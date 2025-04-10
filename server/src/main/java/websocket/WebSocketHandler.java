@@ -6,7 +6,6 @@ import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
-import model.exceptions.ResponseException;
 import model.game.GameData;
 import model.user.UserData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -92,10 +91,10 @@ public class WebSocketHandler {
         String username = getUsername(data, command.getAuthToken());
 
         ChessMove move = command.getMove();
-        GameData gameData = getGameData(data,command.getGameID());
-        ChessGame game = getGame(gameData);
+        GameData gData = getGameData(data,command.getGameID());
+        ChessGame game = getGame(gData);
         ChessGame.TeamColor turnColor = game.getTeamTurn();
-        var userColor = getTeamColor(gameData,username);
+        var userColor = getTeamColor(gData,username);
         ChessGame.TeamColor currColor = null;
 
         if (Objects.equals(userColor, "WHITE")){
@@ -125,9 +124,9 @@ public class WebSocketHandler {
         try {
             var ser = new Gson();
             game.makeMove(move);
-            data.remGame(gameData.gameID());
-            GameData updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),ser.toJson(game));
-            data.addGame(gameData.gameID(), updatedGame);
+            data.remGame(gData.gameID());
+            GameData updatedGame = new GameData(gData.gameID(), gData.whiteUsername(),gData.blackUsername(),gData.gameName(),ser.toJson(game));
+            data.addGame(gData.gameID(), updatedGame);
         } catch(InvalidMoveException e){
             sendDirectMessage(session, getErrorMessage("ERROR: Invalid Move")); return;
         } catch(Exception e){

@@ -41,14 +41,4 @@ public class ConnectionManager {
             connections.remove(c.username);
         }
     }
-
-
-//    public void broadcastToGame(int gameID, ServerMessage.ServerMessageType notification) throws IOException {
-//        // Example: iterate through the connections
-//        for (var connection : connections.values()) {
-//            if(connection.gameID == gameID && connection.session.isOpen()){
-//                connection.send(notification.toString());
-//            }
-//        }
-//    }
 }
