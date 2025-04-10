@@ -30,17 +30,19 @@ public class ConnectionManager {
 
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (c.username.equals(excludeVisitorName) && message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
-                    System.out.println("[Connection Manager] - Load_Game in JSON:\n"+json+"\n");
+                /// If Load_Game send to everyone
+                if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
+                    System.out.println("[Connection Manager] - Load_Game in JSON:\n"+json+"\n " + c.username + "\n");
                     c.send(json);
-                    return;
                 }
 
-
+                /// If Notification send to only NOT username
                 if (!c.username.equals(excludeVisitorName) && message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-                    System.out.println("[Connection Manager] - Notification in JSON:\n"+json+"\n");
+                    System.out.println("[Connection Manager] - Notification in JSON:\n"+json+"\n " + c.username + "\n");
                     c.send(json);
                 }
+
+                /// If Move Made, send Load_Game to everyone
             } else {
                 removeList.add(c);
             }

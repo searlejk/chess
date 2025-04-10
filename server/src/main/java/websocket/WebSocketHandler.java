@@ -1,6 +1,8 @@
 package websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import model.exceptions.ResponseException;
@@ -42,10 +44,14 @@ public class WebSocketHandler {
 
             switch (command.getCommandType()) {
                 case CONNECT -> joinGame(command, session, message);
-//            case LEAVE -> leaveGame(command.getUsername());
+                case MAKE_MOVE -> makeMove(command, session, message);
             }
+        }catch(NullPointerException e){
+            System.out.print("Null Pointer in onMessage");
+        }catch(IndexOutOfBoundsException e){
+            System.out.print("Index out of bound in onMessage");
         }catch(Exception e){
-            System.out.print("onMessage Failed");
+            System.out.print("Exception in onMessage");
         }
     }
 
@@ -53,38 +59,78 @@ public class WebSocketHandler {
         DataAccess data = DataAccessProvider.getDataAccess();
         command.getGameID();
         ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        var ser = new Gson();
 
         String username = getUsername(data, command.getAuthToken());
+        GameData gameData = getGameData(data,command.getGameID(),username);
         if (username==null){
             ServerMessage badAuth = tempError.errorMessage("ERROR: Invalid AuthToken");
             var serializer = new Gson();
             String badAuthMessage = serializer.toJson(badAuth);
             session.getRemote().sendString(badAuthMessage);
-        }
-
-        GameData gameData = getGameData(data,command.getGameID(),username);
+            return;
+        } /// Bad AuthToken
         if (gameData==null){
             ServerMessage badGameID = tempError.errorMessage("ERROR: Incorrect gameID");
             var serializer = new Gson();
             String badGameIDMessage = serializer.toJson(badGameID);
             session.getRemote().sendString(badGameIDMessage);
             return;
-        }
+        } /// Bad GameID
+        ChessGame game = getGame(gameData);
+
         int gameID = gameData.gameID();
         ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
         ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         String teamColor = getTeamColor(gameData,username);
+        ServerMessage notifyMSG;
+        if (!Objects.equals(teamColor, "OBSERVER")) {
+            notifyMSG = notificationMessage.notification(username + " has joined playing as " + teamColor);
+        } else{
+            notifyMSG = notificationMessage.notification(username + " is now observing the game");
+        }
 
-        ServerMessage notifyMSG = notificationMessage.notification(username + " has joined playing as " + teamColor);
-        ChessGame game = getGame(gameData);
         ServerMessage loadMSG = loadGameMessage.loadGame(game);
 
-
-
-
-        connections.add(username, session, gameID);
-        connections.broadcast(username, loadMSG);
+        session.getRemote().sendString(ser.toJson(loadMSG));
         connections.broadcast(username, notifyMSG);
+        connections.add(username, session, gameID);
+//        connections.broadcast(username, loadMSG);
+    }
+
+    private void makeMove(UserGameCommand command, Session session, String message) throws IOException {
+        DataAccess data = DataAccessProvider.getDataAccess();
+        String username = getUsername(data, command.getAuthToken());
+        ChessMove move = command.getMove();
+        GameData gameData = getGameData(data,command.getGameID(),username);
+        ChessGame game = getGame(gameData);
+        ChessGame.TeamColor turnColor = game.getTeamTurn();
+        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        var ser = new Gson();
+
+        if (game.isInCheckmate(turnColor) || game.isInStalemate(turnColor)){
+            ServerMessage gameOverTemp = tempError.errorMessage("The game is over, no moves allowed");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        }
+
+        try {
+            game.makeMove(move);
+        } catch(InvalidMoveException e){
+            ServerMessage gameOverTemp = tempError.errorMessage("Invalid Move");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        }
+
+
+        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        ServerMessage loadMSG = loadGameMessage.loadGame(game);
+        connections.broadcast(username, loadMSG);
+        /// send messages to other players:
+        ServerMessage notifyOthers = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        ServerMessage notifyMessage = notifyOthers.notification(username + " made a move from " + move);
+        connections.broadcast(username,notifyMessage);
+
     }
 
     private void leaveGame(String visitorName) throws IOException {
@@ -94,6 +140,8 @@ public class WebSocketHandler {
 //        sMessage.message = message;
         connections.broadcast(visitorName, sMessage);
     }
+
+
 
     public void sendMessage(String petName, String sound) throws ResponseException {
         try {
@@ -137,6 +185,6 @@ public class WebSocketHandler {
         if (Objects.equals(gameData.blackUsername(), username)){
             return "BLACK";
         }
-        return "UNKNOWN";
+        return "OBSERVER";
     }
 }
