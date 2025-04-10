@@ -205,39 +205,26 @@ public class WebSocketHandler {
         ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
         ServerMessage leave = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         var ser = new Gson();
-        GameData updatedGame = null;
-        ServerMessage leaveMSG = null;
 
-        if (Objects.equals(playerColor, "OBSERVER")){
-            connections.remove(username);
-            leaveMSG = leave.notification(username + " has left the game (was observing)");
-        }
-        if (Objects.equals(playerColor, "WHITE")){
-            try {
-                updatedGame = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+        GameData updatedGame = switch (playerColor) {
+            case "WHITE" -> new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            case "BLACK" -> new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+            default -> gameData;
+        };
+
+        try{
+            if (!playerColor.equals("OBSERVER")){
                 data.remGame(gameData.gameID());
                 data.addGame(gameData.gameID(), updatedGame);
-            } catch(Exception e){
-                ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Game was not updated correctly");
-                session.getRemote().sendString(ser.toJson(gameOverTemp));
-                return;
             }
-            connections.remove(username);
-            leaveMSG = leave.notification(username + " has left the game (was WHITE)");
+        } catch(Exception e){
+            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Game was not updated correctly");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
         }
-        if (Objects.equals(playerColor, "BLACK")){
-            try {
-                updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
-                data.remGame(gameData.gameID());
-                data.addGame(gameData.gameID(), updatedGame);
-            } catch(Exception e){
-                ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Game was not updated correctly");
-                session.getRemote().sendString(ser.toJson(gameOverTemp));
-                return;
-            }
-            connections.remove(username);
-            leaveMSG = leave.notification(username + " has left the game (was BLACK)");
-        }
+
+        ServerMessage leaveMSG = leave.notification(username + " has left the game (was " + playerColor+")");
+        connections.remove(username);
         connections.broadcast(username,leaveMSG);
     }
 
