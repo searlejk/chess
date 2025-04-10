@@ -55,13 +55,12 @@ public class WebSocketHandler {
         ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
 
         String username = getUsername(data, command.getAuthToken());
-//        if (gameData==null){
-//            ServerMessage temp = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-//            ServerMessage badGameID = temp.errorMessage("ERROR: Incorrect gameID");
-//            var serializer = new Gson();
-//            String badGameIDMessage = serializer.toJson(badGameID);
-//            session.getRemote().sendString(badGameIDMessage);
-//        }
+        if (username==null){
+            ServerMessage badAuth = tempError.errorMessage("ERROR: Invalid AuthToken");
+            var serializer = new Gson();
+            String badAuthMessage = serializer.toJson(badAuth);
+            session.getRemote().sendString(badAuthMessage);
+        }
 
         GameData gameData = getGameData(data,command.getGameID(),username);
         if (gameData==null){
