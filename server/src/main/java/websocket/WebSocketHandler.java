@@ -46,6 +46,7 @@ public class WebSocketHandler {
                 case CONNECT -> joinGame(command, session, message);
                 case MAKE_MOVE -> makeMove(command, session, message);
                 case RESIGN -> resign(command,session, message);
+                case LEAVE -> leaveGame(command,session,message);
             }
         }catch(NullPointerException e){
             System.out.print("Null Pointer in onMessage");
@@ -194,19 +195,50 @@ public class WebSocketHandler {
         ServerMessage resignMSG = resign.notification(username+ " has resigned from the game");
         connections.broadcast(null, resignMSG);
         connections.remove(username);
-        for (var c : connections.connections.values()){
-            if (c.session.isOpen()){
-
-            }
-        }
     }
 
-    private void leaveGame(String visitorName) throws IOException {
-        connections.remove(visitorName);
-        var message = String.format("%s left the shop", visitorName);
-        var sMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-//        sMessage.message = message;
-        connections.broadcast(visitorName, sMessage);
+    private void leaveGame(UserGameCommand command, Session session, String message) throws IOException {
+        DataAccess data = DataAccessProvider.getDataAccess();
+        String username = getUsername(data,command.getAuthToken());
+        GameData gameData = getGameData(data,command.getGameID(),username);
+        String playerColor = getTeamColor(gameData,username);
+        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        ServerMessage leave = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        var ser = new Gson();
+        GameData updatedGame = null;
+        ServerMessage leaveMSG = null;
+
+        if (Objects.equals(playerColor, "OBSERVER")){
+            connections.remove(username);
+            leaveMSG = leave.notification(username + " has left the game (was observing)");
+        }
+        if (Objects.equals(playerColor, "WHITE")){
+            try {
+                updatedGame = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+                data.remGame(gameData.gameID());
+                data.addGame(gameData.gameID(), updatedGame);
+            } catch(Exception e){
+                ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Game was not updated correctly");
+                session.getRemote().sendString(ser.toJson(gameOverTemp));
+                return;
+            }
+            connections.remove(username);
+            leaveMSG = leave.notification(username + " has left the game (was WHITE)");
+        }
+        if (Objects.equals(playerColor, "BLACK")){
+            try {
+                updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+                data.remGame(gameData.gameID());
+                data.addGame(gameData.gameID(), updatedGame);
+            } catch(Exception e){
+                ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Game was not updated correctly");
+                session.getRemote().sendString(ser.toJson(gameOverTemp));
+                return;
+            }
+            connections.remove(username);
+            leaveMSG = leave.notification(username + " has left the game (was BLACK)");
+        }
+        connections.broadcast(username,leaveMSG);
     }
 
     public void sendMessage(String petName, String sound) throws ResponseException {
