@@ -20,34 +20,49 @@ public class DrawChessHelper {
 
     public void drawChess(ChessGame game, Collection<ChessPosition> moves, ChessPosition myPos, ChessGame.TeamColor side){
         System.out.print(ERASE_SCREEN);
+        newLine();
         ChessBoard board = game.getBoard();
         String unicodePiece;
         String key = "";
-        int startRow = 0;
-        int endRow = 0;
-        int step = 0;
         if (moves==null){ moves=new ArrayList<>();}
         if (myPos==null){ myPos = new ChessPosition(9,9); }
-        switch (side){
+
+        int startRow = 0;
+        int endRow = 0;
+        int rowStep = 0;
+        int colStart = 0;
+        int colEnd = 0;
+        int colStep = 0;
+
+        switch (side) {
             case WHITE -> {
                 key = "    a  b  c  d  e  f  g  h    ";
                 startRow = 8;
                 endRow = 0;
-                step = -1;
+                rowStep = -1;
+
+                colStart = 1;
+                colEnd = 9;
+                colStep = 1;
             }
             case BLACK -> {
                 key = "    h  g  f  e  d  c  b  a    ";
                 startRow = 1;
                 endRow = 9;
-                step = 1;
+                rowStep = 1;
+
+                colStart = 8;
+                colEnd = 0;
+                colStep = -1;
             }
         }
 
+
         setTopKey(key);
-        for (int row = startRow; row != endRow; row+=step){
+        for (int row = startRow; row != endRow; row+=rowStep){
             ///  left number key
             setKeyColors(" "+row+" ");
-            for (int col = 1; col <= 8; col++){
+            for (int col = colStart; col != colEnd; col += colStep) {
                 ChessPosition pos = new ChessPosition(row,col);
 
                 boardBackgroundColor(row,col,board,pos, moves, myPos);

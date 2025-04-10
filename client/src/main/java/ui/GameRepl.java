@@ -11,13 +11,11 @@ public class GameRepl {
     private final GameClient client;
     private final String serverUrl;
     private final String authToken;
-    private WebSocketFacade ws;
 
-    public GameRepl(String serverUrl, String authToken, int side, int gameID, WebSocketFacade ws) {
+    public GameRepl(String serverUrl, String authToken, int side, int gameID) {
         this.serverUrl = serverUrl;
         client = new GameClient(serverUrl, authToken, side, gameID);
         this.authToken = authToken;
-        this.ws = ws;
     }
 
     public void run() {

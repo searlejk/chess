@@ -35,17 +35,17 @@ public class LoginRepl {
                 }
 
                 if (client.state==State.INGAME1){
-                    new GameRepl(this.serverUrl, authToken, 1, client.gameID, client.ws).run();
+                    new GameRepl(this.serverUrl, authToken, 1, client.gameID).run();
                     break;
                 }
 
                 if (client.state==State.INGAME2){
-                    new GameRepl(this.serverUrl, authToken, 2, client.gameID, client.ws).run();
+                    new GameRepl(this.serverUrl, authToken, 2, client.gameID).run();
                     break;
                 }
 
                 if (client.state==State.OBSERVING){
-                    new GameRepl(this.serverUrl, authToken, 3, client.gameID, client.ws).run();
+                    new GameRepl(this.serverUrl, authToken, 3, client.gameID).run();
                     break;
                 }
 

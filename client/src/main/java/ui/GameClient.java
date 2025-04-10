@@ -9,6 +9,7 @@ import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
 import websocket.messages.ServerMessage;
 
+import java.net.http.WebSocket;
 import java.util.*;
 
 import static ui.EscapeSequences.*;
@@ -24,8 +25,9 @@ public class GameClient {
     private Boolean gameOver = false;
     private Integer gameID;
     public Boolean observing;
-    private final List<String> letters = Arrays.asList("a","b","c","d","e","f","g");
+    private final List<String> letters = Arrays.asList("a","b","c","d","e","f","g","h");
     private WebSocketFacade ws = null;
+    private ChessGame tempGame;
 
     public GameClient(String serverUrl, String authToken, int side, int gameID) {
         server = new ServerFacade(serverUrl);
@@ -35,6 +37,46 @@ public class GameClient {
         this.gameOver = false;
         this.gameID = gameID;
         this.observing = false;
+        try {
+            this.ws = new WebSocketFacade(serverUrl, new ServerMessageHandler() {
+                @Override
+                public void notify(ServerMessage message) {
+                    switch (message.getServerMessageType()) {
+                        case NOTIFICATION -> {
+                            System.out.println("\n" + message.getMessage());
+                            printPrompt();
+                        }
+                        case LOAD_GAME -> {
+                            var ser = new Gson();
+                            ChessGame game = message.getGame();
+
+                            DrawChessHelper draw = new DrawChessHelper(game);
+                            if (side==2){
+                                draw.drawChess(game,null,null, ChessGame.TeamColor.BLACK);
+                            } else{
+                                draw.drawChess(game,null,null, ChessGame.TeamColor.WHITE);
+                            }
+                            tempGame = game;
+                            printPrompt();
+
+                        }
+                        case ERROR -> {
+                            System.out.print(message.getErrorMessage()+"\n");
+                            printPrompt();
+                        }
+                    }
+                }
+            });
+        } catch(Exception e){
+            System.out.print("Failed to connect WebSocket");
+            state = State.LOGGEDIN;
+        }
+        try {
+            this.ws.joinGame(authToken, gameID);
+        }catch(Exception e){
+            System.out.print("Join Game Failed");
+            state = State.LOGGEDIN;
+        }
     }
 
     public String eval(String input) {
@@ -61,7 +103,7 @@ public class GameClient {
         if (params.length == 1) {
             String input = params[0];
             ChessPosition pos = parsePositionInput(input);
-            DrawChessHelper draw = new DrawChessHelper(getGame());
+            DrawChessHelper draw = new DrawChessHelper(tempGame);
             draw.legalMoves(pos, side);
             return "";
         }
@@ -72,69 +114,23 @@ public class GameClient {
 
     public String redraw(String... params) throws ResponseException{
         System.out.print(ERASE_SCREEN);
-
-        try {
-            ChessGame game = getGame();
-            DrawChessHelper draw = new DrawChessHelper(game);
-            if (side == 2){
-                draw.drawChess(game,null,null, ChessGame.TeamColor.BLACK);
-            } else{
-                draw.drawChess(game,null,null, ChessGame.TeamColor.WHITE);
-            }
-        } catch(Exception e){
-            throw new ResponseException(400, "Redraw failed");
+        DrawChessHelper draw = new DrawChessHelper(tempGame);
+        if (side==2) {
+            draw.drawChess(tempGame,null,null, ChessGame.TeamColor.BLACK);
+        }else{
+            draw.drawChess(tempGame,null,null, ChessGame.TeamColor.WHITE);
         }
         return "";
     }
 
     public String move(String... params) throws ResponseException{
-        if (observing) {
-            return "You are observing, no moving permitted";
-        }else if (gameOver) {
-            return "The game is over, no moving permitted";
-        }
-
         if (params.length == 2) {
-            System.out.print(ERASE_SCREEN);
-            System.out.flush();
-
-            var serializer = new Gson();
-            GameData gameData = getGameData();
-
-            ChessGame game = getGame();
-
-            if (side==1 && game.getTeamTurn()!=ChessGame.TeamColor.WHITE){
-                throw new ResponseException(400, "It is not your turn");
-            }else if (side==2 && game.getTeamTurn()==ChessGame.TeamColor.WHITE){
-                throw new ResponseException(400, "It is not your turn");
-            }
 
             ChessPosition startPos = parsePositionInput(params[0]);
             ChessPosition endPos = parsePositionInput(params[1]);
             ChessMove move = new ChessMove(startPos, endPos, null);
 
-            try {
-                game.makeMove(move);
-            } catch (InvalidMoveException e) {
-                return "Invalid Move, try again";
-            } catch (NullPointerException e) {
-                return "Chess Game is missing";
-            }
-
-            String stringGame = serializer.toJson(game);
-
-            GameData newGameData = new GameData(
-                    gameData.gameID(),
-                    gameData.whiteUsername(),
-                    gameData.blackUsername(),
-                    gameData.gameName(),
-                    stringGame);
-            try {
-                server.updateGame(newGameData);
-            } catch (Exception e) {
-                return "Failed to upload game to server";
-            }
-            redraw();
+            ws.makeMove(authToken,gameID,move);
             return "";
         } else{
             throw new ResponseException(400, SET_TEXT_COLOR_YELLOW + "Expected: <COORDINATE> <COORDINATE> " + SET_TEXT_COLOR_WHITE);
@@ -142,19 +138,18 @@ public class GameClient {
     }
 
     public String resign(String... params){
-        if (observing) {
-            return "You are observing, try leave instead";
-        } else if (gameOver) {
-            return"The game has already been finished\n";
-        }
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("Are you sure you would like to resign? Y/N\n");
         String answer = scanner.nextLine().trim().toLowerCase();
 
         if (answer.equals("y") | answer.equals("yes")){
-            gameOver = true;
-            System.out.print("You Have Resigned");
+            try {
+                ws.resign(authToken, gameID);
+            } catch(Exception e){
+                return "resign failed";
+            }
+            System.out.print("");
         } else{
             System.out.print("Resignation cancelled");
         }
@@ -164,20 +159,12 @@ public class GameClient {
     public String leave(String... params) throws ResponseException {
         String leftGameMessage = SET_TEXT_COLOR_BLUE + "you left the game\n" + SET_TEXT_COLOR_WHITE;
         if (observing){
+            ws.leaveGame(authToken,gameID);
             state = State.LOGGEDIN;
             return leftGameMessage;
         }
 
-        GameData old = getGameData();
-        GameData newGameData = null;
-        if (side==1){
-            newGameData = new GameData(gameID,null,old.blackUsername(),old.gameName(),old.game());
-        }
-        if (side==2){
-            newGameData = new GameData(gameID,old.whiteUsername(),null,old.gameName(),old.game());
-        }
-
-        server.updateGame(newGameData);
+        ws.leaveGame(authToken,gameID);
         state = State.LOGGEDIN;
         return leftGameMessage;
     }
@@ -188,19 +175,8 @@ public class GameClient {
         int row = Integer.parseInt(stringNum);
         String letter = String.valueOf(tempChar);
 
-        if (!letters.contains(letter)){
-            throw new ResponseException(400, "letter for coordinate was invalid: " + letter);
-        }
-        if (row>8 | row<1){
-            throw new ResponseException(400, "number for coordinate was invalid: " + row);
-        }
         int col = 1;
-        if (side==1){
-            col = whiteKey(letter);
-        }
-        if (side==2){
-            col = blackKey(letter);
-        }
+        col = whiteKey(letter);
         return new ChessPosition(row,col);
     }
 
@@ -215,31 +191,16 @@ public class GameClient {
         return 0;
     }
 
-    public int blackKey(String letter){
-        int i = 8;
-        for (String thing : letters){
-            if (thing.equals(letter)){
-                return i;
-            }
-            i--;
+    public void printPrompt(){
+        if (observing){
+            System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "[" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + "OBSERVING" + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "]" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+        } else {
+            System.out.print("\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
+                    EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
         }
-        return 0;
-    }
-
-    public GameData getGameData(){
-        GetGameRequest getGameRequest = new GetGameRequest(gameID.toString(),authToken);
-        try{
-            return server.getGame(getGameRequest);
-        } catch(Exception e){
-            return null;
-        }
-    }
-
-    public ChessGame getGame(){
-        var serializer = new Gson();
-        GameData gameData = getGameData();
-        String stringGame = gameData.game();
-        return serializer.fromJson(stringGame,ChessGame.class);
     }
 
     public String help() {

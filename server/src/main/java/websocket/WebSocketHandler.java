@@ -93,23 +93,15 @@ public class WebSocketHandler {
         ChessMove move = command.getMove();
         GameData gData = getGameData(data,command.getGameID());
         ChessGame game = getGame(gData);
-        ChessGame.TeamColor turnColor = game.getTeamTurn();
         var userColor = getTeamColor(gData,username);
         ChessGame.TeamColor currColor = null;
 
-        if (Objects.equals(userColor, "WHITE")){
-            currColor = ChessGame.TeamColor.WHITE;
-        }
-        if (Objects.equals(userColor, "BLACK")){
-            currColor = ChessGame.TeamColor.BLACK;
-        }
-
-        if (Objects.equals(userColor, "OBSERVER")){
-            sendDirectMessage(session, getErrorMessage("You are observing the game, no moves allowed")); return;
-        }
-
-        if (game.isInCheckmate(turnColor) || game.isInStalemate(turnColor)){
-            sendDirectMessage(session, getErrorMessage("The game is over, no moves allowed")); return;
+        switch(userColor){
+            case "WHITE" -> currColor = ChessGame.TeamColor.WHITE;
+            case "BLACK" -> currColor = ChessGame.TeamColor.BLACK;
+            case "OBSERVER" -> {
+                sendDirectMessage(session, getErrorMessage("You are observing the game, no moves allowed")); return;
+            }
         }
 
         ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
@@ -121,11 +113,12 @@ public class WebSocketHandler {
             sendDirectMessage(session, getErrorMessage("You must move a "+currColor+" piece")); return;
         }
 
+        GameData updatedGame;
         try {
             var ser = new Gson();
             game.makeMove(move);
             data.remGame(gData.gameID());
-            GameData updatedGame = new GameData(gData.gameID(), gData.whiteUsername(),gData.blackUsername(),gData.gameName(),ser.toJson(game));
+            updatedGame = new GameData(gData.gameID(), gData.whiteUsername(),gData.blackUsername(),gData.gameName(),ser.toJson(game));
             data.addGame(gData.gameID(), updatedGame);
         } catch(InvalidMoveException e){
             sendDirectMessage(session, getErrorMessage("ERROR: Invalid Move")); return;
@@ -133,10 +126,63 @@ public class WebSocketHandler {
             sendDirectMessage(session, getErrorMessage("ERROR: Update Game Failed")); return;
         }
 
-        ServerMessage loadMSG = getLoadGameMessage(game);
-        connections.broadcast(username, loadMSG, true,command.getGameID());
+        boolean checkmate = false;
+        boolean check = false;
+        boolean stalemate = false;
+        ServerMessage checkmateNotification = null;
+        ServerMessage checkNotification = null;
+        ServerMessage stalemateNotification = null;
+        String tempUsername;
+        GameData renamedGameData = updatedGame;
+
+        if (gData.whiteUsername()!=null){ tempUsername = gData.whiteUsername();
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)){ checkmate = true;
+                checkmateNotification = getNotificationMessage(tempUsername + " is in CheckMate, Game is over.");
+                renamedGameData = new GameData(updatedGame.gameID(), "__LOSER__","__WINNER__",
+                        updatedGame.gameName(),updatedGame.game());}
+
+
+            if (game.isInCheck(ChessGame.TeamColor.WHITE)){ check = true;
+                checkNotification = getNotificationMessage(tempUsername + " is in check");}
+
+            if (game.isInStalemate(ChessGame.TeamColor.WHITE)){ stalemate = true;
+                stalemateNotification = getNotificationMessage(tempUsername + " is in stalemate, Game is over.");}
+
+        }
+        if (gData.blackUsername()!=null){ tempUsername = gData.blackUsername();
+            if (game.isInCheckmate(ChessGame.TeamColor.BLACK)){ checkmate = true;
+                checkmateNotification = getNotificationMessage(tempUsername + " is in CheckMate, Game is over.");
+                renamedGameData = new GameData(updatedGame.gameID(), "__WINNER__","__LOSER__",
+                        updatedGame.gameName(),updatedGame.game());}
+
+            if (game.isInCheck(ChessGame.TeamColor.BLACK)){ check = true;
+                checkNotification = getNotificationMessage(tempUsername + " is in check");}
+
+            if (game.isInStalemate(ChessGame.TeamColor.BLACK)){ stalemate = true;
+                stalemateNotification = getNotificationMessage(tempUsername+ " is in stalemate, Game is over.");}
+
+        }
+
+        connections.broadcast(username, getLoadGameMessage(game), true,command.getGameID());
+        if (checkmate){
+            try {
+                data.remGame(command.getGameID());
+                data.addGame(command.getGameID(),renamedGameData);
+            } catch(Exception Ignore){
+
+            }
+            connections.broadcast(username, checkmateNotification, true,command.getGameID());
+        } else if (check){
+            connections.broadcast(username,checkNotification,true,command.getGameID());
+        } else if (stalemate){
+            connections.broadcast(username,stalemateNotification,true,command.getGameID());
+        }
+
         /// send messages to other players:
-        ServerMessage notifyMessage = getNotificationMessage(username + " made a move from " + move);
+        String firstLetter = convert(move.getStartPosition().getColumn());
+        String secondLetter = convert(move.getEndPosition().getColumn());
+        ServerMessage notifyMessage = getNotificationMessage(username + " made a move from " + firstLetter+move.getStartPosition().getRow()+
+                " to "+secondLetter+move.getEndPosition().getRow()+"\n");
         connections.broadcast(username, notifyMessage, false,command.getGameID());
     }
 
@@ -245,6 +291,20 @@ public class WebSocketHandler {
         } catch(IOException e){
             throw new IOException();
         }
+    }
+
+    public String convert(int num){
+        return switch(num){
+            case 1 -> "a";
+            case 2 -> "b";
+            case 3 -> "c";
+            case 4 -> "d";
+            case 5 -> "e";
+            case 6 -> "f";
+            case 7 -> "g";
+            case 8 -> "h";
+            default -> "UNKNOWN";
+        };
     }
 
 }
