@@ -105,11 +105,26 @@ public class WebSocketHandler {
         GameData gameData = getGameData(data,command.getGameID(),username);
         ChessGame game = getGame(gameData);
         ChessGame.TeamColor turnColor = game.getTeamTurn();
+        var userColor = getTeamColor(gameData,username);
         ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
         var ser = new Gson();
+        ChessGame.TeamColor currColor = null;
+
+        if (Objects.equals(userColor, "WHITE")){
+            currColor = ChessGame.TeamColor.WHITE;
+        }
+        if (Objects.equals(userColor, "BLACK")){
+            currColor = ChessGame.TeamColor.BLACK;
+        }
 
         if (game.isInCheckmate(turnColor) || game.isInStalemate(turnColor)){
             ServerMessage gameOverTemp = tempError.errorMessage("The game is over, no moves allowed");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        }
+
+        if (currColor!=game.getBoard().getPiece(move.getStartPosition()).getTeamColor()){
+            ServerMessage gameOverTemp = tempError.errorMessage("You must move a "+currColor+" piece");
             session.getRemote().sendString(ser.toJson(gameOverTemp));
             return;
         }
