@@ -6,6 +6,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -20,30 +21,16 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String excludeVisitorName, ServerMessage message) throws IOException {
+    public void broadcast(String excludeVisitorName, ServerMessage message, boolean includeSender, int gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
-        System.out.println("Received raw message: " + message.getServerMessageType());
         String json = new Gson().toJson(message);
 
-        ///  If NOTIFICATION, send to everyone but user
-        ///  If LOAD_GAME, just send to the user
-
         for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                /// If Load_Game send to everyone
-                if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
-                    System.out.println("[Connection Manager] - Load_Game in JSON:\n"+json+"\n " + c.username + "\n");
-                    c.send(json);
-                }
-
-                /// If Notification send to only NOT username
-                if (!c.username.equals(excludeVisitorName) && message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-                    System.out.println("[Connection Manager] - Notification in JSON:\n"+json+"\n " + c.username + "\n");
-                    c.send(json);
-                }
-
-                /// If Move Made, send Load_Game to everyone
-            } else {
+            if (c.gameID == gameID && c.session.isOpen()) {
+                if (!includeSender && Objects.equals(c.username, excludeVisitorName)) {continue;}
+                System.out.println("[broadcast] - [" + c.username + "]\t" + json);
+                c.send(json);
+            } else if (!c.session.isOpen()) {
                 removeList.add(c);
             }
         }

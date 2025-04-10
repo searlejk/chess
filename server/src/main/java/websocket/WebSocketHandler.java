@@ -2,6 +2,7 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
@@ -49,11 +50,11 @@ public class WebSocketHandler {
                 case LEAVE -> leaveGame(command,session,message);
             }
         }catch(NullPointerException e){
-            System.out.print("Null Pointer in onMessage");
+            System.out.print("Null Pointer in onMessage:\n"+ e.getMessage());
         }catch(IndexOutOfBoundsException e){
-            System.out.print("Index out of bound in onMessage");
+            System.out.print("Index out of bound in onMessage:\n"+ e.getMessage());
         }catch(Exception e){
-            System.out.print("Exception in onMessage");
+            System.out.print("Exception in onMessage:\n"+ e.getMessage());
         }
     }
 
@@ -63,12 +64,10 @@ public class WebSocketHandler {
         GameData gameData = getGameData(data,command.getGameID());
 
         if (username==null){
-            sendDirectMessage(session, getErrorMessage("ERROR: Invalid AuthToken"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: Invalid AuthToken")); return;
         } /// Bad AuthToken
         if (gameData==null){
-            sendDirectMessage(session, getErrorMessage("ERROR: Incorrect gameID"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: Incorrect gameID")); return;
         } /// Bad GameID
 
         /// call after gameData!=null
@@ -84,13 +83,14 @@ public class WebSocketHandler {
         }
 
         sendDirectMessage(session, getLoadGameMessage(game));
-        connections.broadcast(username, notifyMSG);
         connections.add(username, session, gameID);
+        connections.broadcast(username, notifyMSG, false,command.getGameID());
     }
 
     private void makeMove(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
         String username = getUsername(data, command.getAuthToken());
+
         ChessMove move = command.getMove();
         GameData gameData = getGameData(data,command.getGameID());
         ChessGame game = getGame(gameData);
@@ -106,18 +106,20 @@ public class WebSocketHandler {
         }
 
         if (Objects.equals(userColor, "OBSERVER")){
-            sendDirectMessage(session, getErrorMessage("You are observing the game, no moves allowed"));
-            return;
+            sendDirectMessage(session, getErrorMessage("You are observing the game, no moves allowed")); return;
         }
 
         if (game.isInCheckmate(turnColor) || game.isInStalemate(turnColor)){
-            sendDirectMessage(session, getErrorMessage("The game is over, no moves allowed"));
-            return;
+            sendDirectMessage(session, getErrorMessage("The game is over, no moves allowed")); return;
         }
 
-        if (currColor!=game.getBoard().getPiece(move.getStartPosition()).getTeamColor()){
-            sendDirectMessage(session, getErrorMessage("You must move a "+currColor+" piece"));
-            return;
+        ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+        if (piece==null) {
+            sendDirectMessage(session, getErrorMessage("No Piece at start position")); return;
+        }
+
+        if (currColor!=piece.getTeamColor()){
+            sendDirectMessage(session, getErrorMessage("You must move a "+currColor+" piece")); return;
         }
 
         try {
@@ -127,18 +129,16 @@ public class WebSocketHandler {
             GameData updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),ser.toJson(game));
             data.addGame(gameData.gameID(), updatedGame);
         } catch(InvalidMoveException e){
-            sendDirectMessage(session, getErrorMessage("ERROR: Invalid Move"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: Invalid Move")); return;
         } catch(Exception e){
-            sendDirectMessage(session, getErrorMessage("ERROR: Update Game Failed"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: Update Game Failed")); return;
         }
 
         ServerMessage loadMSG = getLoadGameMessage(game);
-        connections.broadcast(username, loadMSG);
+        connections.broadcast(username, loadMSG, true,command.getGameID());
         /// send messages to other players:
         ServerMessage notifyMessage = getNotificationMessage(username + " made a move from " + move);
-        connections.broadcast(username,notifyMessage);
+        connections.broadcast(username, notifyMessage, false,command.getGameID());
     }
 
     private void resign(UserGameCommand command, Session session, String message) throws IOException {
@@ -155,18 +155,16 @@ public class WebSocketHandler {
             updatedGameData = new GameData(gameData.gameID(), "__WINNER__","__LOSER__",gameData.gameName(),gameData.game());
         }
         if (Objects.equals(resignedColor, "OBSERVER")){
-            sendDirectMessage(session, getErrorMessage("ERROR: You are observing the game, try leave instead"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: You are observing the game, try leave instead")); return;
         }
         try {
             data.remGame(gameData.gameID());
             data.addGame(gameData.gameID(), updatedGameData);
         }catch(Exception e){
-            sendDirectMessage(session, getErrorMessage("ERROR: resign did not update game correctly"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: resign did not update game correctly")); return;
         }
 
-        connections.broadcast(null, getNotificationMessage(username+ " has resigned from the game"));
+        connections.broadcast(username, getNotificationMessage(username+ " has resigned from the game"), true,command.getGameID());
         connections.remove(username);
     }
 
@@ -188,22 +186,11 @@ public class WebSocketHandler {
                 data.addGame(gameData.gameID(), updatedGame);
             }
         } catch(Exception e){
-            sendDirectMessage(session, getErrorMessage("ERROR: Game was not updated correctly"));
-            return;
+            sendDirectMessage(session, getErrorMessage("ERROR: Game was not updated correctly")); return;
         }
 
+        connections.broadcast(username,getNotificationMessage(username + " has left the game (was " + playerColor+")"), false, command.getGameID());
         connections.remove(username);
-        connections.broadcast(username,getNotificationMessage(username + " has left the game (was " + playerColor+")"));
-    }
-
-    public void sendMessage(String petName, String sound) throws ResponseException {
-        try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            connections.broadcast("", notification);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
     }
 
     public String getUsername(DataAccess data, String authToken) {
