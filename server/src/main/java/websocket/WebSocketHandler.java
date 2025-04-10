@@ -164,10 +164,41 @@ public class WebSocketHandler {
     private void resign(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
         String username = getUsername(data,command.getAuthToken());
+        GameData gameData = getGameData(data,command.getGameID(),username);
+        String resignedColor = getTeamColor(gameData,username);
+        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        var ser = new Gson();
+        GameData updatedGameData = null;
+        if (Objects.equals(resignedColor, "WHITE")){
+            updatedGameData = new GameData(gameData.gameID(), "__LOSER__","__WINNER__",gameData.gameName(),gameData.game());
+        }
+        if (Objects.equals(resignedColor, "BLACK")){
+            updatedGameData = new GameData(gameData.gameID(), "__WINNER__","__LOSER__",gameData.gameName(),gameData.game());
+        }
+        if (Objects.equals(resignedColor, "OBSERVER")){
+            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: You are observing the game, try leave instead");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        }
+        try {
+            data.remGame(gameData.gameID());
+            data.addGame(gameData.gameID(), updatedGameData);
+        }catch(Exception e){
+            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: resign did not update game correctly");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        }
+
+
         ServerMessage resign = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         ServerMessage resignMSG = resign.notification(username+ " has resigned from the game");
         connections.broadcast(null, resignMSG);
         connections.remove(username);
+        for (var c : connections.connections.values()){
+            if (c.session.isOpen()){
+
+            }
+        }
     }
 
     private void leaveGame(String visitorName) throws IOException {
