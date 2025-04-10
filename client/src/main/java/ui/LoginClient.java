@@ -170,9 +170,11 @@ public class LoginClient {
             ServerMessageHandler playerHandler = new ServerMessageHandler() {
                 @Override
                 public void notify(ServerMessage message) {
-                    System.out.println("\n" + message.getMessage() + "\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
-                            EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
-                            EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
+                    System.out.println("\n" + message.getServerMessageType());
+
+//                            + "\n" + SET_TEXT_ITALIC + EscapeSequences.SET_TEXT_COLOR_BLUE + "[" +
+//                            EscapeSequences.SET_TEXT_COLOR_WHITE + "IN_GAME" + EscapeSequences.SET_TEXT_COLOR_BLUE + "]" +
+//                            EscapeSequences.SET_TEXT_COLOR_WHITE + " >>> " + EscapeSequences.SET_TEXT_COLOR_GREEN + RESET_TEXT_ITALIC);
                 }
             };
 
@@ -190,12 +192,7 @@ public class LoginClient {
             try {
                 WebSocketFacade ws = new WebSocketFacade(serverUrl, playerHandler);
                 assert teamColor != null;
-                if (teamColor.equals("WHITE")){
-                    ws.joinGame(authToken,gameID,"joe","WHITE");
-                }
-                if (teamColor.equals("BLACK")){
-                    ws.joinGame(authToken,gameID,"Mike","BLACK");
-                }
+                ws.joinGame(authToken,gameID);
                 this.ws = ws;
 
             } catch(ResponseException e){

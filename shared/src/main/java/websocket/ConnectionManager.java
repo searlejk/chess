@@ -22,14 +22,14 @@ public class ConnectionManager {
 
     public void broadcast(String excludeVisitorName, ServerMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
-        System.out.println("Received raw message: " + message.message);
+        System.out.println("Received raw message: " + message.getServerMessageType());
         String json = new Gson().toJson(message);
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.username.equals(excludeVisitorName)) {
+//                if (!c.username.equals(excludeVisitorName)) {
                     System.out.println("[Connection Manager] - Sending Message in JSON:\n"+json+"\n");
                     c.send(json);
-                }
+//                }
             } else {
                 removeList.add(c);
             }
