@@ -59,45 +59,32 @@ public class WebSocketHandler {
 
     private void joinGame(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
-        command.getGameID();
-        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        var ser = new Gson();
 
         String username = getUsername(data, command.getAuthToken());
         GameData gameData = getGameData(data,command.getGameID(),username);
         if (username==null){
-            ServerMessage badAuth = tempError.errorMessage("ERROR: Invalid AuthToken");
-            var serializer = new Gson();
-            String badAuthMessage = serializer.toJson(badAuth);
-            session.getRemote().sendString(badAuthMessage);
+            sendDirectMessage(session, getErrorMessage("ERROR: Invalid AuthToken"));
             return;
         } /// Bad AuthToken
         if (gameData==null){
-            ServerMessage badGameID = tempError.errorMessage("ERROR: Incorrect gameID");
-            var serializer = new Gson();
-            String badGameIDMessage = serializer.toJson(badGameID);
-            session.getRemote().sendString(badGameIDMessage);
+            sendDirectMessage(session, getErrorMessage("ERROR: Incorrect gameID"));
             return;
         } /// Bad GameID
+
         ChessGame game = getGame(gameData);
 
         int gameID = gameData.gameID();
-        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         String teamColor = getTeamColor(gameData,username);
         ServerMessage notifyMSG;
         if (!Objects.equals(teamColor, "OBSERVER")) {
-            notifyMSG = notificationMessage.notification(username + " has joined playing as " + teamColor);
+            notifyMSG = getNotificationMessage(username + " has joined playing as " + teamColor);
         } else{
-            notifyMSG = notificationMessage.notification(username + " is now observing the game");
+            notifyMSG = getNotificationMessage(username + " is now observing the game");
         }
 
-        ServerMessage loadMSG = loadGameMessage.loadGame(game);
-
-        session.getRemote().sendString(ser.toJson(loadMSG));
+        sendDirectMessage(session, getLoadGameMessage(game));
         connections.broadcast(username, notifyMSG);
         connections.add(username, session, gameID);
-//        connections.broadcast(username, loadMSG);
     }
 
     private void makeMove(UserGameCommand command, Session session, String message) throws IOException {
@@ -108,8 +95,6 @@ public class WebSocketHandler {
         ChessGame game = getGame(gameData);
         ChessGame.TeamColor turnColor = game.getTeamTurn();
         var userColor = getTeamColor(gameData,username);
-        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        var ser = new Gson();
         ChessGame.TeamColor currColor = null;
 
         if (Objects.equals(userColor, "WHITE")){
@@ -118,47 +103,40 @@ public class WebSocketHandler {
         if (Objects.equals(userColor, "BLACK")){
             currColor = ChessGame.TeamColor.BLACK;
         }
+
         if (Objects.equals(userColor, "OBSERVER")){
-            ServerMessage gameOverTemp = tempError.errorMessage("You are observing the game, no moves allowed");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("You are observing the game, no moves allowed"));
             return;
         }
 
         if (game.isInCheckmate(turnColor) || game.isInStalemate(turnColor)){
-            ServerMessage gameOverTemp = tempError.errorMessage("The game is over, no moves allowed");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("The game is over, no moves allowed"));
             return;
         }
 
         if (currColor!=game.getBoard().getPiece(move.getStartPosition()).getTeamColor()){
-            ServerMessage gameOverTemp = tempError.errorMessage("You must move a "+currColor+" piece");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("You must move a "+currColor+" piece"));
             return;
         }
 
         try {
+            var ser = new Gson();
             game.makeMove(move);
             data.remGame(gameData.gameID());
             GameData updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),ser.toJson(game));
             data.addGame(gameData.gameID(), updatedGame);
         } catch(InvalidMoveException e){
-            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Invalid Move");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("ERROR: Invalid Move"));
             return;
         } catch(Exception e){
-            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Update Game Failed");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("ERROR: Update Game Failed"));
             return;
         }
 
-
-
-        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        ServerMessage loadMSG = loadGameMessage.loadGame(game);
+        ServerMessage loadMSG = getLoadGameMessage(game);
         connections.broadcast(username, loadMSG);
         /// send messages to other players:
-        ServerMessage notifyOthers = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        ServerMessage notifyMessage = notifyOthers.notification(username + " made a move from " + move);
+        ServerMessage notifyMessage = getNotificationMessage(username + " made a move from " + move);
         connections.broadcast(username,notifyMessage);
     }
 
@@ -167,9 +145,8 @@ public class WebSocketHandler {
         String username = getUsername(data,command.getAuthToken());
         GameData gameData = getGameData(data,command.getGameID(),username);
         String resignedColor = getTeamColor(gameData,username);
-        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        var ser = new Gson();
         GameData updatedGameData = null;
+
         if (Objects.equals(resignedColor, "WHITE")){
             updatedGameData = new GameData(gameData.gameID(), "__LOSER__","__WINNER__",gameData.gameName(),gameData.game());
         }
@@ -177,23 +154,18 @@ public class WebSocketHandler {
             updatedGameData = new GameData(gameData.gameID(), "__WINNER__","__LOSER__",gameData.gameName(),gameData.game());
         }
         if (Objects.equals(resignedColor, "OBSERVER")){
-            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: You are observing the game, try leave instead");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("ERROR: You are observing the game, try leave instead"));
             return;
         }
         try {
             data.remGame(gameData.gameID());
             data.addGame(gameData.gameID(), updatedGameData);
         }catch(Exception e){
-            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: resign did not update game correctly");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("ERROR: resign did not update game correctly"));
             return;
         }
 
-
-        ServerMessage resign = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        ServerMessage resignMSG = resign.notification(username+ " has resigned from the game");
-        connections.broadcast(null, resignMSG);
+        connections.broadcast(null, getNotificationMessage(username+ " has resigned from the game"));
         connections.remove(username);
     }
 
@@ -202,9 +174,6 @@ public class WebSocketHandler {
         String username = getUsername(data,command.getAuthToken());
         GameData gameData = getGameData(data,command.getGameID(),username);
         String playerColor = getTeamColor(gameData,username);
-        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        ServerMessage leave = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        var ser = new Gson();
 
         GameData updatedGame = switch (playerColor) {
             case "WHITE" -> new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
@@ -218,14 +187,12 @@ public class WebSocketHandler {
                 data.addGame(gameData.gameID(), updatedGame);
             }
         } catch(Exception e){
-            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Game was not updated correctly");
-            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            sendDirectMessage(session, getErrorMessage("ERROR: Game was not updated correctly"));
             return;
         }
 
-        ServerMessage leaveMSG = leave.notification(username + " has left the game (was " + playerColor+")");
         connections.remove(username);
-        connections.broadcast(username,leaveMSG);
+        connections.broadcast(username,getNotificationMessage(username + " has left the game (was " + playerColor+")"));
     }
 
     public void sendMessage(String petName, String sound) throws ResponseException {
@@ -272,4 +239,30 @@ public class WebSocketHandler {
         }
         return "OBSERVER";
     }
+
+    public ServerMessage getErrorMessage(String message){
+        return new ServerMessage(ServerMessage.ServerMessageType.ERROR).errorMessage(message);
+    }
+
+    public ServerMessage getNotificationMessage(String message){
+        return new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION).notification(message);
+    }
+
+    public ServerMessage getLoadGameMessage(ChessGame game){
+        return new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME).loadGame(game);
+    }
+
+    public void sendDirectMessage(Session session, ServerMessage message) throws IOException{
+        var ser = new Gson();
+        try {
+            session.getRemote().sendString(ser.toJson(message));
+        } catch(IOException e){
+            throw new IOException();
+        }
+    }
+
+//    public ChessGame updateGame(DataAccess data, GameData gameData){
+//        data.remGame(gameData.game());
+//        data.addgame
+//    }
 }
