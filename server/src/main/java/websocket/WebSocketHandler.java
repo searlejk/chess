@@ -59,9 +59,9 @@ public class WebSocketHandler {
 
     private void joinGame(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
-
         String username = getUsername(data, command.getAuthToken());
-        GameData gameData = getGameData(data,command.getGameID(),username);
+        GameData gameData = getGameData(data,command.getGameID());
+
         if (username==null){
             sendDirectMessage(session, getErrorMessage("ERROR: Invalid AuthToken"));
             return;
@@ -71,6 +71,7 @@ public class WebSocketHandler {
             return;
         } /// Bad GameID
 
+        /// call after gameData!=null
         ChessGame game = getGame(gameData);
 
         int gameID = gameData.gameID();
@@ -91,7 +92,7 @@ public class WebSocketHandler {
         DataAccess data = DataAccessProvider.getDataAccess();
         String username = getUsername(data, command.getAuthToken());
         ChessMove move = command.getMove();
-        GameData gameData = getGameData(data,command.getGameID(),username);
+        GameData gameData = getGameData(data,command.getGameID());
         ChessGame game = getGame(gameData);
         ChessGame.TeamColor turnColor = game.getTeamTurn();
         var userColor = getTeamColor(gameData,username);
@@ -143,7 +144,7 @@ public class WebSocketHandler {
     private void resign(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
         String username = getUsername(data,command.getAuthToken());
-        GameData gameData = getGameData(data,command.getGameID(),username);
+        GameData gameData = getGameData(data,command.getGameID());
         String resignedColor = getTeamColor(gameData,username);
         GameData updatedGameData = null;
 
@@ -172,7 +173,7 @@ public class WebSocketHandler {
     private void leaveGame(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
         String username = getUsername(data,command.getAuthToken());
-        GameData gameData = getGameData(data,command.getGameID(),username);
+        GameData gameData = getGameData(data,command.getGameID());
         String playerColor = getTeamColor(gameData,username);
 
         GameData updatedGame = switch (playerColor) {
@@ -215,8 +216,7 @@ public class WebSocketHandler {
         return null;
     }
 
-    public GameData getGameData(DataAccess data, int gameID, String username) {
-
+    public GameData getGameData(DataAccess data, int gameID) {
         try {
             return data.getGame(gameID);
         } catch (Exception e) {
@@ -261,8 +261,4 @@ public class WebSocketHandler {
         }
     }
 
-//    public ChessGame updateGame(DataAccess data, GameData gameData){
-//        data.remGame(gameData.game());
-//        data.addgame
-//    }
 }
