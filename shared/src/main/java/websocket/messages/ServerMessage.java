@@ -59,6 +59,16 @@ public class ServerMessage {
         return msg;
     }
 
+    public ServerMessage errorMessage(String message){
+        ServerMessage msg = new ServerMessage(ServerMessageType.ERROR);
+        msg.game = null;
+        msg.message = null;
+        msg.errorMessage = message;
+        return msg;
+    }
+
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

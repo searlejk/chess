@@ -51,9 +51,27 @@ public class WebSocketHandler {
 
     private void joinGame(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
+        command.getGameID();
+        ServerMessage tempError = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
 
         String username = getUsername(data, command.getAuthToken());
+//        if (gameData==null){
+//            ServerMessage temp = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+//            ServerMessage badGameID = temp.errorMessage("ERROR: Incorrect gameID");
+//            var serializer = new Gson();
+//            String badGameIDMessage = serializer.toJson(badGameID);
+//            session.getRemote().sendString(badGameIDMessage);
+//        }
+
         GameData gameData = getGameData(data,command.getGameID(),username);
+        if (gameData==null){
+            ServerMessage badGameID = tempError.errorMessage("ERROR: Incorrect gameID");
+            var serializer = new Gson();
+            String badGameIDMessage = serializer.toJson(badGameID);
+            session.getRemote().sendString(badGameIDMessage);
+            return;
+        }
+        int gameID = gameData.gameID();
         ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
         ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         String teamColor = getTeamColor(gameData,username);
@@ -63,7 +81,9 @@ public class WebSocketHandler {
         ServerMessage loadMSG = loadGameMessage.loadGame(game);
 
 
-        connections.add(username, session);
+
+
+        connections.add(username, session, gameID);
         connections.broadcast(username, loadMSG);
         connections.broadcast(username, notifyMSG);
     }
@@ -93,7 +113,7 @@ public class WebSocketHandler {
         } catch (Exception e) {
             System.out.print("get username failed to get username from AuthToken");
         }
-        return "getUsernameFAILED";
+        return null;
     }
 
     public GameData getGameData(DataAccess data, int gameID, String username) {
