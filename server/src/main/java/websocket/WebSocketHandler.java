@@ -116,11 +116,19 @@ public class WebSocketHandler {
 
         try {
             game.makeMove(move);
+            data.remGame(gameData.gameID());
+            GameData updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(),gameData.blackUsername(),gameData.gameName(),ser.toJson(game));
+            data.addGame(gameData.gameID(), updatedGame);
         } catch(InvalidMoveException e){
-            ServerMessage gameOverTemp = tempError.errorMessage("Invalid Move");
+            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Invalid Move");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        } catch(Exception e){
+            ServerMessage gameOverTemp = tempError.errorMessage("ERROR: Update Game Failed");
             session.getRemote().sendString(ser.toJson(gameOverTemp));
             return;
         }
+
 
 
         ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
@@ -130,7 +138,6 @@ public class WebSocketHandler {
         ServerMessage notifyOthers = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         ServerMessage notifyMessage = notifyOthers.notification(username + " made a move from " + move);
         connections.broadcast(username,notifyMessage);
-
     }
 
     private void leaveGame(String visitorName) throws IOException {
