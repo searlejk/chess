@@ -18,23 +18,35 @@ public class DrawChessHelper {
         this.game = game;
     }
 
-    public void drawChessWhite(ChessGame game, Collection<ChessPosition> moves, ChessPosition myPos){
+    public void drawChess(ChessGame game, Collection<ChessPosition> moves, ChessPosition myPos, ChessGame.TeamColor side){
         System.out.print(ERASE_SCREEN);
         ChessBoard board = game.getBoard();
         String unicodePiece;
-        if (moves==null){
-            moves=new ArrayList<>();
-        }
-        if (myPos==null){
-            myPos = new ChessPosition(9,9);
+        String key = "";
+        int startRow = 0;
+        int endRow = 0;
+        int step = 0;
+        if (moves==null){ moves=new ArrayList<>();}
+        if (myPos==null){ myPos = new ChessPosition(9,9); }
+        switch (side){
+            case WHITE -> {
+                key = "    a  b  c  d  e  f  g  h    ";
+                startRow = 8;
+                endRow = 0;
+                step = -1;
+            }
+            case BLACK -> {
+                key = "    h  g  f  e  d  c  b  a    ";
+                startRow = 1;
+                endRow = 9;
+                step = 1;
+            }
         }
 
-        setTopKey("    a  b  c  d  e  f  g  h    ");
-        int key = 8;
-
-        for (int row = 8; row >= 1; row--){
+        setTopKey(key);
+        for (int row = startRow; row != endRow; row+=step){
             ///  left number key
-            setKeyColors(" "+key+" ");
+            setKeyColors(" "+row+" ");
             for (int col = 1; col <= 8; col++){
                 ChessPosition pos = new ChessPosition(row,col);
 
@@ -53,55 +65,12 @@ public class DrawChessHelper {
                     System.out.print(unicodePiece);
                 }
             }
-            setKeyColors(" "+key+" ");
-            key--;
+            setKeyColors(" "+row+" ");
             newLine();
         }
-        setKeyColors("    a  b  c  d  e  f  g  h    ");
+        setKeyColors(key);
         resetTextAndBackground();
         System.out.print("\n");
-    }
-
-    public void drawChessBlack(ChessGame game, Collection<ChessPosition> moves, ChessPosition myPos){
-        System.out.print(ERASE_SCREEN);
-        ChessBoard board = game.getBoard();
-        String unicodePiece;
-        if (moves==null){
-            moves=new ArrayList<>();
-        }
-        if (myPos==null){
-            myPos = new ChessPosition(9,9);
-        }
-
-        setTopKey("    h  g  f  e  d  c  b  a    ");
-        int key = 1;
-
-        for (int row = 1; row <= 8; row++){
-            ///  left number key
-            setKeyColors(" "+key+" ");
-            for (int col = 1; col <= 8; col++){
-                ChessPosition pos = new ChessPosition(row,col);
-
-                boardBackgroundColor(row,col,board,pos,moves,myPos);
-
-                if (board.getPiece(pos)!=null) {
-                    ChessPiece piece = board.getPiece(pos);
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    unicodePiece = getUnicodePiece(piece);
-
-                    if(color == ChessGame.TeamColor.WHITE){
-                        System.out.print(SET_TEXT_COLOR_WHITE);
-                    } else{
-                        System.out.print(SET_TEXT_COLOR_DARK_GREY);
-                    }
-                    System.out.print(unicodePiece);
-                }
-            }
-            setKeyColors(" "+key+" ");
-            key++;
-            newLine();
-        }
-        setKeyColors("    h  g  f  e  d  c  b  a    ");
     }
 
     public void legalMoves(ChessPosition pos, int side){
@@ -120,13 +89,13 @@ public class DrawChessHelper {
             }
         }
 
-
-        if (side==1){
-            drawChessWhite(game,legalMoves,myPos);
-        }
+        ChessGame.TeamColor color = ChessGame.TeamColor.WHITE;
         if (side==2){
-            drawChessBlack(game,legalMoves,myPos);
+            color = ChessGame.TeamColor.BLACK;
         }
+
+        drawChess(game,legalMoves,myPos,color);
+
     }
     
 

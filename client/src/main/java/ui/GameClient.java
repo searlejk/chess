@@ -73,14 +73,13 @@ public class GameClient {
     public String redraw(String... params) throws ResponseException{
         System.out.print(ERASE_SCREEN);
 
-        try{
+        try {
             ChessGame game = getGame();
             DrawChessHelper draw = new DrawChessHelper(game);
-            if (side==1) {
-                draw.drawChessWhite(game, null, null);
-            }
-            if (side==2) {
-                draw.drawChessBlack(game,null,null);
+            if (side == 2){
+                draw.drawChess(game,null,null, ChessGame.TeamColor.BLACK);
+            } else{
+                draw.drawChess(game,null,null, ChessGame.TeamColor.WHITE);
             }
         } catch(Exception e){
             throw new ResponseException(400, "Redraw failed");

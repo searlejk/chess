@@ -199,13 +199,15 @@ public class LoginClient {
                 return "Websocket Connection Failed";
             }
 
+
+
             if (Objects.equals(teamColor, "WHITE")){
                 state = State.INGAME1;
-                draw.drawChessWhite(game, null, null);
+                draw.drawChess(game,null,null, ChessGame.TeamColor.WHITE);
             }
             if (Objects.equals(teamColor, "BLACK")){
                 state = State.INGAME2;
-                draw.drawChessBlack(game,null,null);
+                draw.drawChess(game,null,null, ChessGame.TeamColor.BLACK);
             }
 
 
@@ -235,7 +237,7 @@ public class LoginClient {
 
             DrawChessHelper draw = new DrawChessHelper(game);
             this.color = 1;
-            draw.drawChessWhite(game, null, null);
+            draw.drawChess(game, null, null, ChessGame.TeamColor.WHITE);
 
             state = State.OBSERVING;
 
