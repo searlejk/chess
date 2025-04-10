@@ -37,44 +37,17 @@ public class GameClient {
         this.gameOver = false;
         this.gameID = gameID;
         this.observing = false;
+
         try {
+            // Anonymous class is still here, but now 'notify' is just a one-liner:
             this.ws = new WebSocketFacade(serverUrl, new ServerMessageHandler() {
                 @Override
                 public void notify(ServerMessage message) {
-                    switch (message.getServerMessageType()) {
-                        case NOTIFICATION -> {
-                            System.out.println("\n" + message.getMessage());
-                            printPrompt();
-                        }
-                        case LOAD_GAME -> {
-                            var ser = new Gson();
-                            ChessGame game = message.getGame();
-
-                            DrawChessHelper draw = new DrawChessHelper(game);
-                            if (side==2){
-                                draw.drawChess(game,null,null, ChessGame.TeamColor.BLACK);
-                            } else{
-                                draw.drawChess(game,null,null, ChessGame.TeamColor.WHITE);
-                            }
-                            tempGame = game;
-                            printPrompt();
-
-                        }
-                        case ERROR -> {
-                            System.out.print(message.getErrorMessage()+"\n");
-                            printPrompt();
-                        }
-                    }
+                    handleServerMessage(message);
                 }
             });
-        } catch(Exception e){
+        } catch (Exception e) {
             System.out.print("Failed to connect WebSocket");
-            state = State.LOGGEDIN;
-        }
-        try {
-            this.ws.joinGame(authToken, gameID);
-        }catch(Exception e){
-            System.out.print("Join Game Failed");
             state = State.LOGGEDIN;
         }
     }
@@ -218,4 +191,37 @@ public class GameClient {
                 \tlegalMoves <PIECE> - highlights legal moves, ex: legalmoves c2\n""" +
                 "\thelp - with possible commands\n";
     }
+
+    private void handleServerMessage(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> handleNotification(message);
+            case LOAD_GAME    -> handleLoadGame(message);
+            case ERROR        -> handleError(message);
+        }
+    }
+
+    private void handleNotification(ServerMessage message) {
+        System.out.println("\n" + message.getMessage());
+        printPrompt();
+    }
+
+    private void handleLoadGame(ServerMessage message) {
+        ChessGame game = message.getGame();
+        DrawChessHelper draw = new DrawChessHelper(game);
+
+        if (side == 2) {
+            draw.drawChess(game, null, null, ChessGame.TeamColor.BLACK);
+        } else {
+            draw.drawChess(game, null, null, ChessGame.TeamColor.WHITE);
+        }
+
+        tempGame = game;
+        printPrompt();
+    }
+
+    private void handleError(ServerMessage message) {
+        System.out.print(message.getErrorMessage() + "\n");
+        printPrompt();
+    }
+
 }
