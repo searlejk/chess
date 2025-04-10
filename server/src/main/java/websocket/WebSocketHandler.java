@@ -45,6 +45,7 @@ public class WebSocketHandler {
             switch (command.getCommandType()) {
                 case CONNECT -> joinGame(command, session, message);
                 case MAKE_MOVE -> makeMove(command, session, message);
+                case RESIGN -> resign(command,session, message);
             }
         }catch(NullPointerException e){
             System.out.print("Null Pointer in onMessage");
@@ -116,6 +117,11 @@ public class WebSocketHandler {
         if (Objects.equals(userColor, "BLACK")){
             currColor = ChessGame.TeamColor.BLACK;
         }
+        if (Objects.equals(userColor, "OBSERVER")){
+            ServerMessage gameOverTemp = tempError.errorMessage("You are observing the game, no moves allowed");
+            session.getRemote().sendString(ser.toJson(gameOverTemp));
+            return;
+        }
 
         if (game.isInCheckmate(turnColor) || game.isInStalemate(turnColor)){
             ServerMessage gameOverTemp = tempError.errorMessage("The game is over, no moves allowed");
@@ -155,6 +161,15 @@ public class WebSocketHandler {
         connections.broadcast(username,notifyMessage);
     }
 
+    private void resign(UserGameCommand command, Session session, String message) throws IOException {
+        DataAccess data = DataAccessProvider.getDataAccess();
+        String username = getUsername(data,command.getAuthToken());
+        ServerMessage resign = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        ServerMessage resignMSG = resign.notification(username+ " has resigned from the game");
+        connections.broadcast(null, resignMSG);
+        connections.remove(username);
+    }
+
     private void leaveGame(String visitorName) throws IOException {
         connections.remove(visitorName);
         var message = String.format("%s left the shop", visitorName);
@@ -162,8 +177,6 @@ public class WebSocketHandler {
 //        sMessage.message = message;
         connections.broadcast(visitorName, sMessage);
     }
-
-
 
     public void sendMessage(String petName, String sound) throws ResponseException {
         try {
