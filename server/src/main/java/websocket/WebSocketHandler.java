@@ -51,18 +51,21 @@ public class WebSocketHandler {
 
     private void joinGame(UserGameCommand command, Session session, String message) throws IOException {
         DataAccess data = DataAccessProvider.getDataAccess();
-        var json = new Gson();
+
         String username = getUsername(data, command.getAuthToken());
         GameData gameData = getGameData(data,command.getGameID(),username);
-        ServerMessage sMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        ChessGame game = json.fromJson(gameData.game(), ChessGame.class);
-        ServerMessage serverMessage = sMessage.loadGame(game);
+        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        String teamColor = getTeamColor(gameData,username);
+
+        ServerMessage notifyMSG = notificationMessage.notification(username + " has joined playing as " + teamColor);
+        ChessGame game = getGame(gameData);
+        ServerMessage loadMSG = loadGameMessage.loadGame(game);
 
 
         connections.add(username, session);
-//        String outputMessage = String.format("%s has joined the game playing %s", username, teamColor);
-//        sMessage.message = outputMessage;
-        connections.broadcast(username, serverMessage);
+        connections.broadcast(username, loadMSG);
+        connections.broadcast(username, notifyMSG);
     }
 
     private void leaveGame(String visitorName) throws IOException {
@@ -96,10 +99,25 @@ public class WebSocketHandler {
     public GameData getGameData(DataAccess data, int gameID, String username) {
 
         try {
-            GameData gameData = data.getGame(gameID);
-            return gameData;
+            return data.getGame(gameID);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public ChessGame getGame(GameData gameData){
+        var json = new Gson();
+        return json.fromJson(gameData.game(), ChessGame.class);
+
+    }
+
+    public String getTeamColor(GameData gameData, String username){
+        if (Objects.equals(gameData.whiteUsername(), username)){
+            return "WHITE";
+        }
+        if (Objects.equals(gameData.blackUsername(), username)){
+            return "BLACK";
+        }
+        return "UNKNOWN";
     }
 }

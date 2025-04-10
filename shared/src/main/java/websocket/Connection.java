@@ -5,8 +5,8 @@ import java.io.IOException;
 
 public class Connection {
     public String username;
-    public int gameID;
     public Session session;
+    public int gameID;
 
     public Connection(String visitorName, Session session) {
         this.username = visitorName;

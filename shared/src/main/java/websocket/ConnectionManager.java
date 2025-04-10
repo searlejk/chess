@@ -24,12 +24,23 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         System.out.println("Received raw message: " + message.getServerMessageType());
         String json = new Gson().toJson(message);
+
+        ///  If NOTIFICATION, send to everyone but user
+        ///  If LOAD_GAME, just send to the user
+
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-//                if (!c.username.equals(excludeVisitorName)) {
-                    System.out.println("[Connection Manager] - Sending Message in JSON:\n"+json+"\n");
+                if (c.username.equals(excludeVisitorName) && message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
+                    System.out.println("[Connection Manager] - Load_Game in JSON:\n"+json+"\n");
                     c.send(json);
-//                }
+                    return;
+                }
+
+
+                if (!c.username.equals(excludeVisitorName) && message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                    System.out.println("[Connection Manager] - Notification in JSON:\n"+json+"\n");
+                    c.send(json);
+                }
             } else {
                 removeList.add(c);
             }
@@ -43,12 +54,12 @@ public class ConnectionManager {
     }
 
 
-    public void broadcastToGame(int gameID, ServerMessage.ServerMessageType notification) throws IOException {
-        // Example: iterate through the connections
-        for (var connection : connections.values()) {
-            if(connection.gameID == gameID && connection.session.isOpen()){
-                connection.send(notification.toString());
-            }
-        }
-    }
+//    public void broadcastToGame(int gameID, ServerMessage.ServerMessageType notification) throws IOException {
+//        // Example: iterate through the connections
+//        for (var connection : connections.values()) {
+//            if(connection.gameID == gameID && connection.session.isOpen()){
+//                connection.send(notification.toString());
+//            }
+//        }
+//    }
 }
